@@ -1,0 +1,63 @@
+/* Thumb */
+.fw-option-type-page-builder .builder-item-type[data-builder-item-type="simple"] img {
+	width: 16px;
+	height: 16px;
+}
+
+/* Box */
+.pb-item-type-simple {
+	background-color: #fff;
+	border: 1px solid #ededed;
+	padding: 15px;
+	font-size: 13px;
+	color: #8c8c8c;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+	position: relative;
+}
+.pb-item-type-simple.has-options {
+	cursor: pointer;
+}
+.builder-item.ui-sortable-helper > .pb-item-type-simple {
+	cursor: move;
+}
+.pb-item-type-column > .builder-items .pb-item-type-simple {
+	border: none;
+}
+
+/* Icon */
+.pb-item-type-simple > img {
+	width: 16px;
+	height: 16px;
+	margin-right: 9px;
+	vertical-align: text-bottom;
+}
+
+/* Controls */
+.pb-item-type-simple .controls {
+	position: absolute;
+	top: 18px;
+	right: 5px;
+	display: none;
+}
+.pb-item-type-simple:hover .controls {
+	display: block;
+}
+.builder-item.ui-sortable-helper > .pb-item-type-simple .controls {
+	display: none;
+}
+@media (max-width: 1824px) {
+	.builder-item.fw-col-sm-2 .pb-item-type-column .pb-item-type-simple .controls,
+	.builder-item.fw-col-sm-3 .pb-item-type-column .pb-item-type-simple .controls {
+		top: 5px;
+	}
+}
+
+
+.pb-item-type-simple .controls  i {
+	font-size: 15px;
+	cursor: pointer;
+	color: #b2b2b2;
+}
+.pb-item-type-simple .controls  i:hover {
+	color: #8c8c8c
+}
