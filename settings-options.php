@@ -4,7 +4,7 @@
 
 $options = array(
 	'general-tab' => array(
-		'title'   => __( '', 'fw' ),
+		'title'   => '',
 		'type'    => 'box',
 		'options' => array(
 			'post_types' => array(
