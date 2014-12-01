@@ -70,7 +70,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				'fw_option_type_' . str_replace('-', '_', $this->get_type()) . '_editor_integration_data',
 				array(
 					'l10n'                => array(
-						'showButton' => __('Visual Layout Editor', 'fw'),
+						'showButton' => __('Visual Page Editor', 'fw'),
 						'hideButton' => __('Default Editor', 'fw'),
 					),
 					'optionId'            => $option['attr']['id'],
@@ -120,20 +120,51 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			$items = array();
 		}
 
-		$items_value           = $this->get_value_from_items($items);
-		$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
-		$corrected_items_value = $corrector->correct($items_value);
-
+		$items_value = $this->get_value_from_items($items);
 		$value = array(
-			'json'               => json_encode($items_value),
-			'corrected_json'     => json_encode($corrected_items_value),
-			'shortcode_notation' => $this->get_shortcode_notation($corrected_items_value)
+			'json' => json_encode($items_value),
 		);
+
+		/*
+		 * correction means that if someone drags a simple shortcode
+		 * into the canvas area of the builder, it will be wrapped
+		 * into a column, then a row and finally a section.
+		 * This is done to ensure that a correct grid
+		 * will be displayed on the frontend.
+		 */
+		if ($this->needs_correction()) {
+			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
+			$corrected_items_value = $corrector->correct($items_value);
+
+			$value['corrected_json']     = json_encode($corrected_items_value);
+			$value['shortcode_notation'] = $this->get_shortcode_notation($corrected_items_value);
+		} else {
+			$value['shortcode_notation'] = $this->get_shortcode_notation($items_value);
+		}
+
 		if($option['editor_integration'] === true) {
 			$value['builder_active'] = isset($_POST['page-builder-active']) && $_POST['page-builder-active'] === 'true';
 		}
 
 		return $value;
+	}
+
+	/**
+	 * The correction should be done only when
+	 * all the necessary item types exist and
+	 * an explicit config disable setting isn't set
+	 */
+	private function needs_correction()
+	{
+		$item_types = $this->get_item_types();
+		$page_builder_extension = fw_ext('page-builder');
+
+		$disable_correction = ($page_builder_extension->get_config('disalbe_correction') === true)
+								|| !isset($item_types['section'])
+								|| !isset($item_types['row'])
+								|| !isset($item_types['column']);
+
+		return !$disable_correction;
 	}
 
 	private function get_shortcode_notation($items)
