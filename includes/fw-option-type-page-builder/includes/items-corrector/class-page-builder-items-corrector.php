@@ -8,6 +8,8 @@ class _Page_Builder_Items_Corrector
 	private $row_wrap;
 	private $section_wrap;
 
+	private $items;
+
 	public function __construct($item_types)
 	{
 		$this->row_container = new _Page_Builder_Items_Corrector_Row_Container();
@@ -24,21 +26,21 @@ class _Page_Builder_Items_Corrector
 		));
 	}
 
-	private function wrap_into_column($items, $data = array())
+	public function wrap_into_column($items, $data = array())
 	{
 		$wrapper = $this->column_wrap;
 		$wrapper['_items'] = $items;
 		return $wrapper;
 	}
 
-	private function wrap_into_row($items, $data = array())
+	public function wrap_into_row($items, $data = array())
 	{
 		$wrapper = $this->row_wrap;
 		$wrapper['_items'] = $items;
 		return $wrapper;
 	}
 
-	private function wrap_into_section($items, $data = array())
+	public function wrap_into_section($items, $data = array())
 	{
 		$wrapper = $this->section_wrap;
 		$wrapper['_items'] = $items;
@@ -50,14 +52,14 @@ class _Page_Builder_Items_Corrector
 		return $wrapper;
 	}
 
-	private function wrap_into_column_and_row($items, $data = array())
+	public function wrap_into_column_and_row($items, $data = array())
 	{
 		$column = $this->wrap_into_column($items, $data);
 		$row    = $this->wrap_into_row(array($column), $data);
 		return $row;
 	}
 
-	private function wrap_into_column_and_row_and_section($items, $data = array())
+	public function wrap_into_column_and_row_and_section($items, $data = array())
 	{
 		$column  = $this->wrap_into_column($items, $data);
 		$row     = $this->wrap_into_row(array($column), $data);
@@ -65,14 +67,12 @@ class _Page_Builder_Items_Corrector
 		return $section;
 	}
 
-	private function wrap_into_row_and_section($items, $data = array())
+	public function wrap_into_row_and_section($items, $data = array())
 	{
 		$row     = $this->wrap_into_row($items, $data);
 		$section = $this->wrap_into_section(array($row), $data);
 		return $section;
 	}
-
-	private $items;
 
 	public function correct($items)
 	{
@@ -80,7 +80,7 @@ class _Page_Builder_Items_Corrector
 		$this->correct_sections();
 		$this->correct_root_items();
 
-		return $this->items;
+		return apply_filters('fw_ext_page-builder_items_correction_complete', $this->items, $this);
 	}
 
 	private function correct_sections()
@@ -120,7 +120,7 @@ class _Page_Builder_Items_Corrector
 			} else if ($section[$i]['type'] === 'simple') {
 				$fixed_section[] = $this->wrap_into_column_and_row(array($section[$i]));
 			} else {
-
+				$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this);
 			}
 		}
 
@@ -174,7 +174,7 @@ class _Page_Builder_Items_Corrector
 
 				$fixed_items[] = $this->wrap_into_column_and_row_and_section(array($items[$i]), $section_data);
 			} else {
-
+				$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
 			}
 		}
 
