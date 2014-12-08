@@ -18,7 +18,6 @@ class FW_Extension_Page_Builder extends FW_Extension
 	protected function _init()
 	{
 		if (is_admin()) {
-			$this->check_for_builder_modal_ajax();
 			$this->add_admin_filters();
 			$this->add_admin_actions();
 		} else {
@@ -27,12 +26,34 @@ class FW_Extension_Page_Builder extends FW_Extension
 		}
 	}
 
+	private function add_admin_filters()
+	{
+		add_filter('fw_post_options', array($this, '_admin_filter_fw_post_options'), 10, 2);
+	}
+
+	private function add_admin_actions()
+	{
+		add_action('fw_extensions_init', array($this, '_admin_action_fw_extensions_init'));
+		add_action('fw_save_post_options', array($this, '_admin_action_fw_save_post_options'), 10, 2);
+	}
+
+	private function add_theme_filters()
+	{
+		add_filter('fw_shortcode_atts', array($this, '_theme_filter_fw_shortcode_atts'));
+		add_action('the_content', array($this, '_theme_filter_prevent_autop'), 1);
+	}
+
 	/*
 	 * when a builder modal window draws or saves
 	 * options the shortcodes must be loaded
 	 * because they may load their own custom option types
+	 *
+	 * NOTE: this checking is done at the `fw_extensions_init`
+	 * at the moment when all the extensions are loaded the shortcode
+	 * extension can begin collecting their shortcodes.
+	 * We need this because the shortcodes can load their own option types
 	 */
-	private function check_for_builder_modal_ajax()
+	public function _admin_action_fw_extensions_init()
 	{
 		if (
 			defined('DOING_AJAX') &&
@@ -44,22 +65,6 @@ class FW_Extension_Page_Builder extends FW_Extension
 		) {
 			$this->get_parent()->load_shortcodes();
 		}
-	}
-
-	private function add_admin_filters()
-	{
-		add_filter('fw_post_options', array($this, '_admin_filter_fw_post_options'), 10, 2);
-	}
-
-	private function add_admin_actions()
-	{
-		add_action('fw_save_post_options', array($this, '_admin_action_fw_save_post_options'), 10, 2);
-	}
-
-	private function add_theme_filters()
-	{
-		add_filter('fw_shortcode_atts', array($this, '_theme_filter_fw_shortcode_atts'));
-		add_action('the_content', array($this, '_theme_filter_prevent_autop'), 1);
 	}
 
 	/*
