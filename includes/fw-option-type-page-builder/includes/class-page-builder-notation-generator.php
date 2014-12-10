@@ -12,7 +12,7 @@ class _Page_Builder_Notation_Generator
 		if ($content) {
 			return "[{$tag}{$atts_string}]{$content}[/{$tag}]";
 		} else {
-			return "[{$tag}{$atts_string}]";
+			return "[{$tag}{$atts_string}][/{$tag}]";
 		}
 	}
 

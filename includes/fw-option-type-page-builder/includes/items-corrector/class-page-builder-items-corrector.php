@@ -30,6 +30,7 @@ class _Page_Builder_Items_Corrector
 	{
 		$wrapper = $this->column_wrap;
 		$wrapper['_items'] = $items;
+
 		return $wrapper;
 	}
 
@@ -45,33 +46,11 @@ class _Page_Builder_Items_Corrector
 		$wrapper = $this->section_wrap;
 		$wrapper['_items'] = $items;
 
-		if (isset($data['fullwidth']) && $data['fullwidth']) {
-			$wrapper['atts']['fullwidth'] = true;
+		if (isset($data['atts']) && is_array($data['atts'])) {
+			$wrapper['atts'] = array_merge($wrapper['atts'], $data['atts']);
 		}
 
 		return $wrapper;
-	}
-
-	public function wrap_into_column_and_row($items, $data = array())
-	{
-		$column = $this->wrap_into_column($items, $data);
-		$row    = $this->wrap_into_row(array($column), $data);
-		return $row;
-	}
-
-	public function wrap_into_column_and_row_and_section($items, $data = array())
-	{
-		$column  = $this->wrap_into_column($items, $data);
-		$row     = $this->wrap_into_row(array($column), $data);
-		$section = $this->wrap_into_section(array($row), $data);
-		return $section;
-	}
-
-	public function wrap_into_row_and_section($items, $data = array())
-	{
-		$row     = $this->wrap_into_row($items, $data);
-		$section = $this->wrap_into_section(array($row), $data);
-		return $section;
 	}
 
 	public function correct($items)
@@ -87,6 +66,7 @@ class _Page_Builder_Items_Corrector
 	{
 		foreach ($this->items as &$item) {
 			if ($item['type'] === 'section') {
+				$item['atts']['auto_generated'] = false;
 				$item['_items'] = $this->correct_section($item['_items']);
 			}
 		}
@@ -96,31 +76,40 @@ class _Page_Builder_Items_Corrector
 	{
 		$fixed_section = array();
 		for ($i = 0, $count = count($section); $i < $count; $i++) {
-			if ($section[$i]['type'] === 'column') {
-				$rows    = array();
-				$columns = array($section[$i]);
-				$this->row_container->empty_container();
-				$this->row_container->add_column($section[$i]['width']);
-				while (isset($section[$i+1]) && $section[$i+1]['type'] === 'column') {
-					$i++;
-					if ($this->row_container->add_column($section[$i]['width'])) {
-						$columns[] = $section[$i];
-					} else {
-						$rows[]  = $columns;
-						$columns = array($section[$i]);
-						$this->row_container->empty_container();
-						$this->row_container->add_column($section[$i]['width']);
-					}
-				}
-				$rows[] = $columns;
+			switch ($section[$i]['type']) {
+				case 'column':
+					$columns   = array($section[$i]);
+					$this->row_container->empty_container();
+					$this->row_container->add_column($section[$i]['width']);
+					while (isset($section[$i+1]) && $section[$i+1]['type'] === 'column') {
+						$i++;
+						if ($this->row_container->add_column($section[$i]['width'])) {
+							$columns[] = $section[$i];
+						} else {
+							$fixed_section[] = $this->wrap_into_row($columns);
 
-				foreach ($rows as $row) {
-					$fixed_section[] = $this->wrap_into_row($row);
-				}
-			} else if ($section[$i]['type'] === 'simple') {
-				$fixed_section[] = $this->wrap_into_column_and_row(array($section[$i]));
-			} else {
-				$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this);
+							$columns = array($section[$i]);
+							$this->row_container->empty_container();
+							$this->row_container->add_column($section[$i]['width']);
+						}
+					}
+					$fixed_section[] = $this->wrap_into_row($columns);
+					break;
+
+				case 'simple':
+					$fixed_section[] = $this->wrap_into_row(
+						array(
+							$this->wrap_into_column(
+								array($section[$i])
+							)
+						)
+					);
+					break;
+
+				// Page Builder custom item types
+				default:
+					// TODO: determine some good way to handle custom item types
+//					$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this, $fixed_section);
 			}
 		}
 
@@ -129,53 +118,76 @@ class _Page_Builder_Items_Corrector
 
 	private function correct_root_items()
 	{
-		$shortcodes_extension = fw_ext('shortcodes');
 		$items = $this->items;
 		$fixed_items = array();
+
+		$auto_generated_section = array();
 		for ($i = 0, $count = count($items); $i < $count; $i++) {
 			if ($items[$i]['type'] === 'section') {
+				if (!empty($auto_generated_section)) {
+					$fixed_items[] = $this->wrap_into_section($auto_generated_section, array(
+						'atts' => array(
+							'auto_generated' => true
+						)
+					));
+					$auto_generated_section = array();
+				}
+
 				$fixed_items[] = $items[$i];
-			} else if ($items[$i]['type'] === 'column') {
-				$rows      = array();
-				$columns   = array($items[$i]);
-				$this->row_container->empty_container();
-				$this->row_container->add_column($items[$i]['width']);
-				while (isset($items[$i+1]) && $items[$i+1]['type'] === 'column') {
-					$i++;
-					if ($this->row_container->add_column($items[$i]['width'])) {
-						$columns[] = $items[$i];
-					} else {
-						$rows[]  = $columns;
-						$columns = array($items[$i]);
+			} else {
+				switch ($items[$i]['type']) {
+					case 'column':
+						$columns   = array($items[$i]);
 						$this->row_container->empty_container();
 						$this->row_container->add_column($items[$i]['width']);
-					}
-				}
-				$rows[] = $columns;
+						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'column') {
+							$i++;
+							if ($this->row_container->add_column($items[$i]['width'])) {
+								$columns[] = $items[$i];
+							} else {
+								$auto_generated_section[] = $this->wrap_into_row($columns);
 
-				$wrapped_rows = array();
-				foreach ($rows as $row) {
-					$wrapped_rows[] = $this->wrap_into_row($row);
-				}
-				$fixed_items[] = $this->wrap_into_section($wrapped_rows);
-			} else if ($items[$i]['type'] === 'simple') {
+								$columns = array($items[$i]);
+								$this->row_container->empty_container();
+								$this->row_container->add_column($items[$i]['width']);
+							}
+						}
+						$auto_generated_section[] = $this->wrap_into_row($columns);
+						break;
 
-				/*
-				 * We need to determine if the simple shortcode is
-				 * fullwidth, and generate a section with a
-				 * corresponding flag if so (this may be used for a fluid container)
-				 */
-				$section_data = array();
-				$shortcode    = $shortcodes_extension->get_shortcode($items[$i]['shortcode']);
-				$is_fullwidth = $shortcode->get_config('page_builder/fullwidth');
-				if ($is_fullwidth) {
-					$section_data['fullwidth'] = true;
-				}
+					case 'simple':
+						$auto_generated_section[] = $this->wrap_into_row(
+							array(
+								$this->wrap_into_column(
+									array($items[$i])
+								)
+							)
+						);
+						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'simple') {
+							$i++;
+							$auto_generated_section[] = $this->wrap_into_row(
+								array(
+									$this->wrap_into_column(
+										array($items[$i])
+									)
+								)
+							);
+						}
+						break;
 
-				$fixed_items[] = $this->wrap_into_column_and_row_and_section(array($items[$i]), $section_data);
-			} else {
-				$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
+					default:
+						// TODO: determine some good way to handle custom item types
+//						$auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
+				}
 			}
+		}
+
+		if (!empty($auto_generated_section)) {
+			$fixed_items[] = $this->wrap_into_section($auto_generated_section, array(
+				'atts' => array(
+					'auto_generated' => true
+				)
+			));
 		}
 
 		$this->items = $fixed_items;
