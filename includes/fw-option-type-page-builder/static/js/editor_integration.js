@@ -143,8 +143,8 @@
 			this.rootItems.reset([
 				{
 					type: 'simple',
-					subtype: 'text_block',
-					optionValues: {text: content}
+					shortcode: 'text_block',
+					atts: {text: content}
 				}
 			]);
 		}
