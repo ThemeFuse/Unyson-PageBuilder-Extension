@@ -124,10 +124,14 @@
 				e.preventDefault();
 			});
 		},
+		removeScreenOptionsCheckbox: function() {
+			$('label[for="fw-options-box-page-builder-box-hide"]').remove();
+		},
 		init: function() {
 			this.initButtons();
 			this.insertHidden();
 			this.bindEvents();
+			this.removeScreenOptionsCheckbox();
 		}
 	};
 	gui.init();
