@@ -64,9 +64,13 @@ class _Page_Builder_Items_Corrector
 
 	private function correct_sections()
 	{
-		foreach ($this->items as &$item) {
+		foreach ($this->items as $index => &$item) {
 			if ($item['type'] === 'section') {
 				$item['atts']['auto_generated'] = false;
+				if ($index === 0) {
+					$item['atts']['first_in_builder'] = true;
+				}
+
 				$item['_items'] = $this->correct_section($item['_items']);
 			}
 		}
