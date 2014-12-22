@@ -71,17 +71,3 @@
 .fw-option-type-page-builder .builder-item-type:hover p span {
 	color: #484848;
 }
-
-/* Items */
-.fw-option-type-page-builder .builder-root-items {
-	padding: 0;
-}
-.fw-option-type-page-builder .builder-root-items > .builder-items {
-	min-height: 200px;
-}
-.fw-option-type-page-builder .builder-items .builder-item.fw-builder-item-allow-incoming-type > div > .builder-items {
-	background-color: #DDFFD2;
-}
-.fw-option-type-page-builder .builder-items .builder-item.fw-builder-item-deny-incoming-type > div > .builder-items {
-	background-color: #FFEFE7;
-}
