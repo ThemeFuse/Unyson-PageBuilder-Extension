@@ -6,7 +6,7 @@ $manifest = array();
 
 $manifest['name']          = __( 'Page Builder', 'fw' );
 $manifest['description']   = __( "Lets you easily build countless pages with the help of the drag and drop visual page builder that comes with a lot of already created shortcodes.", 'fw' );
-$manifest['version']       = '1.2.4';
+$manifest['version']       = '1.2.5';
 $manifest['display']       = true;
 $manifest['standalone']    = true;
 $manifest['requirements']  = array(
