@@ -85,7 +85,10 @@ class FW_Extension_Page_Builder extends FW_Extension
 							'label' => false,
 							'desc' => false,
 							'type' => 'page-builder',
-							'editor_integration' => true
+							'editor_integration' => true,
+							'fullscreen' => true,
+							'template_saving' => true,
+							'history' => true,
 						)
 					)
 				)
