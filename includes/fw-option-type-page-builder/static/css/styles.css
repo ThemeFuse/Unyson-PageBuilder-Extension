@@ -1,28 +1,3 @@
-/* Tabs */
-.fw-option-type-page-builder .fw-options-tabs-list {
-	padding-top: 8px;
-}
-.fw-option-type-page-builder .fw-options-tabs-contents {
-	margin: 20px 0 15px !important;
-}
-.fw-option-type-page-builder .fw-option-type-builder-thumbnails-tab > .fw-backend-option-type-html {
-	padding: 0 16px !important;
-}
-.fw-option-type-page-builder .ui-tabs-nav li {
-	margin-right: 1px !important;
-}
-.fw-option-type-page-builder .ui-tabs-nav a {
-	font-size: 12px !important;
-	font-weight: 400 !important;
-	padding: 1px 14px 0 14px !important;
-	line-height: 25px !important;
-	color: #222222 !important;
-	background-color: #F1F1F1;
-}
-.fw-option-type-page-builder .ui-tabs-nav .ui-state-active a {
-	color: #0074a2 !important;
-}
-
 /* Thumbs */
 .fw-option-type-builder.fw-option-type-page-builder .builder-item-type {
 	display: block;
