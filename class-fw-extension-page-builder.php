@@ -104,12 +104,9 @@ class FW_Extension_Page_Builder extends FW_Extension
 	 */
 	public function _admin_action_fw_save_post_options($post_id, $post)
 	{
-		if ( post_type_supports( $post->post_type, $this->supports_feature_name ) ) {
+		if (post_type_supports($post->post_type, $this->supports_feature_name)) {
 			$builder_shortcodes = fw_get_db_post_option($post_id, $this->builder_option_key);
-			if (
-				!$builder_shortcodes['builder_active'] ||
-				!$builder_shortcodes['shortcode_notation']
-			) {
+			if (!$builder_shortcodes['builder_active']) {
 				return;
 			}
 
