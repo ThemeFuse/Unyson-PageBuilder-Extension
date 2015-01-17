@@ -2,14 +2,14 @@
 	die( 'Forbidden' );
 }
 
+/**
+ * Class FW_Extension_Editor_Shortcodes
+ * Integrate shortcodes with wp_editor
+ */
+
 class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	private $meta_key = 'fw-shortcode-settings';
-	private $supports_feature_name = 'fw-shortcode-editor';
 	private $meta_key_defaults = 'fw-shortcode-default-values';
-
-	public function get_supports_feature_name() { //fixme
-		return $this->supports_feature_name;
-	}
 
 	/**
 	 * @internal
@@ -47,7 +47,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	}
 
 	/**
-	 * Enquee styles for page
+	 * Enquee common styles for page which consist wp_editor
 	 */
 	public function _action_admin_enqueue_scripts( $hook ) {
 
@@ -62,25 +62,19 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		);
 	}
 
-	/**
-	 * Save & Clean stored shortcode option values
-	 */
+
 	public function _action_admin_save_shortcodes( $post_id, $post ) {
 		if ( ! $this->is_supported_post($post_id) ) {
 			return false;
 		}
-		//fw_print('asd'); die();
 		$post_type = get_post_type( $post_id );
-
 
 		if ( ! post_type_supports( $post_type, $this->get_parent()->get_supports_feature_name() ) ) {
 			return false;
 		}
 
 
-
-
-		//todo: field 'content' smth changes
+		//todo: field 'content' smth changes ?
 		$post_content = FW_Request::POST( 'content' );
 		$input_value  = FW_Request::POST( $this->meta_key );
 
@@ -88,12 +82,12 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		$new_val = array();
 
 		//supported shortcodes
-		$tagsString       = implode( '|', array_keys( fw_ext( 'shortcodes' )->get_shortcodes() ) );
+		$tags       = implode( '|', array_keys( fw_ext( 'shortcodes' )->get_shortcodes() ) );
 
 		$default_values = array();
 
-		//only supported tags & integer id
-		if ( preg_match_all( '/\[(' . $tagsString . ')(?:\s+[^\[\]]*)fw_shortcode_id=[\"\']([A-Za-z0-9]+)[\"\'](?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
+		//only supported tags & integer\alphabetic string id
+		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*)fw_shortcode_id=[\"\']([A-Za-z0-9]+)[\"\'](?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
 				$tag = $output_array[1][ $match_key ];
 				$id  = $output_array[2][ $match_key ];
@@ -110,7 +104,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		}
 
 		//only supported tags match (defaults)
-		if ( preg_match_all( '/\[(' . $tagsString . ')(?:\s+[^\[\]]*).*(?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
+		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*).*(?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
 				$tag = $output_array[1][ $match_key ];
 				$shortcode = fw_ext( 'shortcodes' )->get_shortcode( $tag );
@@ -197,7 +191,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	}
 
 	/**
-	 * Render hidden under editor
+	 * Render hidden under editor for storing shortcodes settings, which user entered
 	 */
 	public function _action_admin_render_hidden() {
 		global $post;
@@ -213,7 +207,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		$shortcodes = fw()->extensions->get( 'shortcodes' )->get_shortcodes();
 		$result     = array();
 		foreach ( $shortcodes as $tag => $shortcode ) {
-			//todo: smth change
+			//todo: smth changes with section\column\row
 			if ( in_array( $tag, array( 'section', 'column', 'row' ) ) ) {
 				continue;
 			}
@@ -262,7 +256,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	}
 
 	/**
-	 * Checks if a post was built with builder
+	 * Checks if a post was built with shortcode editor
 	 */
 	public function is_supported_post( $post_id = '' ) {
 		if ( ! $post_id ) {

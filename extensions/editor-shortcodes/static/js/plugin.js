@@ -13,6 +13,10 @@
 	}
 
 	//todo: test regexp
+	/**
+	 * tag_regex - used for parsing text string and extract shortcode's tag & id
+	 * html_regex - used for parsing html string extract (shortcodes tag & id)
+	 */
 	var tag_regex = new RegExp("\\[(" + shortcodeTags.join("|") + ")(?:\\s+[^\\[\\]]*)fw_shortcode_id=[\"\\']([A-Za-z0-9]+)[\"\\'](?:\\s?[^\\[\\]]*)\\]", "g"),
 		html_regex = new RegExp('<span[^>]+?data-shortcode-tag="(' + shortcodeTags.join("|") + ')"\\s+data-id="([A-Za-z0-9]+)"+?[\\s\\S]*?3Nd0fL1N3Sh0rtC0d3<\\/span><\\/span><\\/span>', 'g');
 
@@ -203,6 +207,7 @@
 						dom = editor.dom;
 
 					//insert new paragraph  after each new insertion
+					//fixme: firefox error broke html when cursor position not in the paragraphs level
 					if (cmd === 'mceInsertContent') {
 						if (node = dom.getParent(editor.selection.getNode())) {
 							p = dom.create('p');
