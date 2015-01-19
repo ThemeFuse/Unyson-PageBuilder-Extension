@@ -1,6 +1,6 @@
 .mce-floatpanel.mce-popover.mce-bottom.mce-fw-shortcodes-container {
 	overflow: auto;
-	padding: 10px 5px 10px 10px;
+	padding: 10px 5px 5px 10px;
 	margin-top: 5px;
 }
 
@@ -17,6 +17,11 @@
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	cursor: pointer;
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item:hover {
+	border-color: #8f8f8f;
+
 }
 
 .mce-fw-shortcodes-container .fw-shortcode-item .inner {
@@ -43,6 +48,10 @@
 .mce-fw-shortcodes-container .fw-shortcode-item img {
 	width: 16px;
 	height: 16px;
+	opacity: 0.66;
+}
+.mce-fw-shortcodes-container .fw-shortcode-item img:hover {
+	opacity: 1;
 }
 
 .mce-fw-shortcodes-container .fw-shortcode-item p {

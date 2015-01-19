@@ -111,6 +111,7 @@
 					}
 
 					$panel.css('left',(oldPos - 216)+'px');
+					$panel.css('height', '');
 				} catch (e) {
 					//sometime _id is undefined
 					return false;
@@ -138,7 +139,7 @@
 					type: 'panelbutton',
 					icon: 'fw-button-icon',
 					panel: {
-						style: 'max-height: 295px; max-width: 467px;',
+						style: 'max-width: 450px;',
 						role: 'application',
 						classes: 'fw-shortcodes-container',
 						autohide: true,
