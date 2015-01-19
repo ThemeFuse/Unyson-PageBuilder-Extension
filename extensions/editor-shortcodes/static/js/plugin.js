@@ -138,7 +138,7 @@
 					type: 'panelbutton',
 					icon: 'fw-button-icon',
 					panel: {
-						style: 'max-height: 177px; max-width: 467px;',
+						style: 'max-height: 295px; max-width: 467px;',
 						role: 'application',
 						classes: 'fw-shortcodes-container',
 						autohide: true,
