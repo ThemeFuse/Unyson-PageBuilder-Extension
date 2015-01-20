@@ -50,9 +50,12 @@
 	height: 16px;
 	opacity: 0.66;
 }
+
+.mce-fw-shortcodes-container .fw-shortcode-item:hover img,
 .mce-fw-shortcodes-container .fw-shortcode-item img:hover {
 	opacity: 1;
 }
+
 
 .mce-fw-shortcodes-container .fw-shortcode-item p {
 	text-align: center;
