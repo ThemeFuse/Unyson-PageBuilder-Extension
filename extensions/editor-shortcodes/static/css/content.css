@@ -1,0 +1,73 @@
+.fw-component-bar{
+	font-size: 14px;
+	padding: 10px 15px;
+	min-height: 35px;
+}
+
+.fw-component-controls{
+	float: right;
+}
+
+.fw-end {
+	display: none;
+}
+
+/* button */
+.fw-shortcode:hover {
+	cursor:pointer;
+	display: inline-block;
+}
+
+.unselectable {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	-webkit-user-select:none;
+	-khtml-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	-o-user-select:none;
+	user-select:none;
+}
+
+.fw-shortcode {
+	display: inline-block;
+	position: relative;
+	width:99%;
+	box-sizing: border-box;
+	padding: 12px 4px 12px 2px;
+	line-height: 24px;
+
+	border: 1px solid #ededed;
+	font-size: 13px;
+	color: #8c8c8c;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+	cursor: pointer;
+}
+
+.fw-shortcode img {
+	box-shadow: none;
+	border-radius: 0;
+	margin-right: 9px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.fw-shortcode:hover .fw-item-buttons {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 24px;
+}
+
+.fw-item-buttons {
+	display: none;
+}
+
+.fw-item-buttons i {
+	font-size: 15px;
+	cursor: pointer;
+	color: #b2b2b2;
+	vertical-align: middle;
+}
