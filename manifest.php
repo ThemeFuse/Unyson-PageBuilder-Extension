@@ -10,8 +10,13 @@ $manifest['version']       = '1.3.0';
 $manifest['display']       = true;
 $manifest['standalone']    = true;
 $manifest['requirements']  = array(
+	'framework' => array(
+		//Requires Unyson minimum version 2.1.18, as in that version was solved the bug with children extension requirements when activate an extension
+		'min_version' => '2.1.18',
+	),
 	'extensions' => array(
 		'builder' => array(),
+		'forms' => array(),
 	),
 );
 
