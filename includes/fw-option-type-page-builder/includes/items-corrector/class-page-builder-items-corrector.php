@@ -112,6 +112,14 @@ class _Page_Builder_Items_Corrector
 
 				// Page Builder custom item types
 				default:
+					$fixed_section[] = $this->wrap_into_row(
+						array(
+							$this->wrap_into_column(
+								array($section[$i])
+							)
+						)
+					);
+					break;
 					// TODO: determine some good way to handle custom item types
 //					$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this, $fixed_section);
 			}
@@ -180,6 +188,23 @@ class _Page_Builder_Items_Corrector
 						break;
 
 					default:
+						$auto_generated_section[] = $this->wrap_into_row(
+							array(
+								$this->wrap_into_column(
+									array($items[$i])
+								)
+							)
+						);
+						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'simple') {
+							$i++;
+							$auto_generated_section[] = $this->wrap_into_row(
+								array(
+									$this->wrap_into_column(
+										array($items[$i])
+									)
+								)
+							);
+						}
 						// TODO: determine some good way to handle custom item types
 //						$auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
 				}
