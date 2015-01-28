@@ -108,7 +108,9 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 			foreach ( $output_array[0] as $match_key => $match ) {
 				$tag = $output_array[1][ $match_key ];
 				$shortcode = fw_ext( 'shortcodes' )->get_shortcode( $tag );
-				$default_values[$tag] =  fw_get_options_values_from_input( $shortcode->get_options(), array() );
+				if ( !empty($shortcode) && is_array( $shortcode->get_options() ) ) {
+					$default_values[$tag] =  fw_get_options_values_from_input( $shortcode->get_options(), array() );
+				}
 			}
 		}
 
