@@ -6,12 +6,12 @@ $manifest = array();
 
 $manifest['name']          = __( 'Page Builder', 'fw' );
 $manifest['description']   = __( "Lets you easily build countless pages with the help of the drag and drop visual page builder that comes with a lot of already created shortcodes.", 'fw' );
-$manifest['version']       = '1.3.1';
+$manifest['version']       = '1.3.2';
 $manifest['display']       = true;
 $manifest['standalone']    = true;
 $manifest['requirements']  = array(
 	'framework' => array(
-		//Requires Unyson minimum version 2.1.18, as in that version was solved the bug with children extension requirements when activate an extension
+		// Requires Unyson minimum version 2.1.18, as in that version was solved the bug with children extension requirements when activate an extension
 		'min_version' => '2.1.18',
 	),
 	'extensions' => array(
