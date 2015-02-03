@@ -309,7 +309,7 @@
 				'<img class="icon" src="' + shortcode.image + '"/>' +
 				'<span class="mceItem mceNonEditable unselectable" contenteditable="false">' + shortcode.title + '</span>' +
 					'<span class="fw-item-buttons mceItem fw-component-controls mceNonEditable unselectable">' +
-						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-welcome-write-blog fw-item-edit">&nbsp;</i>' +
+						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-edit fw-item-edit">&nbsp;</i>' +
 						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-admin-page fw-item-clone">&nbsp;</i>' +
 						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-no fw-item-delete">&nbsp;</i>' +
 					'</span>' +
