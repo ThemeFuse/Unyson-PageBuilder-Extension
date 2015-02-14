@@ -16,6 +16,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	{
 		return array(
 			'editor_integration' => false,
+			'fixed_header'       => true,
 			'value'              => array(
 				'json' => '[]'
 			)
