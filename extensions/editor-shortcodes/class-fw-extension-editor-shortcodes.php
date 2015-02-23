@@ -251,7 +251,19 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	private function transform_options( $options ) {
 		$new_options = array();
 		foreach ( $options as $id => $option ) {
-			$new_options[] = array( $id => $option );
+			if (is_int($id)) {
+				/**
+				 * this happens when in options array are loaded external options using fw()->theme->get_options()
+				 * and the array looks like this
+				 * array(
+				 *    'hello' => array('type' => 'text'), // this has string key
+				 *    array('hi' => array('type' => 'text')) // this has int key
+				 * )
+				 */
+				$new_options[] = $option;
+			} else {
+				$new_options[] = array($id => $option);
+			}
 		}
 
 		return $new_options;
