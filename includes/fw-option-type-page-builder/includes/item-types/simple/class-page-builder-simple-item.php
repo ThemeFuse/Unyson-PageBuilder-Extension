@@ -12,18 +12,18 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 
 	public function enqueue_static()
 	{
-		$static_uri = fw()->extensions->get('page-builder')->locate_URI('/includes/fw-option-type-page-builder/includes/item-types/simple/static/');
+		$static_uri = fw()->extensions->get('page-builder')->get_declared_URI('/includes/fw-option-type-page-builder/includes/item-types/simple/static');
 		$version    = fw()->extensions->get('page-builder')->manifest->get_version();
 
 		wp_enqueue_style(
 			$this->get_builder_type() . '_item_type_' . $this->get_type(),
-			$static_uri . 'css/styles.css',
+			$static_uri . '/css/styles.css',
 			array('fw'),
 			$version
 		);
 		wp_enqueue_script(
 			$this->get_builder_type() . '_item_type_' . $this->get_type(),
-			$static_uri . 'js/scripts.js',
+			$static_uri . '/js/scripts.js',
 			array('fw', 'fw-events', 'underscore'),
 			$version,
 			true

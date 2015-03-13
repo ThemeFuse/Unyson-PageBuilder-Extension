@@ -29,12 +29,12 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	 */
 	protected function _render($id, $option, $data)
 	{
-		$static_uri = fw()->extensions->get('page-builder')->locate_URI('/includes/fw-option-type-page-builder/static/');
+		$static_uri = fw()->extensions->get('page-builder')->get_declared_URI('/includes/fw-option-type-page-builder/static');
 		$version = fw()->extensions->get('page-builder')->manifest->get_version();
 
 		wp_enqueue_style(
 			'fw-option-type-' . $this->get_type(),
-			$static_uri . 'css/styles.css',
+			$static_uri . '/css/styles.css',
 			array(),
 			$version
 		);
@@ -55,13 +55,13 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			$this->editor_integration_enabled = true;
 			wp_enqueue_style(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
-				$static_uri . 'css/editor_integration.css',
+				$static_uri . '/css/editor_integration.css',
 				array(),
 				$version
 			);
 			wp_enqueue_script(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
-				$static_uri . 'js/editor_integration.js',
+				$static_uri . '/js/editor_integration.js',
 				array('jquery', 'fw-events'),
 				$version,
 				true
