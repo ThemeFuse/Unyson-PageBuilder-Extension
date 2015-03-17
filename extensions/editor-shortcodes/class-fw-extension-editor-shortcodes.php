@@ -6,7 +6,6 @@
  * Class FW_Extension_Editor_Shortcodes
  * Integrate shortcodes with wp_editor
  */
-
 class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	private $meta_key = 'fw-shortcode-settings';
 	private $meta_key_defaults = 'fw-shortcode-default-values';
@@ -64,12 +63,22 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 
 
 	public function _action_admin_save_shortcodes( $post_id, $post ) {
-		if ( ! $this->is_supported_post($post_id) ) {
-			return false;
-		}
-		$post_type = get_post_type( $post_id );
 
-		if ( ! post_type_supports( $post_type, $this->get_parent()->get_supports_feature_name() ) ) {
+		if ( wp_is_post_autosave( $post_id ) ) {
+			$original_id   = wp_is_post_autosave( $post_id );
+			$original_post = get_post( $original_id );
+		} else if ( wp_is_post_revision( $post_id ) ) {
+			$original_id   = wp_is_post_revision( $post_id );
+			$original_post = get_post( $original_id );
+		} else {
+			$original_id   = $post_id;
+			$original_post = $post;
+		}
+
+		if ( ! $this->is_supported_post( $original_id )
+			|| ! post_type_supports( $original_post->post_type, $this->get_parent()->get_supports_feature_name() )
+
+		) {
 			return false;
 		}
 
@@ -82,12 +91,13 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		$new_val = array();
 
 		//supported shortcodes
-		$tags       = implode( '|', array_keys( fw_ext( 'shortcodes' )->get_shortcodes() ) );
+		$tags = implode( '|', array_keys( fw_ext( 'shortcodes' )->get_shortcodes() ) );
 
 		$default_values = array();
 
 		//only supported tags & integer\alphabetic string id
-		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*)fw_shortcode_id=[\"\']([A-Za-z0-9]+)[\"\'](?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
+		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*)fw_shortcode_id=[\"\']([A-Za-z0-9]+)[\"\'](?:\s?[^\[\]]*)\]/',
+			$post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
 				$tag = $output_array[1][ $match_key ];
 				$id  = $output_array[2][ $match_key ];
@@ -95,7 +105,8 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 				if ( ! isset( $tmp_val[ $tag ] ) || ! isset( $tmp_val[ $tag ][ $id ] ) || empty( $tmp_val[ $tag ][ $id ] ) ) {
 					$shortcode = fw_ext( 'shortcodes' )->get_shortcode( $tag );
 					if ( $shortcode ) {
-						$new_val[ $tag ][ $id ] = fw_get_options_values_from_input( $shortcode->get_options(), array() );
+						$new_val[ $tag ][ $id ] = fw_get_options_values_from_input( $shortcode->get_options(),
+							array() );
 					}
 				} elseif ( isset( $tmp_val[ $tag ][ $id ] ) and false === empty( $tmp_val[ $tag ][ $id ] ) ) {
 					$new_val[ $tag ][ $id ] = $tmp_val[ $tag ][ $id ];
@@ -106,17 +117,20 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		//only supported tags match (defaults)
 		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*).*(?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
-				$tag = $output_array[1][ $match_key ];
+				$tag       = $output_array[1][ $match_key ];
 				$shortcode = fw_ext( 'shortcodes' )->get_shortcode( $tag );
-				if ( !empty($shortcode) && is_array( $shortcode->get_options() ) ) {
-					$default_values[$tag] =  fw_get_options_values_from_input( $shortcode->get_options(), array() );
+				if ( ! empty( $shortcode ) && is_array( $shortcode->get_options() ) ) {
+					$default_values[ $tag ] = fw_get_options_values_from_input( $shortcode->get_options(), array() );
 				}
 			}
 		}
 
 
-		update_post_meta($post_id, $this->meta_key_defaults, str_replace( '\\', '\\\\', json_encode( $default_values ) ) );
+		update_post_meta( $post_id, $this->meta_key_defaults,
+			str_replace( '\\', '\\\\', json_encode( $default_values ) ) );
 		update_post_meta( $post_id, $this->meta_key, str_replace( '\\', '\\\\', json_encode( $new_val ) ) );
+
+		return true;
 	}
 
 	public function _filter_admin_register_button_menu( $buttons ) {
@@ -171,18 +185,18 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 */
 	public function _theme_filter_fw_shortcode_atts( $atts, $content, $tag ) {
 		global $post;
-		if (! isset($atts['fw_shortcode_id'])){
+		if ( ! isset( $atts['fw_shortcode_id'] ) ) {
 			return $atts;
 		}
 
-		$option_values = json_decode( get_post_meta( $post->ID, $this->meta_key, true ), true );
+		$option_values  = json_decode( get_post_meta( $post->ID, $this->meta_key, true ), true );
 		$default_values = json_decode( get_post_meta( $post->ID, $this->meta_key_defaults, true ), true );
 
-		$id = $atts['fw_shortcode_id'];
-		$atts = $default_values[$tag];
+		$id   = $atts['fw_shortcode_id'];
+		$atts = $default_values[ $tag ];
 
 		if ( is_array( $option_values ) and false === empty( $option_values ) ) {
-			if (preg_match('/^[A-Za-z0-9]+$/', $id)) {
+			if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
 				if ( isset( $option_values[ $tag ][ $id ] ) ) {
 					$atts = $option_values[ $tag ][ $id ];
 				}
@@ -198,7 +212,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	public function _action_admin_render_hidden() {
 		global $post;
 		if ( ! $this->is_supported_post( $post ) ) {
-			return false;
+			return;
 		}
 
 		$value = get_post_meta( $post->ID, $this->meta_key, true );
@@ -251,7 +265,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	private function transform_options( $options ) {
 		$new_options = array();
 		foreach ( $options as $id => $option ) {
-			if (is_int($id)) {
+			if ( is_int( $id ) ) {
 				/**
 				 * this happens when in options array are loaded external options using fw()->theme->get_options()
 				 * and the array looks like this
@@ -262,7 +276,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 				 */
 				$new_options[] = $option;
 			} else {
-				$new_options[] = array($id => $option);
+				$new_options[] = array( $id => $option );
 			}
 		}
 
@@ -271,8 +285,12 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 
 	/**
 	 * Checks if a post was built with shortcode editor
+	 *
+	 * @param null|int $post_id
+	 *
+	 * @return false|WP_Post
 	 */
-	public function is_supported_post( $post_id = '' ) {
+	public function is_supported_post( $post_id = null ) {
 		if ( ! $post_id ) {
 			global $post;
 		} else {
@@ -280,7 +298,8 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		}
 
 		$page_builder_feature = $this->get_parent()->get_supports_feature_name();
-		return $post && post_type_supports($post->post_type, $page_builder_feature);
+
+		return $post && post_type_supports( $post->post_type, $page_builder_feature );
 	}
 
 }

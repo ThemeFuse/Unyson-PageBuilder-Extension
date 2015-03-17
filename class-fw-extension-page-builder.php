@@ -1,23 +1,22 @@
-<?php if (!defined('FW')) die('Forbidden');
+<?php if ( ! defined( 'FW' ) ) {
+	die( 'Forbidden' );
+}
 
-class FW_Extension_Page_Builder extends FW_Extension
-{
-	private $builder_option_key    = 'page-builder';
+class FW_Extension_Page_Builder extends FW_Extension {
+	private $builder_option_key = 'page-builder';
 	private $supports_feature_name = 'fw-page-builder';
 
 	private $shortcode_atts_coder;
 
-	public function get_supports_feature_name()
-	{
+	public function get_supports_feature_name() {
 		return $this->supports_feature_name;
 	}
 
 	/**
 	 * @internal
 	 */
-	protected function _init()
-	{
-		if (is_admin()) {
+	protected function _init() {
+		if ( is_admin() ) {
 			$this->add_admin_filters();
 			$this->add_admin_actions();
 		} else {
@@ -26,21 +25,18 @@ class FW_Extension_Page_Builder extends FW_Extension
 		}
 	}
 
-	private function add_admin_filters()
-	{
-		add_filter('fw_post_options', array($this, '_admin_filter_fw_post_options'), 10, 2);
+	private function add_admin_filters() {
+		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 	}
 
-	private function add_admin_actions()
-	{
-		add_action('fw_extensions_init', array($this, '_admin_action_fw_extensions_init'));
-		add_action('fw_save_post_options', array($this, '_admin_action_fw_save_post_options'), 10, 2);
+	private function add_admin_actions() {
+		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
+		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
 	}
 
-	private function add_theme_filters()
-	{
-		add_filter('fw_shortcode_atts', array($this, '_theme_filter_fw_shortcode_atts'));
-		add_action('the_content', array($this, '_theme_filter_prevent_autop'), 1);
+	private function add_theme_filters() {
+		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
+		add_action( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
 	}
 
 	/*
@@ -53,14 +49,13 @@ class FW_Extension_Page_Builder extends FW_Extension
 	 * extension can begin collecting their shortcodes.
 	 * We need this because the shortcodes can load their own option types
 	 */
-	public function _admin_action_fw_extensions_init()
-	{
+	public function _admin_action_fw_extensions_init() {
 		if (
-			defined('DOING_AJAX') &&
-			DOING_AJAX === true   &&
+			defined( 'DOING_AJAX' ) &&
+			DOING_AJAX === true &&
 			(
-				FW_Request::POST('action', '') === 'fw_backend_options_render' ||
-				FW_Request::POST('action', '') === 'fw_backend_options_get_values'
+				FW_Request::POST( 'action', '' ) === 'fw_backend_options_render' ||
+				FW_Request::POST( 'action', '' ) === 'fw_backend_options_get_values'
 			)
 		) {
 			$this->get_parent()->load_shortcodes();
@@ -71,29 +66,28 @@ class FW_Extension_Page_Builder extends FW_Extension
 	 * Adds the page builder metabox if the $post_type is supported
 	 * @internal
 	 */
-	public function _admin_filter_fw_post_options($post_options, $post_type)
-	{
+	public function _admin_filter_fw_post_options( $post_options, $post_type ) {
 		if ( post_type_supports( $post_type, $this->supports_feature_name ) ) {
 			$this->get_parent()->load_shortcodes();
 			$page_builder_options = array(
 				'page-builder-box' => array(
-					'title' => false,
-					'type' => 'box',
+					'title'    => false,
+					'type'     => 'box',
 					'priority' => 'high',
-					'options' => array(
+					'options'  => array(
 						$this->builder_option_key => array(
-							'label' => false,
-							'desc' => false,
-							'type' => 'page-builder',
+							'label'              => false,
+							'desc'               => false,
+							'type'               => 'page-builder',
 							'editor_integration' => true,
-							'fullscreen' => true,
-							'template_saving' => true,
-							'history' => true,
+							'fullscreen'         => true,
+							'template_saving'    => true,
+							'history'            => true,
 						)
 					)
 				)
 			);
-			$post_options = array_merge($page_builder_options, $post_options);
+			$post_options         = array_merge( $page_builder_options, $post_options );
 		}
 
 		return $post_options;
@@ -101,47 +95,61 @@ class FW_Extension_Page_Builder extends FW_Extension
 
 	/**
 	 * @internal
+	 *
+	 * @param int $post_id
+	 * @param WP_Post $post
 	 */
-	public function _admin_action_fw_save_post_options($post_id, $post)
-	{
-		if (post_type_supports($post->post_type, $this->supports_feature_name)) {
-			$builder_shortcodes = fw_get_db_post_option($post_id, $this->builder_option_key);
-			if (!$builder_shortcodes['builder_active']) {
+	public function _admin_action_fw_save_post_options( $post_id, $post ) {
+
+		if ( wp_is_post_autosave( $post_id ) ) {
+			$original_id   = wp_is_post_autosave( $post_id );
+			$original_post = get_post( $original_id );
+		} else if ( wp_is_post_revision( $post_id ) ) {
+			$original_id   = wp_is_post_revision( $post_id );
+			$original_post = get_post( $original_id );
+		} else {
+			$original_id   = $post_id;
+			$original_post = $post;
+		}
+
+		if ( post_type_supports( $original_post->post_type, $this->supports_feature_name ) ) {
+			$builder_shortcodes = fw_get_db_post_option( $original_id, $this->builder_option_key );
+
+			if ( ! $builder_shortcodes['builder_active'] ) {
 				return;
 			}
 
 			// remove then add again to avoid infinite loop
-			remove_action('fw_save_post_options', array($this, '_admin_action_fw_save_post_options'));
-			wp_update_post(array(
-				'ID' => $post_id,
-				'post_content' => str_replace('\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
-			));
-			add_action('fw_save_post_options', array($this, '_admin_action_fw_save_post_options'), 10, 2);
+			remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'] )
+			) );
+			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
 		}
 	}
 
 	/**
 	 * @internal
 	 */
-	public function _theme_filter_fw_shortcode_atts($atts)
-	{
-		return $this->shortcode_atts_coder->decode_atts($atts);
+	public function _theme_filter_fw_shortcode_atts( $atts ) {
+		return $this->shortcode_atts_coder->decode_atts( $atts );
 	}
 
 	/**
 	 * @internal
 	 */
-	public function _theme_filter_prevent_autop($content)
-	{
-		if ($this->is_builder_post()) {
-			$wrapper_class = apply_filters('fw_ext_page_builder_content_wrapper_class', 'fw-page-builder-content');
+	public function _theme_filter_prevent_autop( $content ) {
+		if ( $this->is_builder_post() ) {
+			$wrapper_class = apply_filters( 'fw_ext_page_builder_content_wrapper_class', 'fw-page-builder-content' );
 
 			/**
 			 * Wrap the content in a div to prevent wpautop change/break the html generated by shortcodes
 			 */
+
 			return
-				'<div '. (empty($wrapper_class) ? '' : 'class="'. esc_attr($wrapper_class) .'"') .'>' .
-					$content .
+				'<div ' . ( empty( $wrapper_class ) ? '' : 'class="' . esc_attr( $wrapper_class ) . '"' ) . '>' .
+				$content .
 				'</div>';
 		}
 
@@ -151,20 +159,19 @@ class FW_Extension_Page_Builder extends FW_Extension
 	/**
 	 * Checks if a post was built with builder
 	 */
-	public function is_builder_post($post_id = '')
-	{
-		if (!$post_id) {
+	public function is_builder_post( $post_id = '' ) {
+		if ( ! $post_id ) {
 			global $post;
 		} else {
-			$post = get_post($post_id);
+			$post = get_post( $post_id );
 		}
 
-		if (!$post) {
+		if ( ! $post ) {
 			return false;
 		}
 
 		if ( post_type_supports( $post->post_type, $this->supports_feature_name ) ) {
-			return (bool) fw_get_db_post_option($post->ID, $this->builder_option_key .'/builder_active');
+			return (bool) fw_get_db_post_option( $post->ID, $this->builder_option_key . '/builder_active' );
 		} else {
 			return false;
 		}
