@@ -6,6 +6,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private $builder_option_key = 'page-builder';
 	private $supports_feature_name = 'fw-page-builder';
 
+	/**
+	 * @var _FW_Ext_Page_Builder_Shortcode_Atts_Coder $shortcode_atts_coder
+	 */
 	private $shortcode_atts_coder;
 
 	public function get_supports_feature_name() {
@@ -16,6 +19,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	protected function _init() {
+		add_action('import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3);
+
 		if ( is_admin() ) {
 			$this->add_admin_filters();
 			$this->add_admin_actions();
@@ -131,6 +136,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	/**
 	 * @internal
+	 *
+	 * @param $atts
+	 *
+	 * @return mixed
 	 */
 	public function _theme_filter_fw_shortcode_atts( $atts ) {
 		return $this->shortcode_atts_coder->decode_atts( $atts );
@@ -138,6 +147,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	/**
 	 * @internal
+	 *
+	 * @param string $content
+	 *
+	 * @return string
 	 */
 	public function _theme_filter_prevent_autop( $content ) {
 		if ( $this->is_builder_post() ) {
@@ -158,9 +171,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	/**
 	 * Checks if a post was built with builder
+	 *
+	 * @param int $post_id
+	 *
+	 * @return bool
 	 */
-	public function is_builder_post( $post_id = '' ) {
-		if ( ! $post_id ) {
+	public function is_builder_post( $post_id = null ) {
+		if ( empty( $post_id ) ) {
 			global $post;
 		} else {
 			$post = get_post( $post_id );
@@ -175,5 +192,22 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Solve the problem with striped backslashes by wordpress when doing add_post_meta
+	 *
+	 * @internal
+	 *
+	 * @param int $post_id
+	 * @param string $key
+	 * @param mixed $value
+	 **/
+	public function _action_import_post_meta( $post_id, $key, $value ) {
+		if ( $key != FW_Option_Type::get_default_name_prefix() || ! isset($value[ $this->builder_option_key ]) ) {
+			return;
+		}
+
+		fw_set_db_post_option( $post_id, $this->builder_option_key, $value[ $this->builder_option_key ] );
 	}
 }
