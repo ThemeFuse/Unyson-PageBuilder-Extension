@@ -37,14 +37,26 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 				$inner_classes = '';
 				$image_html    = "<img src='{$item['image']}' />";
 			}
-			$thumbs[] = array(
-				'tab'  => $item['tab'],
-				'html' => "<div class='inner {$inner_classes}' {$hover_tooltip}>" .
-								$image_html .
-								"<p><span>{$item['title']}</span></p>" .
-								"<span class='item-data' {$data_str}></span>" .
-							'</div>'
-			);
+
+			if ( ! isset( $thumbs[ $item['title'] ] ) ) {
+				$thumbs[$item['title']] = array(
+					'tab'  => $item['tab'],
+					'html' => "<div class='inner {$inner_classes}' {$hover_tooltip}>" .
+					          $image_html .
+					          "<p><span>{$item['title']}</span></p>" .
+					          "<span class='item-data' {$data_str}></span>" .
+					          '</div>'
+				);
+			} else {
+				$thumbs[] = array(
+					'tab'  => $item['tab'],
+					'html' => "<div class='inner {$inner_classes}' {$hover_tooltip}>" .
+					          $image_html .
+					          "<p><span>{$item['title']}</span></p>" .
+					          "<span class='item-data' {$data_str}></span>" .
+					          '</div>'
+				);
+			}
 		}
 		return $thumbs;
 	}
