@@ -15,7 +15,6 @@ class _Page_Builder_Items_Corrector
 		$this->row_container = new _Page_Builder_Items_Corrector_Row_Container();
 
 		$this->column_wrap  = $item_types['column']->get_value_from_attributes(array(
-			'width'  => '1_1',
 			'_items' => array()
 		));
 		$this->row_wrap     = $item_types['row']->get_value_from_attributes(array(
