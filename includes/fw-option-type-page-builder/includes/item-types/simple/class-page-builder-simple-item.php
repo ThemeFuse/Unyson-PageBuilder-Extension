@@ -173,19 +173,13 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		// simple items do not contain other items
 		unset($attributes['_items']);
 
-		/*
-		 * when saving the modal, the options values go into the
-		 * 'atts' key, if it is not present it could be
-		 * because of two things:
-		 * 1. The shortcode does not have options
-		 * 2. The user did not open or save the modal (which will be more likely the case)
-		 */
-		if (!isset($attributes['atts'])) {
-			$builder_data   = $this->get_builder_data();
-			$shortcode_data = $builder_data[ $attributes['shortcode'] ];
-			if (isset($shortcode_data['options'])) {
-				$attributes['atts'] = fw_get_options_values_from_input($shortcode_data['options'], array());
-			}
+		$builder_data   = $this->get_builder_data();
+		$shortcode_data = $builder_data[ $attributes['shortcode'] ];
+		if (isset($shortcode_data['options'])) {
+			$attributes['atts'] = fw_get_options_values_from_input(
+				$shortcode_data['options'],
+				empty($attributes['atts']) ? array() : $attributes['atts']
+			);
 		}
 
 		return $attributes;
