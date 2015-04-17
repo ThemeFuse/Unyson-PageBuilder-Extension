@@ -25,7 +25,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			$this->add_admin_filters();
 			$this->add_admin_actions();
 		} else {
-			$this->shortcode_atts_coder = new _FW_Ext_Page_Builder_Shortcode_Atts_Coder();
 			$this->add_theme_filters();
 		}
 	}
@@ -142,7 +141,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @return mixed
 	 */
 	public function _theme_filter_fw_shortcode_atts( $atts ) {
-		return $this->shortcode_atts_coder->decode_atts( $atts );
+		return $this->get_shortcode_atts_coder()->decode_atts( $atts );
 	}
 
 	/**
@@ -209,5 +208,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		fw_set_db_post_option( $post_id, $this->builder_option_key, $value[ $this->builder_option_key ] );
+	}
+
+	public function get_shortcode_atts_coder()
+	{
+		if (!$this->shortcode_atts_coder) {
+			// lazy init
+			$this->shortcode_atts_coder = new _FW_Ext_Page_Builder_Shortcode_Atts_Coder();
+		}
+
+		return $this->shortcode_atts_coder;
 	}
 }
