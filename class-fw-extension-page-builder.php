@@ -118,12 +118,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				)
 			);
 
-			/*remove_action( 'save_post', array( $this, '_action_update_post_content' ), 11, 3 );
+			/*remove_action( 'save_post', array( $this, '_action_update_post_content' ), 32767, 3 );
 			wp_update_post(array(
 				'ID' => $post_id,
 				'post_content' => $builder_shortcodes['shortcode_notation']
 			));
-			add_action( 'save_post', array( $this, '_action_update_post_content' ), 11, 3 );*/
+			add_action( 'save_post', array( $this, '_action_update_post_content' ), 32767, 3 );*/
 		}
 	}
 
