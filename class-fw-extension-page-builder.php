@@ -19,28 +19,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	protected function _init() {
-		add_action('import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3);
-
-		if ( is_admin() ) {
-			$this->add_admin_filters();
-			$this->add_admin_actions();
-		} else {
-			$this->add_theme_filters();
-		}
-	}
-
-	private function add_admin_filters() {
-		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
-	}
-
-	private function add_admin_actions() {
+		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3);
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
-		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
-	}
+		add_action( 'save_post', array( $this, '_action_update_post_content' ), 32767, 3 );
 
-	private function add_theme_filters() {
+		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
-		add_action( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
+		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
 	}
 
 	/*
@@ -55,6 +40,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	public function _admin_action_fw_extensions_init() {
 		if (
+			is_admin() &&
 			defined( 'DOING_AJAX' ) &&
 			DOING_AJAX === true &&
 			(
@@ -91,45 +77,53 @@ class FW_Extension_Page_Builder extends FW_Extension {
 					)
 				)
 			);
-			$post_options         = array_merge( $page_builder_options, $post_options );
+			$post_options = array_merge( $page_builder_options, $post_options );
 		}
 
 		return $post_options;
 	}
 
 	/**
-	 * @internal
-	 *
+	 * Update post content shortcode notation
 	 * @param int $post_id
 	 * @param WP_Post $post
+	 * @param bool $update
+	 * @internal
 	 */
-	public function _admin_action_fw_save_post_options( $post_id, $post ) {
-
-		if ( wp_is_post_autosave( $post_id ) ) {
-			$original_id   = wp_is_post_autosave( $post_id );
-			$original_post = get_post( $original_id );
-		} else if ( wp_is_post_revision( $post_id ) ) {
-			$original_id   = wp_is_post_revision( $post_id );
-			$original_post = get_post( $original_id );
+	public function _action_update_post_content( $post_id, $post, $update ) {
+		if ($original_post_id = wp_is_post_revision($post_id)) { // fixme: what about auto-save ?
+			$original_post_type = get_post_type($original_post_id);
 		} else {
-			$original_id   = $post_id;
-			$original_post = $post;
+			$original_post_id = $post_id;
+			$original_post_type = $post->post_type;
 		}
 
-		if ( post_type_supports( $original_post->post_type, $this->supports_feature_name ) ) {
-			$builder_shortcodes = fw_get_db_post_option( $original_id, $this->builder_option_key );
+		if ( post_type_supports( $original_post_type, $this->supports_feature_name ) ) {
+			$builder_shortcodes = fw_get_db_post_option( $post_id, $this->builder_option_key );
 
-			if ( ! $builder_shortcodes['builder_active'] ) {
+			if ( empty($builder_shortcodes) || ! $builder_shortcodes['builder_active'] ) {
 				return;
 			}
 
-			// remove then add again to avoid infinite loop
-			remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
-			wp_update_post( array(
-				'ID'           => $post_id,
-				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'] )
-			) );
-			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
+			global $wpdb;
+
+			/**
+			 * Update directly in db instead of wp_update_post() to prevent revisions flood
+			 */
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d",
+					$builder_shortcodes['shortcode_notation'],
+					$post_id
+				)
+			);
+
+			/*remove_action( 'save_post', array( $this, '_action_update_post_content' ), 11, 3 );
+			wp_update_post(array(
+				'ID' => $post_id,
+				'post_content' => $builder_shortcodes['shortcode_notation']
+			));
+			add_action( 'save_post', array( $this, '_action_update_post_content' ), 11, 3 );*/
 		}
 	}
 
