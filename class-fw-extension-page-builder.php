@@ -19,7 +19,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	protected function _init() {
-		add_action('import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3);
+		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3 );
 
 		if ( is_admin() ) {
 			$this->add_admin_filters();
@@ -36,6 +36,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private function add_admin_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
 		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
+		add_action( 'fw_save_autosave_options', array( $this, '_action_update_autosave' ), 10, 2 );
 	}
 
 	private function add_theme_filters() {
@@ -64,6 +65,28 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		) {
 			$this->get_parent()->load_shortcodes();
 		}
+	}
+
+	/**
+	 * @param int $post_id
+	 * @param WP_Post $post
+	 *
+	 * @internal
+	 **/
+	public function _action_update_autosave( $post_id, $post ) {
+
+		$option = fw_get_db_post_option( $post_id, $this->builder_option_key );
+
+		remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
+
+		if ( $option['builder_active'] ) {
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_content' => str_replace( '\\', '\\\\\\\\\\', $option['shortcode_notation'] )
+			) );
+		}
+
+		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
 	}
 
 	/*
@@ -104,20 +127,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @param WP_Post $post
 	 */
 	public function _admin_action_fw_save_post_options( $post_id, $post ) {
-
-		if ( wp_is_post_autosave( $post_id ) ) {
-			$original_id   = wp_is_post_autosave( $post_id );
-			$original_post = get_post( $original_id );
-		} else if ( wp_is_post_revision( $post_id ) ) {
-			$original_id   = wp_is_post_revision( $post_id );
-			$original_post = get_post( $original_id );
-		} else {
-			$original_id   = $post_id;
-			$original_post = $post;
-		}
-
-		if ( post_type_supports( $original_post->post_type, $this->supports_feature_name ) ) {
-			$builder_shortcodes = fw_get_db_post_option( $original_id, $this->builder_option_key );
+		if ( post_type_supports( $post->post_type, $this->supports_feature_name ) ) {
+			$builder_shortcodes = fw_get_db_post_option( $post_id, $this->builder_option_key );
 
 			if ( ! $builder_shortcodes['builder_active'] ) {
 				return;
@@ -203,16 +214,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @param mixed $value
 	 **/
 	public function _action_import_post_meta( $post_id, $key, $value ) {
-		if ( $key != FW_Option_Type::get_default_name_prefix() || ! isset($value[ $this->builder_option_key ]) ) {
+		if ( $key != FW_Option_Type::get_default_name_prefix() || ! isset( $value[ $this->builder_option_key ] ) ) {
 			return;
 		}
 
 		fw_set_db_post_option( $post_id, $this->builder_option_key, $value[ $this->builder_option_key ] );
 	}
 
-	public function get_shortcode_atts_coder()
-	{
-		if (!$this->shortcode_atts_coder) {
+	public function get_shortcode_atts_coder() {
+		if ( ! $this->shortcode_atts_coder ) {
 			// lazy init
 			$this->shortcode_atts_coder = new _FW_Ext_Page_Builder_Shortcode_Atts_Coder();
 		}
