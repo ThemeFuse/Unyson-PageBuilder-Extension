@@ -35,8 +35,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	private function add_admin_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
-		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
-		add_action( 'fw_save_autosave_options', array( $this, '_action_update_autosave' ), 10, 2 );
+		add_action( 'fw_post_options_update', array( $this, '_action_update_post_content' ), 11, 3 );
 	}
 
 	private function add_theme_filters() {
@@ -65,28 +64,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		) {
 			$this->get_parent()->load_shortcodes();
 		}
-	}
-
-	/**
-	 * @param int $post_id
-	 * @param WP_Post $post
-	 *
-	 * @internal
-	 **/
-	public function _action_update_autosave( $post_id, $post ) {
-
-		$option = fw_get_db_post_option( $post_id, $this->builder_option_key );
-
-		remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
-
-		if ( $option['builder_active'] ) {
-			wp_update_post( array(
-				'ID'           => $post_id,
-				'post_content' => str_replace( '\\', '\\\\\\\\\\', $option['shortcode_notation'] )
-			) );
-		}
-
-		add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
 	}
 
 	/*
@@ -121,26 +98,50 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
+	 * Update post content with the generated builder shortcodes
 	 * @internal
-	 *
 	 * @param int $post_id
-	 * @param WP_Post $post
+	 * @param string $option_id
+	 * @param array $sub_keys
 	 */
-	public function _admin_action_fw_save_post_options( $post_id, $post ) {
-		if ( post_type_supports( $post->post_type, $this->supports_feature_name ) ) {
+	public function _action_update_post_content( $post_id, $option_id, $sub_keys ) {
+		if (
+			empty($option_id) // all options were updated
+			||
+			$option_id === $this->builder_option_key // our option was updated
+		) {
+			//
+		} else {
+			return;
+		}
+
+		if ($original_post_id = wp_is_post_autosave($post_id)) {
+			//
+		} elseif ($original_post_id = wp_is_post_revision($post_id)) {
+			//
+		} else {
+			$original_post_id = $post_id;
+		}
+
+		if ( post_type_supports( get_post_type($original_post_id), $this->supports_feature_name ) ) {
 			$builder_shortcodes = fw_get_db_post_option( $post_id, $this->builder_option_key );
 
 			if ( ! $builder_shortcodes['builder_active'] ) {
 				return;
 			}
 
-			// remove then add again to avoid infinite loop
-			remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
-			wp_update_post( array(
-				'ID'           => $post_id,
-				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'] )
-			) );
-			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
+			global $wpdb;
+
+			/**
+			 * Update directly in db instead of wp_update_post() to prevent revisions flood
+			 */
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d",
+					$builder_shortcodes['shortcode_notation'],
+					$post_id
+				)
+			);
 		}
 	}
 
