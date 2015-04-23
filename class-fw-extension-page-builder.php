@@ -35,7 +35,14 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	private function add_admin_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
-		add_action( 'fw_post_options_update', array( $this, '_action_update_post_content' ), 11, 3 );
+
+		if (version_compare(fw()->manifest->get_version(), '2.2.8', '>=')) {
+			// this action was added in Unyson 2.2.8
+			add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+		} else {
+			// @deprecated
+			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
+		}
 	}
 
 	private function add_theme_filters() {
@@ -98,13 +105,45 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
+	 * @internal
+	 * @deprecated The new approach is the _action_fw_post_options_update() method
+	 * @param int $post_id
+	 * @param WP_Post $post
+	 */
+	public function _admin_action_fw_save_post_options( $post_id, $post ) {
+		if ( wp_is_post_autosave( $post_id ) ) {
+			$original_id   = wp_is_post_autosave( $post_id );
+			$original_post = get_post( $original_id );
+		} else if ( wp_is_post_revision( $post_id ) ) {
+			$original_id   = wp_is_post_revision( $post_id );
+			$original_post = get_post( $original_id );
+		} else {
+			$original_id   = $post_id;
+			$original_post = $post;
+		}
+		if ( post_type_supports( $original_post->post_type, $this->supports_feature_name ) ) {
+			$builder_shortcodes = fw_get_db_post_option( $original_id, $this->builder_option_key );
+			if ( ! $builder_shortcodes['builder_active'] ) {
+				return;
+			}
+			// remove then add again to avoid infinite loop
+			remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'] )
+			) );
+			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
+		}
+	}
+
+	/**
 	 * Update post content with the generated builder shortcodes
 	 * @internal
 	 * @param int $post_id
 	 * @param string $option_id
 	 * @param array $sub_keys
 	 */
-	public function _action_update_post_content( $post_id, $option_id, $sub_keys ) {
+	public function _action_fw_post_options_update( $post_id, $option_id, $sub_keys ) {
 		if (
 			empty($option_id) // all options were updated
 			||
