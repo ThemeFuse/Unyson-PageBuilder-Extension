@@ -21,19 +21,18 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	protected function _init() {
 		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3 );
 
-		if ( is_admin() ) {
-			$this->add_admin_filters();
-			$this->add_admin_actions();
-		} else {
-			$this->add_theme_filters();
-		}
+		$this->add_filters();
+		$this->add_actions();
 	}
 
-	private function add_admin_filters() {
+	private function add_filters() {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
+		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
+		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
+		add_filter( 'wp_insert_post_data', array( $this, '_filter_wp_insert_post_data' ), 10, 2 );
 	}
 
-	private function add_admin_actions() {
+	private function add_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
 
 		if (version_compare(fw()->manifest->get_version(), '2.2.8', '>=')) {
@@ -43,11 +42,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			// @deprecated
 			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
 		}
-	}
-
-	private function add_theme_filters() {
-		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
-		add_action( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
 	}
 
 	/*
@@ -106,7 +100,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	/**
 	 * @internal
-	 * @deprecated The new approach is the _action_fw_post_options_update() method
+	 * @deprecated The new approach is the 'fw_post_options_update' action
 	 * @param int $post_id
 	 * @param WP_Post $post
 	 */
@@ -137,7 +131,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
-	 * Update post content with the generated builder shortcodes
+	 * Replace post content with the generated builder shortcodes
 	 * @internal
 	 * @param int $post_id
 	 * @param string $option_id
@@ -154,9 +148,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		if ($original_post_id = wp_is_post_autosave($post_id)) {
-			//
-		} elseif ($original_post_id = wp_is_post_revision($post_id)) {
+		if ($original_post_id = wp_is_post_revision($post_id)) {
+			/**
+			 * Revision already contains original post content
+			 * No sense to update with the same value
+			 */
+			return;
+		} elseif ($original_post_id = wp_is_post_autosave($post_id)) {
 			//
 		} else {
 			$original_post_id = $post_id;
@@ -169,19 +167,64 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				return;
 			}
 
-			global $wpdb;
+			$post = get_post($post_id);
 
-			/**
-			 * Update directly in db instead of wp_update_post() to prevent revisions flood
-			 */
-			$wpdb->query(
-				$wpdb->prepare(
-					"UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d",
-					$builder_shortcodes['shortcode_notation'],
-					$post_id
-				)
-			);
+			if ($post->post_content === $builder_shortcodes['shortcode_notation']) {
+				/**
+				 * Do nothing if content has no changes
+				 */
+				return;
+			}
+			ob_start();
+			fw_print($post->post_content, $builder_shortcodes['shortcode_notation']);
+			FW_Flash_Messages::add(fw_rand_md5(), ob_get_clean());
+
+			if (true) {
+				/**
+				 * @var WPDB $wpdb
+				 */
+				global $wpdb;
+
+				/**
+				 * Update directly in db instead of wp_update_post() to prevent revisions flood
+				 */
+				/*$wpdb->query(
+					$wpdb->prepare(
+						"UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d",
+						wp_unslash($builder_shortcodes['shortcode_notation']),
+						$post_id
+					)
+				);*/
+				remove_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11 );
+				wp_update_post( array(
+					'ID'           => $post_id,
+					'post_title' => $post->post_title,
+					'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
+				) );
+				add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+			} else {
+				remove_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11 );
+				wp_update_post( array(
+					'ID'           => $post_id,
+					'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
+				) );
+				add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+			}
 		}
+	}
+
+	/**
+	 * @param $data
+	 * @param $postarr
+	 * @internal
+	 */
+	public function _filter_wp_insert_post_data($data, $postarr)
+	{
+		ob_start();
+		fw_print($data);
+		FW_Flash_Messages::add(fw_rand_md5(), ob_get_clean());
+
+		// todo: try to extract parse recursive shortcodes, extract atts and encode them with code, then make back in string
 	}
 
 	/**
