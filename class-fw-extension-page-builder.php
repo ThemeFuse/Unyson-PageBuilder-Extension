@@ -155,14 +155,19 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		if ($original_post_id = wp_is_post_revision($post_id)) {
+		if ($original_post_id = wp_is_post_autosave($post_id)) {
+			/**
+			 * Important: Do not change if order.
+			 * This must be before wp_is_post_revision()
+			 * because when wp_is_post_revision(), it also can be wp_is_post_autosave(),
+			 * but autosave must not be skipped (like revisions below)
+			 */
+		} elseif ($original_post_id = wp_is_post_revision($post_id)) {
 			/**
 			 * Revision already contains original post content
 			 * No sense to update with the same value
 			 */
 			return;
-		} elseif ($original_post_id = wp_is_post_autosave($post_id)) {
-			//
 		} else {
 			$original_post_id = $post_id;
 		}
