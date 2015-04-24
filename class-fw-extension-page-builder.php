@@ -11,6 +11,14 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	private $shortcode_atts_coder;
 
+	/**
+	 * Alternative to remove_action() wp_update_post() add_action().
+	 * I think this is better because the wp_update_post() may fire other post creation/updates
+	 * and the action will not be executed for them.
+	 * @var array { post_id: ~ }
+	 */
+	private $prevent_post_update_recursion = array();
+
 	public function get_supports_feature_name() {
 		return $this->supports_feature_name;
 	}
@@ -29,7 +37,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
-		add_filter( 'wp_insert_post_data', array( $this, '_filter_wp_insert_post_data' ), 10, 2 );
 	}
 
 	private function add_actions() {
@@ -175,56 +182,64 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				 */
 				return;
 			}
-			ob_start();
-			fw_print($post->post_content, $builder_shortcodes['shortcode_notation']);
-			FW_Flash_Messages::add(fw_rand_md5(), ob_get_clean());
 
-			if (true) {
-				/**
-				 * @var WPDB $wpdb
-				 */
-				global $wpdb;
-
-				/**
-				 * Update directly in db instead of wp_update_post() to prevent revisions flood
-				 */
-				/*$wpdb->query(
-					$wpdb->prepare(
-						"UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d",
-						wp_unslash($builder_shortcodes['shortcode_notation']),
-						$post_id
-					)
-				);*/
-				remove_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11 );
-				wp_update_post( array(
-					'ID'           => $post_id,
-					'post_title' => $post->post_title,
-					'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
-				) );
-				add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+			if (isset($this->prevent_post_update_recursion[$post_id])) {
+				return;
 			} else {
-				remove_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11 );
-				wp_update_post( array(
-					'ID'           => $post_id,
-					'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
-				) );
-				add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+				$this->prevent_post_update_recursion[$post_id] = true;
 			}
+
+			if ($latest_revision = wp_get_post_revisions($post_id, array(
+				'posts_per_page' => 1
+			))) {
+				$latest_revision = get_post(
+					array_shift($latest_revision)
+				);
+
+				/**
+				 * When some shortcode attributes contains array values (with special encoding, made by attr coder)
+				 * that shortcode notation is displayed with changes in post content textarea on post edit page.
+				 * (I don't know why. Something (WordPress or wp editor) makes some "fixes" in post content before display in textarea.)
+				 *
+				 * Original/correct shortcode notation: [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
+				 * Changed/wrong shortcode notation: [divider style="{"ruler_type":"line"}"]
+				 *
+				 * Then the following happens:
+				 * 1. User press Save post button
+				 * 2. In database is saved textarea wrong value:
+				 *    [divider style="{"ruler_type":"line"}"]
+				 * 3. A revision of the previous step/change is created
+				 * 4. The execution reaches this script
+				 * 5. Here (below in this script) the post content is updated with correct value:
+				 *    [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
+				 * 6. A revision of the previous step/change is created
+				 *
+				 * That way, on every post save, every time, 2 revisions are created.
+				 *
+				 * More details http://bit.ly/1EotiNX
+				 *
+				 * The fix is to delete the wrong revision created in step 3.
+				 */
+				if (
+					get_post_time('U', true, $latest_revision) === time() // the revision is created (now) in current page load
+					&&
+					(
+						fw_get_db_post_option( $latest_revision->ID, $this->builder_option_key .'/shortcode_notation' )
+						=== // revision meta value matches the correct value that is used below (in post content update)
+						$builder_shortcodes['shortcode_notation']
+					)
+				) {
+					wp_delete_post($latest_revision->ID);
+				}
+			}
+
+			wp_update_post( array(
+				'ID'           => $post_id,
+				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
+			) );
+
+			unset($this->prevent_post_update_recursion[$post_id]);
 		}
-	}
-
-	/**
-	 * @param $data
-	 * @param $postarr
-	 * @internal
-	 */
-	public function _filter_wp_insert_post_data($data, $postarr)
-	{
-		ob_start();
-		fw_print($data);
-		FW_Flash_Messages::add(fw_rand_md5(), ob_get_clean());
-
-		// todo: try to extract parse recursive shortcodes, extract atts and encode them with code, then make back in string
 	}
 
 	/**
