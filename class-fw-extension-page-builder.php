@@ -156,18 +156,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		if ($original_post_id = wp_is_post_autosave($post_id)) {
-			/**
-			 * Important: Do not change if order.
-			 * This must be before wp_is_post_revision()
-			 * because when wp_is_post_revision(), it also can be wp_is_post_autosave(),
-			 * but autosave must not be skipped (like revisions below)
-			 */
+			//
 		} elseif ($original_post_id = wp_is_post_revision($post_id)) {
-			/**
-			 * Revision already contains original post content
-			 * No sense to update with the same value
-			 */
-			return;
+			//
 		} else {
 			$original_post_id = $post_id;
 		}
@@ -194,54 +185,66 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				$this->prevent_post_update_recursion[$post_id] = true;
 			}
 
-			if ($latest_revision = wp_get_post_revisions($post_id, array(
-				'posts_per_page' => 1
-			))) {
-				$latest_revision = get_post(
-					array_shift($latest_revision)
-				);
-
+			if (wp_is_post_revision($post_id)) {
 				/**
-				 * When some shortcode attributes contains array values (with special encoding, made by attr coder)
-				 * that shortcode notation is displayed with changes in post content textarea on post edit page.
-				 * (I don't know why. Something (WordPress or wp editor) makes some "fixes" in post content before display in textarea.)
-				 *
-				 * Original/correct shortcode notation: [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
-				 * Changed/wrong shortcode notation: [divider style="{"ruler_type":"line"}"]
-				 *
-				 * Then the following happens:
-				 * 1. User press Save post button
-				 * 2. In database is saved textarea wrong value:
-				 *    [divider style="{"ruler_type":"line"}"]
-				 * 3. A revision of the previous step/change is created
-				 * 4. The execution reaches this script
-				 * 5. Here (below in this script) the post content is updated with correct value:
-				 *    [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
-				 * 6. A revision of the previous step/change is created
-				 *
-				 * That way, on every post save, every time, 2 revisions are created.
-				 *
-				 * More details http://bit.ly/1EotiNX
-				 *
-				 * The fix is to delete the wrong revision created in step 3.
+				 * Revision already contains original post content.
+				 * No sense to update with the same value.
+				 * Also changing revisions seems like a bad idea, revision it's a backup, we don't have to touch/change it.
 				 */
-				if (
-					get_post_time('U', true, $latest_revision) === time() // the revision is created (now) in current page load
+			} else {
+				wp_update_post(array(
+					'ID' => $post_id,
+					'post_content' => str_replace( '\\', '\\\\\\\\\\', // I don't know why this is needed, but without it doesn't work
+						$builder_shortcodes['shortcode_notation']
+					)
+				));
+			}
+
+			/**
+			 * Remove (latest) duplicate revisions.
+			 *
+			 * ----
+			 *
+			 * When some shortcode attributes contains array values (with special encoding, made by attr coder)
+			 * that shortcode notation is displayed with changes in post content textarea on post edit page.
+			 * (I don't know why. Something (WordPress or wp editor) makes some "fixes" in post content before display in textarea.)
+			 *
+			 * Original/correct shortcode notation: [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
+			 * Changed/wrong shortcode notation: [divider style="{"ruler_type":"line"}"]
+			 *
+			 * Then the following happens:
+			 * 1. User press Save post button
+			 * 2. In database is saved textarea wrong value:
+			 *    [divider style="{"ruler_type":"line"}"]
+			 * 3. A revision of the previous step/change is created
+			 * 4. The execution reaches this script
+			 * 5. Here (below in this script) the post content is updated with correct value:
+			 *    [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
+			 * 6. A revision of the previous step/change is created
+			 *
+			 * That way, on every post save, every time, 2 revisions are created.
+			 *
+			 * More details http://bit.ly/1EotiNX
+			 *
+			 * The fix is to delete the wrong revision created in step 3.
+			 */
+			if ($latest_revisions = wp_get_post_revisions($original_post_id, array(
+				'posts_per_page' => 3
+			))) {
+				$latest_revision = get_post(array_shift($latest_revisions));
+
+				while (
+					($revision = get_post(array_shift($latest_revisions)))
 					&&
 					(
+						fw_get_db_post_option( $revision->ID, $this->builder_option_key .'/shortcode_notation' )
+						===
 						fw_get_db_post_option( $latest_revision->ID, $this->builder_option_key .'/shortcode_notation' )
-						=== // revision meta value matches the correct value that is used below (in post content update)
-						$builder_shortcodes['shortcode_notation']
 					)
 				) {
 					wp_delete_post($latest_revision->ID);
 				}
 			}
-
-			wp_update_post( array(
-				'ID'           => $post_id,
-				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'])
-			) );
 
 			unset($this->prevent_post_update_recursion[$post_id]);
 		}
