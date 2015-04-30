@@ -173,18 +173,35 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		// simple items do not contain other items
 		unset($attributes['_items']);
 
-		/*
-		 * when saving the modal, the options values go into the
-		 * 'atts' key, if it is not present it could be
-		 * because of two things:
-		 * 1. The shortcode does not have options
-		 * 2. The user did not open or save the modal (which will be more likely the case)
-		 */
-		if (!isset($attributes['atts'])) {
-			$builder_data   = $this->get_builder_data();
-			$shortcode_data = $builder_data[ $attributes['shortcode'] ];
-			if (isset($shortcode_data['options'])) {
-				$attributes['atts'] = fw_get_options_values_from_input($shortcode_data['options'], array());
+		$builder_data   = $this->get_builder_data();
+		$shortcode_data = $builder_data[ $attributes['shortcode'] ];
+		if (isset($shortcode_data['options'])) {
+			if (empty($attributes['atts'])) {
+				/**
+				 * The options popup was never opened and there are no attributes.
+				 * Extract options default values.
+				 */
+				$attributes['atts'] = fw_get_options_values_from_input(
+					$shortcode_data['options'], array()
+				);
+			} else {
+				/**
+				 * There are saved attributes.
+				 * But we need to execute the _get_value_from_input() method for all options,
+				 * because some of them may be (need to be) changed (auto-generated) https://github.com/ThemeFuse/Unyson/issues/275
+				 * Add the values to $option['value']
+				 */
+				$options = fw_extract_only_options($shortcode_data['options']);
+
+				foreach ($attributes['atts'] as $option_id => $option_value) {
+					if (isset($options[$option_id])) {
+						$options[$option_id]['value'] = $option_value;
+					}
+				}
+
+				$attributes['atts'] = fw_get_options_values_from_input(
+					$options, array()
+				);
 			}
 		}
 
