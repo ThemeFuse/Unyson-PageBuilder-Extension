@@ -185,20 +185,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				$this->prevent_post_update_recursion[$post_id] = true;
 			}
 
-			if (wp_is_post_revision($post_id)) {
-				/**
-				 * Revision already contains original post content.
-				 * No sense to update with the same value.
-				 * Also changing revisions seems like a bad idea, revision it's a backup, we don't have to touch/change it.
-				 */
-			} else {
-				wp_update_post(array(
-					'ID' => $post_id,
-					'post_content' => str_replace( '\\', '\\\\\\\\\\', // I don't know why this is needed, but without it doesn't work
-						$builder_shortcodes['shortcode_notation']
-					)
-				));
-			}
+			wp_update_post(array(
+				'ID' => $post_id,
+				'post_content' => str_replace('\\', '\\\\\\\\\\', // I don't know why this is needed, but without it doesn't work
+					$builder_shortcodes['shortcode_notation']
+				)
+			));
 
 			/**
 			 * Remove (latest) duplicate revisions.
@@ -228,21 +220,29 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 *
 			 * The fix is to delete the wrong revision created in step 3.
 			 */
-			if ($latest_revisions = wp_get_post_revisions($original_post_id, array(
-				'posts_per_page' => 3
-			))) {
-				$latest_revision = get_post(array_shift($latest_revisions));
+			if (
+				$latest_revisions = wp_get_post_revisions($original_post_id, array(
+					'posts_per_page' => 3,
+					'fields' => 'ids',
+				))
+			) {
+				$current_revision = get_post(array_shift($latest_revisions));
 
 				while (
-					($revision = get_post(array_shift($latest_revisions)))
+					($prev_revision = array_shift($latest_revisions))
+					&&
+					($prev_revision = get_post($prev_revision))
 					&&
 					(
-						fw_get_db_post_option( $revision->ID, $this->builder_option_key .'/shortcode_notation' )
+						fw_get_db_post_option( $current_revision->ID, $this->builder_option_key .'/shortcode_notation' )
 						===
-						fw_get_db_post_option( $latest_revision->ID, $this->builder_option_key .'/shortcode_notation' )
+						fw_get_db_post_option( $prev_revision->ID, $this->builder_option_key .'/shortcode_notation' )
 					)
 				) {
-					wp_delete_post($latest_revision->ID);
+					wp_delete_post($current_revision->ID);
+
+					unset($current_revision);
+					$current_revision = $prev_revision;
 				}
 			}
 
