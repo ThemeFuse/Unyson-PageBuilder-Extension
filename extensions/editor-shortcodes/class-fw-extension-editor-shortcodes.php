@@ -180,17 +180,13 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		echo "\n</script>";
 	}
 
-	/**
-	 * Replace shortcode atts with saved options
-	 */
-	public function _theme_filter_fw_shortcode_atts( $atts, $content, $tag ) {
-		global $post;
+	public function decode_shortcode_atts($atts, $tag, $post_id) {
 		if ( ! isset( $atts['fw_shortcode_id'] ) ) {
 			return $atts;
 		}
 
-		$option_values  = json_decode( get_post_meta( $post->ID, $this->meta_key, true ), true );
-		$default_values = json_decode( get_post_meta( $post->ID, $this->meta_key_defaults, true ), true );
+		$option_values  = json_decode( get_post_meta( $post_id, $this->meta_key, true ), true );
+		$default_values = json_decode( get_post_meta( $post_id, $this->meta_key_defaults, true ), true );
 
 		$id   = $atts['fw_shortcode_id'];
 		$atts = $default_values[ $tag ];
@@ -204,6 +200,15 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		}
 
 		return $atts;
+	}
+
+	/**
+	 * Replace shortcode atts with saved options
+	 */
+	public function _theme_filter_fw_shortcode_atts( $atts, $content, $tag ) {
+		global $post;
+
+		return $this->decode_shortcode_atts($atts, $tag, $post->ID);
 	}
 
 	/**
