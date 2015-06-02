@@ -22,5 +22,5 @@ function fw_ext_page_builder_get_supported_post_types()
 		}
 	}
 
-	return $result;
+	return apply_filters('fw_ext_page_builder_supported_post_types', $result);
 }
