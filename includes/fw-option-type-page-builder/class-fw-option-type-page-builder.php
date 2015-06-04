@@ -75,7 +75,9 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 						'hideButton' => __('Default Editor', 'fw'),
 					),
 					'optionId'            => $option['attr']['id'],
-					'renderInBuilderMode' => isset($data['value']['builder_active']) ? $data['value']['builder_active'] : false
+					'renderInBuilderMode' => isset($data['value']['builder_active'])
+						? $data['value']['builder_active']
+						: apply_filters( 'fw_page_builder_set_as_default', false )
 				)
 			);
 		}
