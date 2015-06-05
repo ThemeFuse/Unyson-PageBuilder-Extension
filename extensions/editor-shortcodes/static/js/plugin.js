@@ -167,7 +167,17 @@
 				});
 
 				editor.addCommand('insertShortcode', function (ui, params) {
-					var content = _self.getElementHTML(params.tag, _self.shortcodeValuesStock.add(params.tag));
+					var node,
+						p,
+						content = _self.getElementHTML(params.tag, _self.shortcodeValuesStock.add(params.tag));
+
+					if (node = editor.dom.getParent(editor.selection.getNode())) {
+						p = editor.dom.create('p');
+						editor.dom.insertAfter(p, node);
+						editor.selection.setCursorLocation(p, 0);
+						editor.nodeChanged();
+					}
+
 					editor.execCommand("mceInsertContent", false, content);
 				});
 
@@ -199,23 +209,6 @@
 					if ( $(e.target).hasClass('unselectable') ) {
 						e.stopPropagation();
 						return false;
-					}
-				});
-
-				editor.on('BeforeExecCommand', function (event) {
-					var node, p,
-						cmd = event.command,
-						dom = editor.dom;
-
-					//insert new paragraph  after each new insertion
-					//fixme: firefox error broke html when cursor position not in the paragraphs level
-					if (cmd === 'mceInsertContent') {
-						if (node = dom.getParent(editor.selection.getNode())) {
-							p = dom.create('p');
-							dom.insertAfter(p, node);
-							editor.selection.setCursorLocation(p, 0);
-							editor.nodeChanged();
-						}
 					}
 				});
 
