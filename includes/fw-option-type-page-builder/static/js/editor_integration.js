@@ -141,7 +141,7 @@
 	 * to allow creating a text_block shortcode when switching from
 	 * the default editor into the visual one for the first time
 	 */
-	fwe.one('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
+	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		optionTypePageBuilder = builder;
 		optionTypePageBuilder.initWithTextBlock = function(content) {
 			this.rootItems.reset([

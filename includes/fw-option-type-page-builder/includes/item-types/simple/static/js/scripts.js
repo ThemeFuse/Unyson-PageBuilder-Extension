@@ -1,5 +1,5 @@
 (function(fwe, _, builderData) {
-	fwe.one('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
+	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
 			PageBuilderSimpleItemView;
 
