@@ -31,11 +31,11 @@
 					'<div class="controls">' +
 
 						'<% if (hasOptions) { %>' +
-						'<i class="dashicons dashicons-admin-generic edit-options"></i>' +
+						'<i class="dashicons dashicons-admin-generic edit-options" data-hover-tip="<%- edit %>"></i>' +
 						'<%  } %>' +
 
-						'<i class="dashicons dashicons-admin-page item-clone"></i>' +
-						'<i class="dashicons dashicons-no item-delete"></i>' +
+						'<i class="dashicons dashicons-admin-page item-clone" data-hover-tip="<%- duplicate %>"></i>' +
+						'<i class="dashicons dashicons-no item-delete" data-hover-tip="<%- remove %>"></i>' +
 					'</div>' +
 				'</div>'
 			),
@@ -98,6 +98,9 @@
 					var templateData = {
 						title: shortcodeData.title,
 						image: shortcodeData.image,
+						edit: shortcodeData.localize.edit,
+						remove: shortcodeData.localize.remove,
+						duplicate: shortcodeData.localize.duplicate,
 						hasOptions: !!modalOptions
 					};
 

@@ -104,6 +104,11 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 							'tab'         => '~',
 							'title'       => $tag,
 							'description' => '',
+							'localize' => array(
+								'edit' => __( 'Edit', 'fw' ),
+								'remove' => __( 'Remove', 'fw' ),
+								'duplicate' => __( 'Duplicate', 'fw' ),
+							)
 						),
 						$config
 					);
