@@ -145,7 +145,11 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 * Register plugin js in wp_editor
 	 */
 	public function _filter_admin_register_tinymce_javascript( $plugin_array ) {
-		if ( $this->is_supported_post() ) {
+		if (
+			fw_current_screen_match(array('only' => array('base' => 'post'))) // post edit page
+			&&
+			$this->is_supported_post()
+		) {
 			$plugin_array['simple_builder_button'] = $this->get_declared_URI( '/static/js/plugin.js' );
 		}
 
@@ -167,9 +171,14 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 * Printing global js variables on page
 	 */
 	public function  _action_admin_global_variables() {
-		if ( ! $this->is_supported_post() ) {
+		if (
+			! fw_current_screen_match(array('only' => array('base' => 'post'))) // post edit page
+			||
+			! $this->is_supported_post()
+		) {
 			return false;
 		}
+
 		echo "<script type='text/javascript'>\n";
 		echo 'var fw_option_shortcode_globals=' . json_encode(
 				array(
