@@ -58,7 +58,10 @@ class _Page_Builder_Items_Corrector
 		$this->correct_sections();
 		$this->correct_root_items();
 
-		return apply_filters('fw_ext_page-builder_items_correction_complete', $this->items, $this);
+		return apply_filters('fw_ext_page-builder_items_correction_complete', $this->items,
+			$this,
+			$items // @since 1.3.9
+		);
 	}
 
 	private function correct_sections()

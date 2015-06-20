@@ -162,10 +162,22 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		$item_types = $this->get_item_types();
 		$page_builder_extension = fw_ext('page-builder');
 
-		$disable_correction = ($page_builder_extension->get_config('disalbe_correction') === true)
-								|| !isset($item_types['section'])
-								|| !isset($item_types['row'])
-								|| !isset($item_types['column']);
+		$disable_correction = (
+				/**
+				 * @since 1.3.9
+				 */
+				$page_builder_extension->get_config('disable_correction') === true
+				||
+				/**
+				 * This has a typo 'disalbe'
+				 * but it can't be removed because it was here for a very long time
+				 * and some developers may have been using it.
+				 */
+				$page_builder_extension->get_config('disalbe_correction') === true
+			)
+			|| !isset($item_types['section'])
+			|| !isset($item_types['row'])
+			|| !isset($item_types['column']);
 
 		return !$disable_correction;
 	}
