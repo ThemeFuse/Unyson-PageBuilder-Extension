@@ -10,7 +10,7 @@ function _action_fw_ext_page_builder_add_support() {
 	$feature_name = fw_ext('page-builder')->get_supports_feature_name();
 
 	foreach (
-		array_keys(fw_get_db_ext_settings_option('page-builder', 'post_types', array()))
+		array_keys(fw_get_db_ext_settings_option('page-builder', 'post_types'))
 		as $slug
 	) {
 		add_post_type_support($slug, $feature_name);
