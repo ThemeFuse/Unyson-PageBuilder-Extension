@@ -77,7 +77,10 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 					'optionId'            => $option['attr']['id'],
 					'renderInBuilderMode' => isset($data['value']['builder_active'])
 						? $data['value']['builder_active']
-						: apply_filters( 'fw_page_builder_set_as_default', false )
+						: apply_filters( 'fw_page_builder_set_as_default', false ),
+					'builderTemplates' => apply_filters('fw_ext_page_builder_templates', array(
+						// 'template-file.php', 'dir/template-file.php' // these needs to match http://bit.ly/1LAMfjN
+					))
 				)
 			);
 		}

@@ -10,7 +10,6 @@
 			$wpContentWrap: $('#wp-content-wrap')
 		},
 		getWPEditorContent: function() {
-
 			/*
 			 * WordPress works with tinyMCE for its WYSIWYG editor
 			 * depending on the current editor tab (visual or text)
@@ -24,7 +23,6 @@
 			}
 		},
 		clearWPEditorContent: function() {
-
 			/*
 			 * WordPress works with tinyMCE for its WYSIWYG editor
 			 * depending on the current editor tab (visual or text)
@@ -48,6 +46,8 @@
 
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val('true');
+
+			this.fixOnFirstShowOrHide(true);
 		},
 		hideBuilder: function() {
 			this.elements.$wpPostBodyContent.removeClass('page-builder-visible');
@@ -60,6 +60,8 @@
 
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
+
+			this.fixOnFirstShowOrHide(false);
 		},
 		initButtons: function() {
 			// insert the show button
@@ -75,7 +77,6 @@
 			}
 		},
 		insertHidden: function() {
-
 			/*
 			 * whether or not to display the builder at render depends
 			 * on a value that is stored in the $builderActiveHidden hidden input
@@ -84,36 +85,6 @@
 		},
 		bindEvents: function() {
 			var self = this;
-
-			if (data.renderInBuilderMode) {
-
-				/*
-				 * If the page has to render with the builder being active
-				 * a one time click event is attached to the hide button
-				 * that when clicked will clear the wp editor textarea
-				 * (which, at first, holds the shortcode notation generated from the buider)
-				 */
-				this.elements.$hideButton.one('click', function(e) {
-					self.clearWPEditorContent();
-					self.elements.$wpContentWrap.find('#content-tmce').trigger('click');
-					e.preventDefault();
-				});
-			} else {
-
-				/*
-				 * If the page has to render with wp editor active
-				 * a one time click event is attached to the show button
-				 * that when clicked will get the content from the wp editor textarea
-				 * and create a text_block in the builder that contains that content
-				 */
-				this.elements.$showButton.one('click', function(e) {
-					var wpEditorContent = self.getWPEditorContent();
-					if (wpEditorContent) {
-						optionTypePageBuilder.initWithTextBlock(self.getWPEditorContent());
-					}
-					e.preventDefault();
-				});
-			}
 
 			this.elements.$showButton.on('click', function(e) {
 				self.showBuilder();
@@ -127,14 +98,100 @@
 		removeScreenOptionsCheckbox: function() {
 			$('label[for="fw-options-box-page-builder-box-hide"]').remove();
 		},
+		fixOnFirstShowOrHide: function(isShow) {
+			var initialStateIsShow = data.renderInBuilderMode;
+
+			if (initialStateIsShow == isShow) {
+				/**
+				 * Do nothing, this happens when the same state is set again and again,
+				 * for e.g. the builder is enabled/shown, but the this.showBuilder() is still called.
+				 *
+				 * We need to take an action when the state will be changed (shown->hidden or hidden->shown)
+				 */
+				return;
+			}
+
+			if (initialStateIsShow) {
+				/*
+				 * If the page has to render with the builder being active,
+				 * clear the wp editor textarea because the user wants to write the content from scratch
+				 */
+				this.clearWPEditorContent();
+				this.elements.$wpContentWrap.find('#content-tmce').trigger('click');
+			} else {
+				/*
+				 * If the page has to render with wp editor active
+				 * get the content from the wp editor textarea
+				 * and create a text_block in the builder that contains that content
+				 */
+				var wpEditorContent = this.getWPEditorContent();
+				if (wpEditorContent) {
+					optionTypePageBuilder.initWithTextBlock(wpEditorContent);
+				}
+			}
+
+			/**
+			 * This method must be called only once
+			 * Prevent call again
+			 */
+			this.fixOnFirstShowOrHide = function(){};
+		},
+		initTemplatesSelectSync: function() {
+			if (!data.builderTemplates.length) {
+				/**
+				 * There are no templates that support page-builder.
+				 * Do nothing, allow builder for all templates,
+				 * there are themes that were created before this feature was added.
+				 */
+				return false;
+			}
+
+			var $select = $('select[name="page_template"]:first');
+
+			if (!$select.length) {
+				return false;
+			}
+
+			var self = this,
+				onChange = function(){
+					if ($.inArray($select.val(), data.builderTemplates) === -1) {
+						self.hideBuilder();
+					} else {
+						self.showBuilder();
+					}
+				};
+
+			$select.on('change', onChange);
+
+			fwe.one('fw-builder:' + 'page-builder' + ':register-items', function(){
+				/**
+				 * I don't know an event when tinyMCE.get('content') (used above) is available,
+				 * calling it earlier will throw an error,
+				 * calling it on a fixed timeout may be too early for slow browsers or internet connection when page is loaded slow.
+				 * So check for its availability on an interval of time.
+				 */
+				var intervalId = setInterval(function(){
+					if (
+						typeof tinyMCE != 'undefined'
+						&&
+						tinyMCE.get('content')
+					) {
+						clearInterval(intervalId);
+						onChange();
+					}
+				}, 30);
+			});
+		},
 		init: function() {
 			this.initButtons();
 			this.insertHidden();
 			this.bindEvents();
 			this.removeScreenOptionsCheckbox();
+			this.initTemplatesSelectSync();
 		}
 	};
-	gui.init();
+
+	gui.init(); // call this right away, earlier than document ready, else there will be glitches
 
 	/*
 	 * The global variable optionTypePageBuilder is created intentionally
