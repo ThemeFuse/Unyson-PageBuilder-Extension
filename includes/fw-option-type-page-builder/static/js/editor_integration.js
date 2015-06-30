@@ -7,7 +7,12 @@
 			$builderActiveHidden: $('<input name="page-builder-active" type="hidden">'),
 			$wpPostBodyContent: $('#post-body-content'),
 			$wpPostDivRich: $('#postdivrich'),
-			$wpContentWrap: $('#wp-content-wrap')
+			$wpContentWrap: $('#wp-content-wrap'),
+			$wpTemplatesSelect: $('select[name="page_template"]:first'),
+		},
+		events: _.extend({}, Backbone.Events),
+		builderIsActive: function() {
+			return this.elements.$builderActiveHidden.val() === 'true';
 		},
 		getWPEditorContent: function() {
 			/*
@@ -47,7 +52,7 @@
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val('true');
 
-			this.fixOnFirstShowOrHide(true);
+			this.events.trigger('show');
 		},
 		hideBuilder: function() {
 			this.elements.$wpPostBodyContent.removeClass('page-builder-visible');
@@ -61,7 +66,7 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
 
-			this.fixOnFirstShowOrHide(false);
+			this.events.trigger('hide');
 		},
 		initButtons: function() {
 			// insert the show button
@@ -146,22 +151,19 @@
 				return false;
 			}
 
-			var $select = $('select[name="page_template"]:first');
-
-			if (!$select.length) {
+			if (!this.elements.$wpTemplatesSelect.length) {
 				return false;
 			}
 
-			var self = this,
-				onChange = function(){
-					if ($.inArray($select.val(), data.builderTemplates) === -1) {
-						self.hideBuilder();
-					} else {
-						self.showBuilder();
-					}
-				};
+			var onChange = _.bind(function(){
+				if ($.inArray(this.elements.$wpTemplatesSelect.val(), data.builderTemplates) === -1) {
+					this.hideBuilder();
+				} else {
+					this.showBuilder();
+				}
+			}, this);
 
-			$select.on('change', onChange);
+			this.elements.$wpTemplatesSelect.on('change', onChange);
 
 			fwe.one('fw-builder:' + 'page-builder' + ':register-items', function(){
 				/**
@@ -181,6 +183,18 @@
 					}
 				}, 30);
 			});
+
+			/**
+			 * On builder show, make sure that a template that supports builder is selected in wp templates select
+			 */
+			this.events.on('show', _.bind(function () {
+				this.elements.$wpTemplatesSelect.find('> option').each(function(){
+					if ($.inArray($(this).attr('value'), data.builderTemplates) !== -1) {
+						$(this).prop('selected', true);
+						return false;
+					}
+				});
+			}, this));
 		},
 		init: function() {
 			this.initButtons();
@@ -188,6 +202,17 @@
 			this.bindEvents();
 			this.removeScreenOptionsCheckbox();
 			this.initTemplatesSelectSync();
+
+			// fixes on firs show or hide
+			{
+				this.events.once('show', _.bind(function(){
+					this.fixOnFirstShowOrHide(true);
+				}, this));
+
+				this.events.once('hide', _.bind(function(){
+					this.fixOnFirstShowOrHide(false);
+				}, this));
+			}
 		}
 	};
 
