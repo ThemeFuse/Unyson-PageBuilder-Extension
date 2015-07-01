@@ -53,12 +53,14 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			);
 		} elseif ($option['editor_integration'] === true) {
 			$this->editor_integration_enabled = true;
+
 			wp_enqueue_style(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
 				$static_uri . '/css/editor_integration.css',
 				array(),
 				$version
 			);
+
 			wp_enqueue_script(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
 				$static_uri . '/js/editor_integration.js',
@@ -66,6 +68,26 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				$version,
 				true
 			);
+
+			{
+				$builder_templates = apply_filters('fw_ext_page_builder_templates', array(
+					// 'template-file.php', 'dir/template-file.php' // these needs to match http://bit.ly/1LAMfjN
+				));
+
+				// remove not existing templates
+				$builder_templates = array_intersect(
+					array_keys(wp_get_theme()->get_page_templates()),
+					$builder_templates
+				);
+
+				/**
+				 * Make sure the array is not associative array('template.php', ...)
+				 * instead of array(2 => 'template.php', ...)
+				 * because the json needs to be ['template.php', ...] instead of {2: 'template.php', ...}
+				 */
+				$builder_templates = array_values($builder_templates);
+			}
+
 			wp_localize_script(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
 				'fw_option_type_' . str_replace('-', '_', $this->get_type()) . '_editor_integration_data',
@@ -78,9 +100,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 					'renderInBuilderMode' => isset($data['value']['builder_active'])
 						? $data['value']['builder_active']
 						: apply_filters( 'fw_page_builder_set_as_default', false ),
-					'builderTemplates' => apply_filters('fw_ext_page_builder_templates', array(
-						// 'template-file.php', 'dir/template-file.php' // these needs to match http://bit.ly/1LAMfjN
-					))
+					'builderTemplates' => $builder_templates,
 				)
 			);
 		}
