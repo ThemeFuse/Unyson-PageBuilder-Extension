@@ -120,12 +120,26 @@
 
 			getMenuHtml: function () {
 				var shortcodeMenuHtml = '';
-				tinymce.each(shortcodeList, function (val, key) {
-						shortcodeMenuHtml += '<div class="fw-shortcode-item" data-shortcode-tag="' + key + '">' +
-						'<div class="inner">' +
-						'<img src="' + val.image + '" />' +
-						'<p><span>' + val.title + '</span></p>' +
-						'</div>' +
+
+				tinymce.each(shortcodeList, function (shortcode, key) {
+					{
+						var iconHtml = '';
+
+						if (shortcode.icon) {
+							if (typeof FwBuilderComponents.ItemView.iconToHtml == "undefined") {
+								iconHtml = '<img src="' + shortcode.icon + '"/>';
+							} else {
+								iconHtml = FwBuilderComponents.ItemView.iconToHtml(shortcode.icon);
+							}
+						}
+					}
+
+					shortcodeMenuHtml += '' +
+						'<div class="fw-shortcode-item" data-shortcode-tag="' + key + '">' +
+							'<div class="inner">' +
+								iconHtml +
+								'<p><span>' + shortcode.title + '</span></p>' +
+							'</div>' +
 						'</div>';
 				});
 
@@ -297,17 +311,41 @@
 
 			getElementHTML: function (tag, id) {
 				var shortcode = shortcodeList[tag];
-				return '<span data-shortcode-tag="' + tag + '" data-id="' + id + '" class="mceNonEditable mceItem fw-shortcode unselectable" contenteditable="false">' +
-				'<span class="mceItem  fw-component-bar mceNonEditable unselectable" contenteditable="false">' +
-				'<img class="icon" src="' + shortcode.image + '"/>' +
-				'<span class="mceItem mceNonEditable unselectable" contenteditable="false">' + shortcode.title + '</span>' +
-					'<span class="fw-item-buttons mceItem fw-component-controls mceNonEditable unselectable">' +
-						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-admin-generic fw-item-edit">&nbsp;</i>' +
-						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-admin-page fw-item-clone">&nbsp;</i>' +
-						'<i class="mceItem mceNonEditable unselectable dashicons dashicons-no fw-item-delete">&nbsp;</i>' +
+
+				{
+					var icon = '';
+
+					if (shortcode.icon) {
+						if (typeof FwBuilderComponents.ItemView.iconToHtml == "undefined") {
+							icon = '<img class="icon" src="' + shortcode.icon + '"/>';
+						} else {
+							icon = FwBuilderComponents.ItemView.iconToHtml(shortcode.icon);
+						}
+					}
+
+					icon = jQuery(
+						'<div>' + icon + '</div>'
+					);
+					icon.children()
+						.addClass('mceItem mceNonEditable unselectable')
+						.attr('contenteditable', 'false')
+						.filter('span,i,em').html('&nbsp;');
+					icon = icon.html();
+					console.log(icon);
+				}
+
+				return '' +
+				'<span data-shortcode-tag="' + tag + '" data-id="' + id + '" class="mceNonEditable mceItem fw-shortcode unselectable" contenteditable="false">' +
+					'<span class="mceItem fw-component-bar mceNonEditable unselectable" contenteditable="false">' +
+						icon +
+						'<span class="mceItem mceNonEditable unselectable" contenteditable="false">' + shortcode.title + '</span>' +
+						'<span class="fw-item-buttons mceItem fw-component-controls mceNonEditable unselectable">' +
+							'<i class="mceItem mceNonEditable unselectable dashicons dashicons-admin-generic fw-item-edit">&nbsp;</i>' +
+							'<i class="mceItem mceNonEditable unselectable dashicons dashicons-admin-page fw-item-clone">&nbsp;</i>' +
+							'<i class="mceItem mceNonEditable unselectable dashicons dashicons-no fw-item-delete">&nbsp;</i>' +
+						'</span>' +
+						'<span class="mceItem mceNonEditable fw-component-title unselectable fw-hide" style="display: none">3Nd0fL1N3Sh0rtC0d3</span>' +
 					'</span>' +
-				'<span class="mceItem mceNonEditable fw-component-title unselectable fw-hide" style="display: none">3Nd0fL1N3Sh0rtC0d3</span>' +
-				'</span>' +
 				'</span>';
 			},
 

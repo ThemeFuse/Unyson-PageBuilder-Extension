@@ -33,9 +33,20 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 			$hover_tooltip = $item['description'] ? "data-hover-tip='{$item['description']}'" : '';
 			$inner_classes = 'no-image';
 			$image_html    = '';
+
 			if (isset($item['image'])) {
+				// convert old key to new
+				$item['icon'] = $item['image'];
+				unset($item['image']);
+			}
+
+			if (isset($item['icon'])) {
 				$inner_classes = '';
-				$image_html    = "<img src='{$item['image']}' />";
+				if (version_compare(fw_ext('builder')->manifest->get_version(), '1.1.12', '<')) {
+					$image_html = fw_html_tag('img', array('src' => $item['icon']));
+				} else {
+					$image_html = fw_ext_builder_string_to_icon_html($item['icon']);
+				}
 			}
 
 			if ( ! isset( $thumbs[ $item['title'] ] ) ) {

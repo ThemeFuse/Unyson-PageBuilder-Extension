@@ -71,3 +71,15 @@
 	color: #b2b2b2;
 	vertical-align: middle;
 }
+
+
+.fw-shortcode span.fw-ext-builder-icon {
+	color: #8c8c8c;
+	font-size: 16px;
+	position: relative;
+	bottom: -2px;
+}
+
+.fw-shortcode span.fw-ext-builder-icon.unycon {
+	font-family: 'Unycon';
+}

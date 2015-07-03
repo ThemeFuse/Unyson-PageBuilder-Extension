@@ -69,8 +69,8 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 				)
 			);
 
-			if (isset($item['image'])) {
-				$thumb_data[$id]['image'] = $item['image'];
+			if (isset($item['icon'])) {
+				$thumb_data[$id]['icon'] = $item['icon'];
 			}
 		}
 
@@ -108,15 +108,18 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 								'edit' => __( 'Edit', 'fw' ),
 								'remove' => __( 'Remove', 'fw' ),
 								'duplicate' => __( 'Duplicate', 'fw' ),
-							)
+							),
+							'icon' => null
 						),
 						$config
 					);
 
-					// search for the thumb image (icon)
-					$builder_icon_uri = $shortcode->locate_URI('/static/img/page_builder.png');
-					if ($builder_icon_uri) {
-						$item_data['image'] = $builder_icon_uri;
+					if (
+						!isset($item_data['icon'])
+						&&
+						($icon = $shortcode->locate_URI('/static/img/page_builder.png'))
+					) {
+						$item_data['icon'] = $icon;
 					}
 
 					// if the shortcode has options we store them and then they are passed to the modal

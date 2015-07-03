@@ -161,7 +161,8 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 */
 	public function _filter_admin_enquee_editor_styles( $mce_css ) {
 		if ( $this->is_supported_post() ) {
-			$mce_css .= ', ' . $this->get_declared_URI( '/static/css/content.css' );
+			$mce_css .= ', ' . $this->get_uri( '/static/css/content.css' )
+				. ', '. fw_get_framework_directory_uri('/static/libs/unycon/styles.css');
 		}
 
 		return $mce_css;
@@ -244,18 +245,21 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 
 			$config = $shortcode->get_config( 'page_builder' );
 			if ( $config ) {
-				// check if the shortcode type is valid
-				$item_data               = array_merge(
+				$item_data = array_merge(
 					array(
 						'title' => $tag,
+						'icon' => null,
 					),
 					$config
 				);
 				$item_data['popup_size'] = isset( $config['popup_size'] ) ? $config['popup_size'] : 'small';
 
-				$builder_icon_uri = $shortcode->locate_URI( '/static/img/page_builder.png' );
-				if ( $builder_icon_uri ) {
-					$item_data['image'] = $builder_icon_uri;
+				if (
+					!isset($item_data['icon'])
+					&&
+					($icon = $shortcode->locate_URI( '/static/img/page_builder.png' ))
+				) {
+					$item_data['icon'] = $icon;
 				}
 
 				// if the shortcode has options we store them and then they are passed to the modal

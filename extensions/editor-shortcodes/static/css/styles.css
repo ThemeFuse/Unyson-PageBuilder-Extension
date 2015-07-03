@@ -56,6 +56,19 @@
 	opacity: 1;
 }
 
+.mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon {
+	color: #b4b4b4;
+	font-size: 16px;
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item:hover span.fw-ext-builder-icon {
+	color: #8c8c8c;
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon.unycon {
+	font-family: 'Unycon';
+}
+
 
 .mce-fw-shortcodes-container .fw-shortcode-item p {
 	text-align: center;

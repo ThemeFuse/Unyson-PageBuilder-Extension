@@ -23,9 +23,13 @@
 			},
 			template: _.template(
 				'<div class="pb-item-type-simple <% if (hasOptions) { %>has-options <% } %>pb-item fw-row">' +
-					'<% if (image) { %>' +
-					'<img src="<%- image %>" />' +
-					'<%  } %>' +
+					'<% if (icon) { %>' +
+						'<% if (typeof FwBuilderComponents.ItemView.iconToHtml == "undefined") { %>' +
+							'<img src="<%- icon %>" alt="Icon" />' +
+						'<% } else { %>' +
+							'<%= FwBuilderComponents.ItemView.iconToHtml(icon) %>' +
+						'<% } %>' +
+					'<% } %>' +
 
 					'<%- title %>' + // TODO: see if needs to bee escaped or not
 					'<div class="controls">' +
@@ -97,7 +101,7 @@
 
 					var templateData = {
 						title: shortcodeData.title,
-						image: shortcodeData.image,
+						icon: shortcodeData.icon,
 						edit: shortcodeData.localize.edit,
 						remove: shortcodeData.localize.remove,
 						duplicate: shortcodeData.localize.duplicate,
