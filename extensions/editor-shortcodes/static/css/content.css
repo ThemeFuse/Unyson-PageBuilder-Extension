@@ -77,7 +77,19 @@
 	color: #8c8c8c;
 	font-size: 16px;
 	position: relative;
-	bottom: -2px;
+	bottom: -1px;
+	margin-right: 5px;
+}
+
+.fw-shortcode span.fw-ext-builder-icon.fa {
+	bottom: 0;
+}
+
+.fw-shortcode span.fw-ext-builder-icon.dashicons {
+	/* dashicons are smaller than font grid (it's like padding), I don't know why the font was created like that */
+	font-size: 20px;
+	font-family: 'dashicons';
+	margin-right: 7px;
 }
 
 .fw-shortcode span.fw-ext-builder-icon.unycon {

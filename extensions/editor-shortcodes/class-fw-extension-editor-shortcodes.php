@@ -161,8 +161,13 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 */
 	public function _filter_admin_enquee_editor_styles( $mce_css ) {
 		if ( $this->is_supported_post() ) {
-			$mce_css .= ', ' . $this->get_uri( '/static/css/content.css' )
-				. ', '. fw_get_framework_directory_uri('/static/libs/unycon/styles.css');
+			$mce_css .= ', ' . implode(', ', array(
+				$this->get_uri( '/static/css/content.css' ),
+				// in case some shortcodes use unycon icons
+				fw_get_framework_directory_uri('/static/libs/unycon/unycon.css'),
+				// in case some shortcodes use fontAwesome icons
+				fw_get_framework_directory_uri('/static/libs/font-awesome/css/font-awesome.min.css')
+			));
 		}
 
 		return $mce_css;

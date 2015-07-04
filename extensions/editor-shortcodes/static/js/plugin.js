@@ -331,7 +331,6 @@
 						.attr('contenteditable', 'false')
 						.filter('span,i,em').html('&nbsp;');
 					icon = icon.html();
-					console.log(icon);
 				}
 
 				return '' +

@@ -57,8 +57,13 @@
 }
 
 .mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon {
-	color: #b4b4b4;
+	color: #b3b3b3;
 	font-size: 16px;
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon.dashicons {
+	/* dashicons are smaller than font grid (it's like padding), I don't know why the font was created like that */
+	font-size: 20px;
 }
 
 .mce-fw-shortcodes-container .fw-shortcode-item:hover span.fw-ext-builder-icon {
@@ -67,6 +72,14 @@
 
 .mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon.unycon {
 	font-family: 'Unycon';
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon.dashicons {
+	font-family: 'dashicons';
+}
+
+.mce-fw-shortcodes-container .fw-shortcode-item span.fw-ext-builder-icon.fa {
+	font-family: 'FontAwesome';
 }
 
 
