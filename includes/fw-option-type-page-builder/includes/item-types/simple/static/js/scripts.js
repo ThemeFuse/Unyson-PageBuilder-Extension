@@ -31,7 +31,7 @@
 						'<% } %>' +
 					'<% } %>' +
 
-					'<%- title %>' + // TODO: see if needs to bee escaped or not
+					'<%= title %>' +
 					'<div class="controls">' +
 
 						'<% if (hasOptions) { %>' +
@@ -44,7 +44,37 @@
 				'</div>'
 			),
 			render: function() {
-				this.defaultRender(this.templateData);
+				{
+					var title = this.templateData.title,
+						titleTemplate = builderData[ this.model.get('shortcode') ].title_template;
+
+					if (titleTemplate && this.model.get('atts')) {
+						try {
+							title = _.template(
+								jQuery.trim(titleTemplate),
+								{
+									o: this.model.get('atts'),
+									title: title
+								},
+								{
+									evaluate: /\{\{(.+?)\}\}/g,
+									interpolate: /\{\{=(.+?)\}\}/g,
+									escape: /\{\{-(.+?)\}\}/g
+								}
+							);
+						} catch (e) {
+							console.error('$cfg["page_builder"]["title_template"]', e.message);
+
+							title = _.template('<%- title %>', {title: title});
+						}
+					} else {
+						title = _.template('<%- title %>', {title: title});
+					}
+				}
+
+				this.defaultRender(
+					jQuery.extend({}, this.templateData, {title: title})
+				);
 			},
 			events: {
 				'click': 'editOptions',
@@ -89,8 +119,10 @@
 						model: this
 					});
 
-					alert('The shortcode: "' + shortcode +  '" not found, it was probably deleted!');
-					console.error('The requested shortcode: "%s" not found, , it was probably deleted!', shortcode);
+					fw.soleModal.show(
+						'fw-page-builder-shortcode-not-found:'+ shortcode,
+						'<p class="fw-text-danger">The shortcode <code>' + shortcode + '</code> not found.<p>'
+					);
 				} else {
 					shortcodeData = builderData[shortcode];
 					modalOptions = shortcodeData.options;

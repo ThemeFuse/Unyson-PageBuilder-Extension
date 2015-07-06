@@ -109,7 +109,8 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 								'remove' => __( 'Remove', 'fw' ),
 								'duplicate' => __( 'Duplicate', 'fw' ),
 							),
-							'icon' => null
+							'icon' => null,
+							'title_template' => null,
 						),
 						$config
 					);
