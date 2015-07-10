@@ -36,8 +36,12 @@ class _FW_Ext_Page_Builder_Shortcode_Atts_Coder
 
 		// http://www.degraeve.com/reference/specialcharacters.php
 		$special = array(
-			'[' => '&#91;',
-			']' => '&#93;',
+			// fixes http://bit.ly/1HoHVhl
+			'['  => '&#91;',
+			']'  => '&#93;',
+
+			// fixes http://bit.ly/1J887Om
+			"\r\n" => '&#010;',
 		);
 		return str_replace(array_keys($special), array_values($special), $str);
 	}

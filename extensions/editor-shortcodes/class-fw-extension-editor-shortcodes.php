@@ -82,7 +82,6 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 			return false;
 		}
 
-
 		//todo: field 'content' smth changes ?
 		$post_content = FW_Request::POST( 'content' );
 		$input_value  = FW_Request::POST( $this->meta_key );
