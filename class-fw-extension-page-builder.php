@@ -35,8 +35,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	private function add_filters() {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
-		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
+
+		/**
+		 * @deprecated Since Shortcodes 1.3.0
+		 */
+		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
 	}
 
 	private function add_actions() {
@@ -256,6 +260,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @param $atts
 	 *
 	 * @return mixed
+	 *
+	 * @deprecated Since Shortcodes 1.3.0
 	 */
 	public function _theme_filter_fw_shortcode_atts( $atts ) {
 		return $this->get_shortcode_atts_coder()->decode_atts( $atts );

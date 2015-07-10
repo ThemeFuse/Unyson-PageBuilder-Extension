@@ -42,6 +42,9 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	}
 
 	private function add_theme_filters() {
+		/**
+		 * @deprecated Since Shortcodes 1.3.0
+		 */
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ), 10, 3 );
 	}
 
@@ -61,9 +64,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		);
 	}
 
-
 	public function _action_admin_save_shortcodes( $post_id, $post ) {
-
 		if ( wp_is_post_autosave( $post_id ) ) {
 			$original_id   = wp_is_post_autosave( $post_id );
 			$original_post = get_post( $original_id );
@@ -75,26 +76,29 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 			$original_post = $post;
 		}
 
-		if ( ! $this->is_supported_post( $original_id )
-			|| ! post_type_supports( $original_post->post_type, $this->get_parent()->get_supports_feature_name() )
-
+		if (
+			! $this->is_supported_post( $original_id )
+			||
+			! post_type_supports( $original_post->post_type, $this->get_parent()->get_supports_feature_name() )
 		) {
 			return false;
 		}
 
-		//todo: field 'content' smth changes ?
+		// todo: field 'content' smth changes ?
 		$post_content = FW_Request::POST( 'content' );
+
+		// {"notification":{"1":{"message":"Message!","type":""}},"button":{"1":{},"2":{}},"text_block":{"1":{}}}
 		$input_value  = FW_Request::POST( $this->meta_key );
 
 		$tmp_val = json_decode( $input_value, true );
 		$new_val = array();
 
-		//supported shortcodes
+		// supported shortcodes
 		$tags = implode( '|', array_keys( fw_ext( 'shortcodes' )->get_shortcodes() ) );
 
 		$default_values = array();
 
-		//only supported tags & integer\alphabetic string id
+		// only supported tags & integer\alphabetic string id
 		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*)fw_shortcode_id=[\"\']([A-Za-z0-9]+)[\"\'](?:\s?[^\[\]]*)\]/',
 			$post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
@@ -113,7 +117,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 			}
 		}
 
-		//only supported tags match (defaults)
+		// only supported tags match (defaults)
 		if ( preg_match_all( '/\[(' . $tags . ')(?:\s+[^\[\]]*).*(?:\s?[^\[\]]*)\]/', $post_content, $output_array ) ) {
 			foreach ( $output_array[0] as $match_key => $match ) {
 				$tag       = $output_array[1][ $match_key ];
@@ -124,10 +128,16 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 			}
 		}
 
-
-		update_post_meta( $post_id, $this->meta_key_defaults,
-			str_replace( '\\', '\\\\', json_encode( $default_values ) ) );
-		update_post_meta( $post_id, $this->meta_key, str_replace( '\\', '\\\\', json_encode( $new_val ) ) );
+		update_post_meta(
+			$post_id,
+			$this->meta_key_defaults,
+			str_replace( '\\', '\\\\', json_encode( $default_values ) )
+		);
+		update_post_meta(
+			$post_id,
+			$this->meta_key,
+			str_replace( '\\', '\\\\', json_encode( $new_val ) )
+		);
 
 		return true;
 	}
@@ -218,6 +228,7 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 
 	/**
 	 * Replace shortcode atts with saved options
+	 * @deprecated Since Shortcodes 1.3.0
 	 */
 	public function _theme_filter_fw_shortcode_atts( $atts, $content, $tag ) {
 		global $post;
