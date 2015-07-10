@@ -1,5 +1,8 @@
 <?php if (!defined('FW')) die('Forbidden');
 
+/**
+ * @deprecated Since Shortcodes 1.3.0
+ */
 class _FW_Ext_Page_Builder_Shortcode_Atts_Coder
 {
 	public function encode_atts($atts)

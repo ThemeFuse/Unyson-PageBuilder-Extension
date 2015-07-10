@@ -8,6 +8,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	/**
 	 * @var _FW_Ext_Page_Builder_Shortcode_Atts_Coder $shortcode_atts_coder
+	 * @deprecated Since Shortcodes 1.3.0
 	 */
 	private $shortcode_atts_coder;
 
