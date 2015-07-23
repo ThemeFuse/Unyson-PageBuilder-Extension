@@ -14,7 +14,7 @@ $options = array(
 				'value'   => array(
 					'page' => true
 				),
-				'desc'    => __( 'Select the options you want the Page Builder extension to be activated for', 'fw' )
+				'desc'    => __( 'Select the posts you want the Page Builder extension to be activated for', 'fw' )
 			),
 			apply_filters('fw_ext_page_builder_settings_options', array())
 		)
