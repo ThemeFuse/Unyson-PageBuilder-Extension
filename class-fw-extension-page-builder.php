@@ -243,6 +243,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 						===
 						fw_get_db_post_option( $prev_revision->ID, $this->builder_option_key .'/shortcode_notation' )
 					)
+					&&
+					(
+						wp_is_post_autosave($current_revision->ID)
+						===
+						wp_is_post_autosave($prev_revision->ID)
+					)
 				) {
 					wp_delete_post($current_revision->ID);
 
