@@ -151,8 +151,8 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			'json' => json_encode($items_value),
 		);
 
-		/*
-		 * correction means that if someone drags a simple shortcode
+		/**
+		 * Correction means that if someone drags a simple shortcode
 		 * into the canvas area of the builder, it will be wrapped
 		 * into a column, then a row and finally a section.
 		 * This is done to ensure that a correct grid

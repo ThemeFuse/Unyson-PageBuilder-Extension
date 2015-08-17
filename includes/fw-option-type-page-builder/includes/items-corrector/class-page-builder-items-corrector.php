@@ -103,13 +103,21 @@ class _Page_Builder_Items_Corrector
 					break;
 
 				case 'simple':
-					$fixed_section[] = $this->wrap_into_row(
-						array(
-							$this->wrap_into_column(
-								array($section[$i])
+					if (
+						is_array(fw_ext('page-builder')->get_config('disable_correction'))
+						&&
+						in_array($section[$i]['shortcode'], fw_ext('page-builder')->get_config('disable_correction'))
+					) {
+						$fixed_section[] = $section[$i];
+					} else {
+						$fixed_section[] = $this->wrap_into_row(
+							array(
+								$this->wrap_into_column(
+									array( $section[ $i ] )
+								)
 							)
-						)
-					);
+						);
+					}
 					break;
 
 				// Page Builder custom item types
@@ -170,22 +178,30 @@ class _Page_Builder_Items_Corrector
 						break;
 
 					case 'simple':
-						$auto_generated_section[] = $this->wrap_into_row(
-							array(
-								$this->wrap_into_column(
-									array($items[$i])
-								)
-							)
-						);
-						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'simple') {
-							$i++;
+						if (
+							is_array(fw_ext('page-builder')->get_config('disable_correction'))
+							&&
+							in_array($items[$i]['shortcode'], fw_ext('page-builder')->get_config('disable_correction'))
+						) {
+							$fixed_items[] = $items[$i];
+						} else {
 							$auto_generated_section[] = $this->wrap_into_row(
 								array(
 									$this->wrap_into_column(
-										array($items[$i])
+										array( $items[ $i ] )
 									)
 								)
 							);
+							while ( isset( $items[ $i + 1 ] ) && $items[ $i + 1 ]['type'] === 'simple' ) {
+								$i ++;
+								$auto_generated_section[] = $this->wrap_into_row(
+									array(
+										$this->wrap_into_column(
+											array( $items[ $i ] )
+										)
+									)
+								);
+							}
 						}
 						break;
 
@@ -208,7 +224,7 @@ class _Page_Builder_Items_Corrector
 							);
 						}
 						// TODO: determine some good way to handle custom item types
-//						$auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
+						// $auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
 				}
 			}
 		}
