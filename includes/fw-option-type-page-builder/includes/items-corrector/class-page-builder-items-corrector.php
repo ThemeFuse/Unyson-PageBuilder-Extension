@@ -80,6 +80,11 @@ class _Page_Builder_Items_Corrector
 
 	private function correct_section($section)
 	{
+		/**
+		 * @var FW_Extension_Shortcodes $shortcodes_extension
+		 */
+		$shortcodes_extension = fw_ext('shortcodes');
+
 		$fixed_section = array();
 		for ($i = 0, $count = count($section); $i < $count; $i++) {
 			switch ($section[$i]['type']) {
@@ -104,9 +109,9 @@ class _Page_Builder_Items_Corrector
 
 				case 'simple':
 					if (
-						is_array(fw_ext('page-builder')->get_config('disable_correction'))
+						($shortcode_instance = $shortcodes_extension->get_shortcode($section[$i]['shortcode']))
 						&&
-						in_array($section[$i]['shortcode'], fw_ext('page-builder')->get_config('disable_correction'))
+						$shortcode_instance->get_config('page_builder/disable_correction')
 					) {
 						$fixed_section[] = $section[$i];
 					} else {
@@ -140,6 +145,11 @@ class _Page_Builder_Items_Corrector
 
 	private function correct_root_items()
 	{
+		/**
+		 * @var FW_Extension_Shortcodes $shortcodes_extension
+		 */
+		$shortcodes_extension = fw_ext('shortcodes');
+
 		$items = $this->items;
 		$fixed_items = array();
 
@@ -179,9 +189,9 @@ class _Page_Builder_Items_Corrector
 
 					case 'simple':
 						if (
-							is_array(fw_ext('page-builder')->get_config('disable_correction'))
+							($shortcode_instance = $shortcodes_extension->get_shortcode($items[$i]['shortcode']))
 							&&
-							in_array($items[$i]['shortcode'], fw_ext('page-builder')->get_config('disable_correction'))
+							$shortcode_instance->get_config('page_builder/disable_correction')
 						) {
 							$fixed_items[] = $items[$i];
 						} else {

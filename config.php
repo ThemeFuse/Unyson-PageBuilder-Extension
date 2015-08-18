@@ -8,7 +8,14 @@ $cfg = array();
  * - shortcode is auto wrapped in: section > column > shortcode
  * - column is auto wrapped in: section > column
  *
- * true: To disable correction for all shortcodes
- * array('shortcode_name', ...): To disable correction for specific shortcodes // @since 1.4.2
+ * Set `true` To disable correction for all shortcodes
+ *
+ * To disable correction for specific shortcode,
+ * set in `extensions/shortcodes/shortcodes/{shortcode_name}/config.php`
+ *
+ * $cfg['page_builder'] = array(
+ *     'disable_correction' = true,
+ *     ...
+ * );
  */
 $cfg['disable_correction'] = false;
