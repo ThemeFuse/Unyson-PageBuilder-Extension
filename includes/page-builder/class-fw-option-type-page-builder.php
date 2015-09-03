@@ -29,7 +29,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	 */
 	protected function _render($id, $option, $data)
 	{
-		$static_uri = fw()->extensions->get('page-builder')->get_declared_URI('/includes/fw-option-type-page-builder/static');
+		$static_uri = fw()->extensions->get('page-builder')->get_uri('/includes/page-builder/static');
 		$version = fw()->extensions->get('page-builder')->manifest->get_version();
 
 		wp_enqueue_style(

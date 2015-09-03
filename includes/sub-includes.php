@@ -1,3 +1,3 @@
 <?php if (!defined('FW')) die('Forbidden');
 
-require dirname(__FILE__) . '/fw-option-type-page-builder/class-fw-option-type-page-builder.php';
+require dirname(__FILE__) . '/page-builder/class-fw-option-type-page-builder.php';
