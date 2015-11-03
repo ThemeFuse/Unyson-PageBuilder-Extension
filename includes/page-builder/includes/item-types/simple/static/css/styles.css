@@ -31,6 +31,10 @@
 	margin-right: 9px;
 	vertical-align: text-bottom;
 }
+body.rtl .pb-item-type-simple > img {
+	margin-left: 9px;
+	margin-right: 0;
+}
 
 /* Controls */
 .pb-item-type-simple .controls {
@@ -38,6 +42,10 @@
 	top: 18px;
 	right: 5px;
 	display: none;
+}
+body.rtl .pb-item-type-simple .controls {
+	right: initial;
+	left: 5px;
 }
 .pb-item-type-simple:hover .controls {
 	display: block;
