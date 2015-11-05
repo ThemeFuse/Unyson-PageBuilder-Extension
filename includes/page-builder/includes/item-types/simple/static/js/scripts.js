@@ -13,7 +13,8 @@
 						title: options.templateData.title,
 						options: options.modalOptions,
 						values: this.model.get('atts'),
-						size: options.modalSize
+						size: options.modalSize,
+						headerElements: builderData[ this.model.get('shortcode') ].header_elements
 					});
 
 					this.listenTo(this.modal, 'change:values', function(modal, values) {
