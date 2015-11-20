@@ -14,7 +14,7 @@
 						options: options.modalOptions,
 						values: this.model.get('atts'),
 						size: options.modalSize,
-						headerElements: builderData[ this.model.get('shortcode') ].header_elements
+						headerElements: builderData[ this.model.get('shortcode') ].popup_header_elements
 					});
 
 					this.listenTo(this.modal, 'change:values', function(modal, values) {
