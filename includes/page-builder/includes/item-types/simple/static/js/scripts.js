@@ -20,6 +20,33 @@
 					this.listenTo(this.modal, 'change:values', function(modal, values) {
 						this.model.set('atts', values);
 					});
+
+					this.listenTo(this.modal, {
+						'open': function(){
+							var event = 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:options-modal:open'
+								.replace('{builder-type}', builder.get('type'))
+								.replace('{item-type}', this.model.get('type'))
+								.replace('{sub-type}', this.model.get('shortcode'));
+
+							fwEvents.trigger(event, {
+								modal: this.modal,
+								item: this.model,
+								itemView: this
+							});
+						},
+						'close': function(){
+							var event = 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:options-modal:close'
+								.replace('{builder-type}', builder.get('type'))
+								.replace('{item-type}', this.model.get('type'))
+								.replace('{sub-type}', this.model.get('shortcode'));
+
+							fwEvents.trigger(event, {
+								modal: this.modal,
+								item: this.model,
+								itemView: this
+							});
+						}
+					});
 				}
 			},
 			template: _.template(
