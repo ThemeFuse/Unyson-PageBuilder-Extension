@@ -1,7 +1,14 @@
 (function(fwe, _, builderData) {
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
-			PageBuilderSimpleItemView;
+			PageBuilderSimpleItemView,
+			getEventName = function(itemModel, event) {
+				return 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:'
+					.replace('{builder-type}', builder.get('type'))
+					.replace('{item-type}', itemModel.get('type'))
+					.replace('{sub-type}', itemModel.get('shortcode'))
+					+ event;
+			};
 
 		PageBuilderSimpleItemView = builder.classes.ItemView.extend({
 			initialize: function(options) {
@@ -23,24 +30,21 @@
 
 					this.listenTo(this.modal, {
 						'open': function(){
-							var event = 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:options-modal:open'
-								.replace('{builder-type}', builder.get('type'))
-								.replace('{item-type}', this.model.get('type'))
-								.replace('{sub-type}', this.model.get('shortcode'));
-
-							fwEvents.trigger(event, {
+							fwEvents.trigger(getEventName(this.model, 'options-modal:open'), {
 								modal: this.modal,
 								item: this.model,
 								itemView: this
 							});
 						},
 						'close': function(){
-							var event = 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:options-modal:close'
-								.replace('{builder-type}', builder.get('type'))
-								.replace('{item-type}', this.model.get('type'))
-								.replace('{sub-type}', this.model.get('shortcode'));
-
-							fwEvents.trigger(event, {
+							fwEvents.trigger(getEventName(this.model, 'options-modal:close'), {
+								modal: this.modal,
+								item: this.model,
+								itemView: this
+							});
+						},
+						'change:values': function(){
+							fwEvents.trigger(getEventName(this.model, 'options-modal:change:values'), {
 								modal: this.modal,
 								item: this.model,
 								itemView: this
