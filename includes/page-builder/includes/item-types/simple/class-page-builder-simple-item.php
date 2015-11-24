@@ -33,6 +33,8 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 			str_replace('-', '_', $this->get_builder_type()) . '_item_type_' . $this->get_type() . '_data',
 			$this->get_builder_data()
 		);
+
+		do_action('fw:ext:page-builder:item-type:simple:enqueue_static');
 	}
 
 	/**
