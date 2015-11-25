@@ -51,6 +51,18 @@
 							});
 						}
 					});
+
+					this.listenTo(this.modal.content, {
+						'render': function(){
+							if (this.modal.get('html').length) {
+								fwEvents.trigger(getEventName(this.model, 'options-modal:render'), {
+									modal: this.modal,
+									item: this.model,
+									itemView: this
+								});
+							}
+						}
+					});
 				}
 			},
 			template: _.template(
