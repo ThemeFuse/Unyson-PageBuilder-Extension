@@ -36,6 +36,13 @@
 								itemView: this
 							});
 						},
+						'render': function(){
+							fwEvents.trigger(getEventName(this.model, 'options-modal:render'), {
+								modal: this.modal,
+								item: this.model,
+								itemView: this
+							});
+						},
 						'close': function(){
 							fwEvents.trigger(getEventName(this.model, 'options-modal:close'), {
 								modal: this.modal,
@@ -49,18 +56,6 @@
 								item: this.model,
 								itemView: this
 							});
-						}
-					});
-
-					this.listenTo(this.modal.content, {
-						'render': function(){
-							if (this.modal.get('html').length) {
-								fwEvents.trigger(getEventName(this.model, 'options-modal:render'), {
-									modal: this.modal,
-									item: this.model,
-									itemView: this
-								});
-							}
 						}
 					});
 				}
