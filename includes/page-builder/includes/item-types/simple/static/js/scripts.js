@@ -2,18 +2,23 @@
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
 			PageBuilderSimpleItemView,
-			triggerEvent = function(itemModel, event) {
+			triggerEvent = function(itemModel, event, eventdata) {
 				event = 'fw:builder-type:{builder-type}:item-type:{item-type}:'
 					.replace('{builder-type}', builder.get('type'))
 					.replace('{item-type}', itemModel.get('type'))
 					+ event;
 
-				fwEvents.trigger(event, {
+				var data = {
 					modal: itemModel.view.modal,
 					item: itemModel,
 					itemView: itemModel.view,
 					shortcode: itemModel.get('shortcode')
-				});
+				};
+
+				fwEvents.trigger(event, eventdata
+					? _.extend(eventdata, data)
+					: data
+				);
 			};
 
 		PageBuilderSimpleItemView = builder.classes.ItemView.extend({
@@ -104,6 +109,13 @@
 				this.defaultRender(
 					jQuery.extend({}, this.templateData, {title: title})
 				);
+
+				/**
+				 * Other scripts can append/prepend other control $elements
+				 */
+				triggerEvent(this.model, 'controls', {
+					$controls: this.$('.controls:first')
+				});
 			},
 			events: {
 				'click': 'editOptions',
