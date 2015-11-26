@@ -39,7 +39,7 @@ body.rtl .pb-item-type-simple > img {
 /* Controls */
 .pb-item-type-simple .controls {
 	position: absolute;
-	top: 18px;
+	top: 14px;
 	right: 5px;
 	display: none;
 }
@@ -60,12 +60,11 @@ body.rtl .pb-item-type-simple .controls {
 	}
 }
 
-
-.pb-item-type-simple .controls  i {
+.pb-item-type-simple .controls i {
 	font-size: 16px;
 	cursor: pointer;
 	color: #b2b2b2;
 }
-.pb-item-type-simple .controls  i:hover {
+.pb-item-type-simple .controls i:hover {
 	color: #8c8c8c
 }
