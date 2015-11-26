@@ -2,12 +2,18 @@
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
 			PageBuilderSimpleItemView,
-			getEventName = function(itemModel, event) {
-				return 'fw:builder-type:{builder-type}:item-type:{item-type}:sub-type:{sub-type}:'
+			triggerEvent = function(itemModel, event) {
+				event = 'fw:builder-type:{builder-type}:item-type:{item-type}:'
 					.replace('{builder-type}', builder.get('type'))
 					.replace('{item-type}', itemModel.get('type'))
-					.replace('{sub-type}', itemModel.get('shortcode'))
 					+ event;
+
+				fwEvents.trigger(event, {
+					modal: itemModel.view.modal,
+					item: itemModel,
+					itemView: itemModel.view,
+					shortcode: itemModel.get('shortcode')
+				});
 			};
 
 		PageBuilderSimpleItemView = builder.classes.ItemView.extend({
@@ -30,32 +36,16 @@
 
 					this.listenTo(this.modal, {
 						'open': function(){
-							fwEvents.trigger(getEventName(this.model, 'options-modal:open'), {
-								modal: this.modal,
-								item: this.model,
-								itemView: this
-							});
+							triggerEvent(this.model, 'options-modal:open');
 						},
 						'render': function(){
-							fwEvents.trigger(getEventName(this.model, 'options-modal:render'), {
-								modal: this.modal,
-								item: this.model,
-								itemView: this
-							});
+							triggerEvent(this.model, 'options-modal:render');
 						},
 						'close': function(){
-							fwEvents.trigger(getEventName(this.model, 'options-modal:close'), {
-								modal: this.modal,
-								item: this.model,
-								itemView: this
-							});
+							triggerEvent(this.model, 'options-modal:close');
 						},
 						'change:values': function(){
-							fwEvents.trigger(getEventName(this.model, 'options-modal:change:values'), {
-								modal: this.modal,
-								item: this.model,
-								itemView: this
-							});
+							triggerEvent(this.model, 'options-modal:change:values');
 						}
 					});
 				}
