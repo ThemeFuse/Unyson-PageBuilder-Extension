@@ -94,7 +94,11 @@ class _Page_Builder_Items_Corrector
 						&&
 						$shortcode_instance->get_config('page_builder/disable_correction')
 					) {
-						$fixed_section[] = $section[$i];
+						$columns = array( $section[ $i ] );
+						while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' ) {
+							$columns[] = $section[ $i++ ];
+						}
+						$fixed_section[] = $this->wrap_into_row( $columns );
 					} else {
 						$columns = array( $section[ $i ] );
 						$this->row_container->empty_container();
