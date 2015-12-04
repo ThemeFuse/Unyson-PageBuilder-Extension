@@ -89,22 +89,30 @@ class _Page_Builder_Items_Corrector
 		for ($i = 0, $count = count($section); $i < $count; $i++) {
 			switch ($section[$i]['type']) {
 				case 'column':
-					$columns   = array($section[$i]);
-					$this->row_container->empty_container();
-					$this->row_container->add_column($section[$i]['width']);
-					while (isset($section[$i+1]) && $section[$i+1]['type'] === 'column') {
-						$i++;
-						if ($this->row_container->add_column($section[$i]['width'])) {
-							$columns[] = $section[$i];
-						} else {
-							$fixed_section[] = $this->wrap_into_row($columns);
+					if (
+						($shortcode_instance = $shortcodes_extension->get_shortcode('column'))
+						&&
+						$shortcode_instance->get_config('page_builder/disable_correction')
+					) {
+						$fixed_section[] = $section[$i];
+					} else {
+						$columns = array( $section[ $i ] );
+						$this->row_container->empty_container();
+						$this->row_container->add_column( $section[ $i ]['width'] );
+						while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' ) {
+							$i ++;
+							if ( $this->row_container->add_column( $section[ $i ]['width'] ) ) {
+								$columns[] = $section[ $i ];
+							} else {
+								$fixed_section[] = $this->wrap_into_row( $columns );
 
-							$columns = array($section[$i]);
-							$this->row_container->empty_container();
-							$this->row_container->add_column($section[$i]['width']);
+								$columns = array( $section[ $i ] );
+								$this->row_container->empty_container();
+								$this->row_container->add_column( $section[ $i ]['width'] );
+							}
 						}
+						$fixed_section[] = $this->wrap_into_row( $columns );
 					}
-					$fixed_section[] = $this->wrap_into_row($columns);
 					break;
 
 				case 'simple':
@@ -136,7 +144,7 @@ class _Page_Builder_Items_Corrector
 					);
 					break;
 					// TODO: determine some good way to handle custom item types
-//					$fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this, $fixed_section);
+					// $fixed_section[] = apply_filters('fw_ext_page-builder_custom_item_section_correction', $section[$i], $this, $fixed_section);
 			}
 		}
 
