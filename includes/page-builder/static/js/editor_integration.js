@@ -21,7 +21,7 @@
 			 * we need to ask tinyMCE to get the content (in the case of visual tab)
 			 * of get the value from the #content textarea (in the case of text tab)
 			 */
-			if (this.elements.$wpContentWrap.hasClass('tmce-active')) {
+			if (this.elements.$wpContentWrap.hasClass('tmce-active') && tinyMCE.get('content')) {
 				return tinyMCE.get('content').getContent();
 			} else {
 				return this.elements.$wpContentWrap.find('#content').val();
