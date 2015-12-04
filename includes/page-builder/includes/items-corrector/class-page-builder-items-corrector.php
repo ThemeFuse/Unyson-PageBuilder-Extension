@@ -96,7 +96,7 @@ class _Page_Builder_Items_Corrector
 					) {
 						$columns = array( $section[ $i ] );
 						while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' ) {
-							$columns[] = $section[ $i++ ];
+							$columns[] = $section[ ++$i ];
 						}
 						$fixed_section[] = $this->wrap_into_row( $columns );
 					} else {
