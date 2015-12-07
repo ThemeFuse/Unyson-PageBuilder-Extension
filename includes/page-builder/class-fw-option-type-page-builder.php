@@ -162,7 +162,6 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
 			$corrected_items_value = $corrector->correct($items_value);
 
-			$value['corrected_json']     = json_encode($corrected_items_value);
 			$value['shortcode_notation'] = $this->get_shortcode_notation($corrected_items_value);
 		} else {
 			$value['shortcode_notation'] = $this->get_shortcode_notation($items_value);
