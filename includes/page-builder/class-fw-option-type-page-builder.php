@@ -167,7 +167,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			$value['shortcode_notation'] = $this->get_shortcode_notation($items_value);
 		}
 
-		if($option['editor_integration'] === true) {
+		if ($option['editor_integration'] === true) {
 			$value['builder_active'] = isset($_POST['page-builder-active']) && $_POST['page-builder-active'] === 'true';
 		}
 
@@ -227,6 +227,20 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		}
 
 		return $shortcode_notation;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function _storage_save($id, array $option, $value, array $params) {
+		return fw_db_option_storage_save($id, $option, $value, $params);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function _storage_load($id, array $option, $value, array $params) {
+		return fw_db_option_storage_load($id, $option, $value, $params);
 	}
 }
 
