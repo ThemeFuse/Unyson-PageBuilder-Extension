@@ -107,10 +107,10 @@
 						} catch (e) {
 							console.error('$cfg["page_builder"]["title_template"]', e.message);
 
-							title = _.template('<%- title %>', {title: title});
+							title = _.template('<%= title %>', {title: title});
 						}
 					} else {
-						title = _.template('<%- title %>', {title: title});
+						title = _.template('<%= title %>', {title: title});
 					}
 				}
 
