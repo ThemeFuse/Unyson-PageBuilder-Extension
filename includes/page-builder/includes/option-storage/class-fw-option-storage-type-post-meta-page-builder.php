@@ -23,14 +23,14 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 			fw_db_update_big_data(
 				$wpdb->postmeta,
 				array('meta_value' => $value['json']),
-				array('meta_key' => $meta_prefix .'json')
+				array('meta_key' => $meta_prefix .'json', 'post_id' => $post_id)
 			);
 
 			fw_update_post_meta($post_id, $meta_prefix .'sc_n', '[void]'); // just make sure the row is created in db
 			fw_db_update_big_data(
 				$wpdb->postmeta,
 				array('meta_value' => $value['shortcode_notation']),
-				array('meta_key' => $meta_prefix .'sc_n')
+				array('meta_key' => $meta_prefix .'sc_n', 'post_id' => $post_id)
 			);
 
 			$val = fw()->backend->option_type($option['type'])->get_value_from_input(
