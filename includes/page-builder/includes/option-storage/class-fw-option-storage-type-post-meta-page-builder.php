@@ -14,24 +14,11 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 	 * {@inheritdoc}
 	 */
 	protected function _save( $id, array $option, $value, array $params ) {
-		global $wpdb; /** @var WPDB $wpdb */
-
 		if ($post_id = $this->get_post_id($option, $params)) {
 			$meta_prefix = $this->get_meta_prefix($id, $option, $params);
 
-			fw_update_post_meta($post_id, $meta_prefix .'json', '["void"]'); // just make sure the row is created in db
-			fw_db_update_big_data(
-				$wpdb->postmeta,
-				array('meta_value' => $value['json']),
-				array('meta_key' => $meta_prefix .'json', 'post_id' => $post_id)
-			);
-
-			fw_update_post_meta($post_id, $meta_prefix .'sc_n', '[void]'); // just make sure the row is created in db
-			fw_db_update_big_data(
-				$wpdb->postmeta,
-				array('meta_value' => $value['shortcode_notation']),
-				array('meta_key' => $meta_prefix .'sc_n', 'post_id' => $post_id)
-			);
+			fw_update_post_meta($post_id, $meta_prefix .'json', $value['json']);
+			fw_update_post_meta($post_id, $meta_prefix .'sc_n', $value['shortcode_notation']);
 
 			$val = fw()->backend->option_type($option['type'])->get_value_from_input(
 				array('type' => $option['type']), null
