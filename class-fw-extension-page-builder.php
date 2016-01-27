@@ -355,7 +355,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 *
 	 * @return WP_Post[]
 	 */
-	public function _filter_the_posts($posts, $query) { return $posts;
+	public function _filter_the_posts($posts, $query) {
 		foreach ($posts as &$post) {
 			if (
 				post_type_supports(get_post_type($post->ID), $this->supports_feature_name)
