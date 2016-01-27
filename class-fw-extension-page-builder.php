@@ -195,7 +195,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 		wp_update_post(array(
 			'ID' => $post_id,
-			'post_content' => $fake_content, // just to create a revision if content has been changed
+			'post_content' => $fake_content, // just to create a revision if content was changed
 		));
 
 		/**
