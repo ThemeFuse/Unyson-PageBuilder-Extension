@@ -181,7 +181,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		$post = get_post($post_id);
-		$fake_content = '<!-- md5: '. md5($builder_shortcodes['shortcode_notation']) .' -->';
+		$fake_content = '<!-- '. md5($builder_shortcodes['shortcode_notation']) .' -->';
 
 		if ($post->post_content === $fake_content) {
 			return; // Do nothing if content has no changes
