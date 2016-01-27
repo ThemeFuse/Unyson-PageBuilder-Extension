@@ -20,6 +20,19 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	private $prevent_post_update_recursion = array();
 
+	/**
+	 * @var FW_Access_Key
+	 */
+	private static $access_key;
+
+	private static function get_access_key() {
+		if (empty(self::$access_key)) {
+			self::$access_key = new FW_Access_Key('fw:ext:page-builder');
+		}
+
+		return self::$access_key;
+	}
+
 	public function get_supports_feature_name() {
 		return $this->supports_feature_name;
 	}
@@ -47,14 +60,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 	private function add_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
-
-		if (version_compare(fw()->manifest->get_version(), '2.2.8', '>=')) {
-			// this action was added in Unyson 2.2.8
-			add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
-		} else {
-			// @deprecated
-			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
-		}
+		add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
 	}
 
 	/*
@@ -101,7 +107,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 							'fullscreen'         => true,
 							'template_saving'    => true,
 							'history'            => true,
-							'fw-storage'         => 'post-meta-page-builder',
 						)
 					)
 				)
@@ -110,38 +115,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		return $post_options;
-	}
-
-	/**
-	 * @internal
-	 * @deprecated The new approach is the 'fw_post_options_update' action
-	 * @param int $post_id
-	 * @param WP_Post $post
-	 */
-	public function _admin_action_fw_save_post_options( $post_id, $post ) {
-		if ( wp_is_post_autosave( $post_id ) ) {
-			$original_id   = wp_is_post_autosave( $post_id );
-			$original_post = get_post( $original_id );
-		} else if ( wp_is_post_revision( $post_id ) ) {
-			$original_id   = wp_is_post_revision( $post_id );
-			$original_post = get_post( $original_id );
-		} else {
-			$original_id   = $post_id;
-			$original_post = $post;
-		}
-		if ( post_type_supports( $original_post->post_type, $this->supports_feature_name ) ) {
-			$builder_shortcodes = fw_get_db_post_option( $original_id, $this->builder_option_key );
-			if ( ! $builder_shortcodes['builder_active'] ) {
-				return;
-			}
-			// remove then add again to avoid infinite loop
-			remove_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ) );
-			wp_update_post( array(
-				'ID'           => $post_id,
-				'post_content' => str_replace( '\\', '\\\\\\\\\\', $builder_shortcodes['shortcode_notation'] )
-			) );
-			add_action( 'fw_save_post_options', array( $this, '_admin_action_fw_save_post_options' ), 10, 2 );
-		}
 	}
 
 	/**
@@ -174,16 +147,20 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		$builder_shortcodes = fw_get_db_post_option( $post_id, $this->builder_option_key );
+		$builder_data = fw_get_db_post_option( $post_id, $this->builder_option_key );
 
-		if ( ! $builder_shortcodes['builder_active'] ) {
+		if ( ! $builder_data['builder_active'] ) {
 			return;
 		}
 
-		$post = get_post($post_id);
-		$fake_content = '<!-- '. md5($builder_shortcodes['shortcode_notation']) .' -->';
+		// just to create a revision if content was changed
+		$fake_content = '<!-- '. md5($builder_data['json']) .' -->';
 
-		if ($post->post_content === $fake_content) {
+		if (
+			!($post = get_post($post_id))
+			&&
+			$post->post_content === $fake_content
+		) {
 			return; // Do nothing if content has no changes
 		}
 
@@ -195,68 +172,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 		wp_update_post(array(
 			'ID' => $post_id,
-			'post_content' => $fake_content, // just to create a revision if content was changed
+			'post_content' => $fake_content,
 		));
-
-		/**
-		 * Remove (latest) duplicate revisions.
-		 *
-		 * ----
-		 *
-		 * When some shortcode attributes contains array values (with special encoding, made by attr coder)
-		 * that shortcode notation is displayed with changes in post content textarea on post edit page.
-		 * (I don't know why. Something (WordPress or wp editor) makes some "fixes" in post content before display in textarea.)
-		 *
-		 * Original/correct shortcode notation: [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
-		 * Changed/wrong shortcode notation: [divider style="{"ruler_type":"line"}"]
-		 *
-		 * Then the following happens:
-		 * 1. User press Save post button
-		 * 2. In database is saved textarea wrong value:
-		 *    [divider style="{"ruler_type":"line"}"]
-		 * 3. A revision of the previous step/change is created
-		 * 4. The execution reaches this script
-		 * 5. Here (below in this script) the post content is updated with correct value:
-		 *    [divider style="{&quot;ruler_type&quot;:&quot;line&quot;}"]
-		 * 6. A revision of the previous step/change is created
-		 *
-		 * That way, on every post save, every time, 2 revisions are created.
-		 *
-		 * More details http://bit.ly/1EotiNX
-		 *
-		 * The fix is to delete the wrong revision created in step 3.
-		 */
-		if (
-			$latest_revisions = wp_get_post_revisions($original_post_id, array(
-				'posts_per_page' => 3,
-				'fields' => 'ids',
-			))
-		) {
-			$current_revision = get_post(array_shift($latest_revisions));
-
-			while (
-				($prev_revision = array_shift($latest_revisions))
-				&&
-				($prev_revision = get_post($prev_revision))
-				&&
-				(
-					fw_get_db_post_option( $current_revision->ID, $this->builder_option_key .'/shortcode_notation' )
-					===
-					fw_get_db_post_option( $prev_revision->ID, $this->builder_option_key .'/shortcode_notation' )
-				)
-				&&
-				(
-					wp_is_post_autosave($current_revision->ID)
-					===
-					wp_is_post_autosave($prev_revision->ID)
-				)
-			) {
-				wp_delete_post($current_revision->ID);
-
-				unset($current_revision);
-				$current_revision = $prev_revision;
-			}
-		}
 
 		unset($this->prevent_post_update_recursion[$post_id]);
 	}
@@ -356,6 +273,19 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @return WP_Post[]
 	 */
 	public function _filter_the_posts($posts, $query) {
+		if (is_admin()) {
+			/**
+			 * This filter is applied for every post in backend
+			 * but we don't need post content in backend
+			 */
+			return $posts;
+		}
+
+		/**
+		 * @var FW_Option_Type_Page_Builder $option_type
+		 */
+		$option_type = fw()->backend->option_type('page-builder');
+
 		foreach ($posts as &$post) {
 			if (
 				post_type_supports(get_post_type($post->ID), $this->supports_feature_name)
@@ -364,7 +294,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				&&
 				$builder_data['builder_active']
 			) {
-				$post->post_content = $builder_data['shortcode_notation'];
+				/**
+				 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
+				 * because it's much bigger than the json value.
+				 * So we generate the shortcode notation before post display in frontend
+				 */
+				$post->post_content = $option_type->_get_shortcode_notation(
+					self::get_access_key(),
+					$builder_data['json']
+				);
 			}
 		}
 

@@ -141,31 +141,14 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		if (empty($input_value)) {
 			$input_value = $option['value']['json'];
 		}
-		$items = json_decode($input_value, true);
-		if (!$items) {
+
+		if (!($items = json_decode($input_value, true))) {
 			$items = array();
 		}
 
-		$items_value = $this->get_value_from_items($items);
 		$value = array(
-			'json' => json_encode($items_value),
+			'json' => json_encode($this->get_value_from_items($items)),
 		);
-
-		/**
-		 * Correction means that if someone drags a simple shortcode
-		 * into the canvas area of the builder, it will be wrapped
-		 * into a column, then a row and finally a section.
-		 * This is done to ensure that a correct grid
-		 * will be displayed on the frontend.
-		 */
-		if ($this->needs_correction()) {
-			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
-			$corrected_items_value = $corrector->correct($items_value);
-
-			$value['shortcode_notation'] = $this->get_shortcode_notation($corrected_items_value);
-		} else {
-			$value['shortcode_notation'] = $this->get_shortcode_notation($items_value);
-		}
 
 		if ($option['editor_integration'] === true) {
 			$value['builder_active'] = isset($_POST['page-builder-active']) && $_POST['page-builder-active'] === 'true';
@@ -229,18 +212,36 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		return $shortcode_notation;
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
-	protected function _storage_save($id, array $option, $value, array $params) {
-		return fw_db_option_storage_save($id, $option, $value, $params);
-	}
+	public function _get_shortcode_notation(FW_Access_Key $access_key, $json) {
+		if ($access_key->get_key() !== 'fw:ext:page-builder') {
+			trigger_error('Call denied', E_USER_ERROR);
+		}
 
-	/**
-	 * {@inheritdoc}
-	 */
-	protected function _storage_load($id, array $option, $value, array $params) {
-		return fw_db_option_storage_load($id, $option, $value, $params);
+		if (
+			!is_array($json)
+			&&
+			is_null($json = json_decode($json, true))
+		) {
+			return false;
+		}
+
+		$items_value = $this->get_value_from_items($json);
+
+		/**
+		 * Correction means that if someone drags a simple shortcode
+		 * into the canvas area of the builder, it will be wrapped
+		 * into a column, then a row and finally a section.
+		 * This is done to ensure that a correct grid
+		 * will be displayed on the frontend.
+		 */
+		if ($this->needs_correction()) {
+			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
+			$corrected_items_value = $corrector->correct($items_value);
+
+			return $this->get_shortcode_notation($corrected_items_value);
+		} else {
+			return $this->get_shortcode_notation($items_value);
+		}
 	}
 }
 
