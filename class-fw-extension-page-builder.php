@@ -107,6 +107,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 							'fullscreen'         => true,
 							'template_saving'    => true,
 							'history'            => true,
+							'fw-storage'         => 'post-meta-page-builder',
 						)
 					)
 				)
