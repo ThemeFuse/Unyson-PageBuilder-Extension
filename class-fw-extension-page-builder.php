@@ -303,6 +303,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 					self::get_access_key(),
 					$builder_data['json']
 				);
+
+				// WordPress "fixes" slashes
+				$post->post_content = str_replace('\\', '\\\\', $post->post_content);
 			}
 		}
 
