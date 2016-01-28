@@ -50,7 +50,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private function add_filters() {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
-		add_filter( 'the_posts', array( $this, '_filter_the_posts' ), 10, 2 );
+		add_filter( 'the_posts', array( $this, '_filter_the_posts' ), 2, 2 );
 
 		/**
 		 * @deprecated Since Shortcodes 1.3.0

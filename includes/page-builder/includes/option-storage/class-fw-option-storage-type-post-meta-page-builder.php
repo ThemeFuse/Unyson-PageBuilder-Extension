@@ -15,9 +15,11 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 	 */
 	protected function _save( $id, array $option, $value, array $params ) {
 		if ($post_id = $this->get_post_id($option, $params)) {
-			$meta_prefix = $this->get_meta_prefix($id, $option, $params);
-
-			fw_update_post_meta($post_id, $meta_prefix .'json', $value['json']);
+			fw_update_post_meta(
+				$post_id,
+				$this->get_meta_prefix($id, $option, $params) .'json',
+				$value['json']
+			);
 
 			$val = fw()->backend->option_type($option['type'])->get_value_from_input(
 				array('type' => $option['type']), null
@@ -36,10 +38,12 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 	 */
 	protected function _load( $id, array $option, $value, array $params ) {
 		if ($post_id = $this->get_post_id($option, $params)) {
-			$meta_prefix = $this->get_meta_prefix($id, $option, $params);
-
 			$meta_value = array(
-				'json' => get_post_meta($post_id, $meta_prefix .'json', true),
+				'json' => get_post_meta(
+					$post_id,
+					$this->get_meta_prefix($id, $option, $params) .'json',
+					true
+				),
 			);
 
 			if ($meta_value['json'] === '' && is_array($value)) {
