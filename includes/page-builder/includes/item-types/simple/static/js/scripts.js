@@ -124,6 +124,41 @@
 				triggerEvent(this.model, 'controls', {
 					$controls: this.$('.controls:first')
 				});
+
+				/**
+				 * Trigger events on a more general-purpose fwEvents.
+				 * Not everyone has access to this.model right away.
+				 */
+				var singleShortcodeEvent =
+					'fw:page-builder:shortcode:item-simple:' +
+					this.model.get('shortcode') +
+					':controls';
+
+				fwEvents.trigger(singleShortcodeEvent, {
+					$controls: this.$('.controls:first'),
+					model: this.model,
+					builder: builder
+				});
+
+				/**
+				 * You can handle all shortcodes that are of type simple
+				 * at once * with * this event.
+				 *
+				 * Getting the shortcode name is as simple as:
+				 *
+				 * fwEvents.on(
+				 *   'fw:page-builder:shortcode:item-simple:controls',
+				 *   function (data) {
+				 *     console.log(data.model.get('shortcode'));
+				 *   }
+				 * );
+				 * 
+				 */
+				fwEvents.trigger('fw:page-builder:shortcode:item-simple:controls', {
+					$controls: this.$('.controls:first'),
+					model: this.model,
+					builder: builder
+				});
 			},
 			events: {
 				'click': 'editOptions',
@@ -206,3 +241,4 @@
 		builder.registerItemClass(PageBuilderSimpleItem);
 	});
 })(fwEvents, _, page_builder_item_type_simple_data);
+
