@@ -136,15 +136,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		if ($original_post_id = wp_is_post_autosave($post_id)) {
-			//
-		} elseif ($original_post_id = wp_is_post_revision($post_id)) {
-			//
-		} else {
-			$original_post_id = $post_id;
+		if ( wp_is_post_autosave($post_id) || wp_is_post_revision($post_id) ) {
+			return;
 		}
 
-		if ( ! post_type_supports( get_post_type($original_post_id), $this->supports_feature_name ) ) {
+		if ( ! post_type_supports( get_post_type($post_id), $this->supports_feature_name ) ) {
 			return;
 		}
 
@@ -155,7 +151,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		// just to create a revision if content was changed
-		$fake_content = '<!-- '. md5($builder_data['json']) .' -->';
+		$fake_content = '<!-- ' . json_encode(array(
+			'length' => strlen($builder_data['json']),
+			'hash' => md5($builder_data['json'])
+		)) .' -->';
 
 		if (
 			!($post = get_post($post_id))
@@ -267,6 +266,37 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		return $this->shortcode_atts_coder;
 	}
 
+	private function get_post_content_shortcodes(WP_Post $post) {
+		/**
+		 * @var FW_Option_Type_Page_Builder $option_type
+		 */
+		$option_type = fw()->backend->option_type('page-builder');
+
+		if (
+			post_type_supports(
+				get_post_type(
+					($post_revision_id = wp_is_post_revision($post)) ? $post_revision_id : $post->ID
+				),
+				$this->supports_feature_name
+			)
+			&&
+			($builder_data = fw_get_db_post_option($post->ID, $this->builder_option_key))
+			&&
+			$builder_data['builder_active']
+		) {
+			/**
+			 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
+			 * because it's much bigger than the json value.
+			 * So we generate the shortcode notation before post display in frontend
+			 */
+			return str_replace('\\', '\\\\', // WordPress "fixes" the slashes
+				$option_type->_get_shortcode_notation( self::get_access_key(), $builder_data['json'] )
+			);
+		}
+
+		return $post->post_content;
+	}
+
 	/**
 	 * @param WP_Post[] $posts
 	 * @param WP_Query $query
@@ -282,31 +312,17 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return $posts;
 		}
 
-		/**
-		 * @var FW_Option_Type_Page_Builder $option_type
-		 */
-		$option_type = fw()->backend->option_type('page-builder');
-
-		foreach ($posts as &$post) {
-			if (
-				post_type_supports(get_post_type($post->ID), $this->supports_feature_name)
-				&&
-				($builder_data = fw_get_db_post_option($post->ID, $this->builder_option_key))
-				&&
-				$builder_data['builder_active']
-			) {
-				/**
-				 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
-				 * because it's much bigger than the json value.
-				 * So we generate the shortcode notation before post display in frontend
-				 */
-				$post->post_content = $option_type->_get_shortcode_notation(
-					self::get_access_key(),
-					$builder_data['json']
-				);
-
-				// WordPress "fixes" slashes
-				$post->post_content = str_replace('\\', '\\\\', $post->post_content);
+		if (
+			is_preview()
+			&&
+			count($posts) == 1
+			&&
+			is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
+		) {
+			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
+		} else {
+			foreach ($posts as &$post) {
+				$post->post_content = $this->get_post_content_shortcodes($post);
 			}
 		}
 
