@@ -126,21 +126,6 @@
 				});
 
 				/**
-				 * Trigger events on a more general-purpose fwEvents.
-				 * Not everyone has access to this.model right away.
-				 */
-				var singleShortcodeEvent =
-					'fw:page-builder:shortcode:item-simple:' +
-					this.model.get('shortcode') +
-					':controls';
-
-				fwEvents.trigger(singleShortcodeEvent, {
-					$controls: this.$('.controls:first'),
-					model: this.model,
-					builder: builder
-				});
-
-				/**
 				 * You can handle all shortcodes that are of type simple
 				 * at once * with * this event.
 				 *
@@ -152,7 +137,20 @@
 				 *     console.log(data.model.get('shortcode'));
 				 *   }
 				 * );
-				 * 
+				 *
+                 * You can make changes to controls to a single shortcode by
+                 * checking the value of data.model.get('shortcode').
+                 *
+				 * fwEvents.on(
+				 *   'fw:page-builder:shortcode:item-simple:controls',
+				 *   function (data) {
+                 *     if (data.model.get('shortcode') !== 'my_desired_shortcode') {
+                 *       return;
+                 *     }
+                 *
+				 *     // Change controls
+				 *   }
+				 * );
 				 */
 				fwEvents.trigger('fw:page-builder:shortcode:item-simple:controls', {
 					$controls: this.$('.controls:first'),
