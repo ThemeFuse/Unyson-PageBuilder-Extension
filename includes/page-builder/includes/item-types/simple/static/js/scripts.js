@@ -138,16 +138,16 @@
 				 *   }
 				 * );
 				 *
-                 * You can make changes to controls to a single shortcode by
-                 * checking the value of data.model.get('shortcode').
-                 *
+				 * You can make changes to controls to a single shortcode by
+				 * checking the value of data.model.get('shortcode').
+				 *
 				 * fwEvents.on(
 				 *   'fw:page-builder:shortcode:item-simple:controls',
 				 *   function (data) {
-                 *     if (data.model.get('shortcode') !== 'my_desired_shortcode') {
-                 *       return;
-                 *     }
-                 *
+				 *     if (data.model.get('shortcode') !== 'my_desired_shortcode') {
+				 *       return;
+				 *     }
+				 *
 				 *     // Change controls
 				 *   }
 				 * );
