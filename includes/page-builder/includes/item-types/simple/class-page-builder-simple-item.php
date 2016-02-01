@@ -184,17 +184,21 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		// simple items do not contain other items
 		unset($attributes['_items']);
 
-		$builder_data   = $this->get_builder_data();
-		$shortcode_data = $builder_data[ $attributes['shortcode'] ];
-		if (isset($shortcode_data['options'])) {
+		if (
+			($builder_data = $this->get_builder_data())
+			&&
+			isset($builder_data[ $attributes['shortcode'] ])
+			&&
+			($shortcode_data = $builder_data[ $attributes['shortcode'] ])
+			&&
+			isset($shortcode_data['options'])
+		) {
 			if (empty($attributes['atts'])) {
 				/**
 				 * The options popup was never opened and there are no attributes.
 				 * Extract options default values.
 				 */
-				$attributes['atts'] = fw_get_options_values_from_input(
-					$shortcode_data['options'], array()
-				);
+				$attributes['atts'] = fw_get_options_values_from_input( $shortcode_data['options'], array() );
 			} else {
 				/**
 				 * There are saved attributes.
@@ -210,9 +214,7 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 					}
 				}
 
-				$attributes['atts'] = fw_get_options_values_from_input(
-					$options, array()
-				);
+				$attributes['atts'] = fw_get_options_values_from_input( $options, array() );
 			}
 		}
 
@@ -222,11 +224,13 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 	public function get_shortcode_data($atts = array())
 	{
 		$return = array(
-			'tag'  => $atts['shortcode'],
+			'tag' => $atts['shortcode'],
 		);
+
 		if (isset($atts['atts'])) {
 			$return['atts'] = $atts['atts'];
 		}
+
 		return $return;
 	}
 }
