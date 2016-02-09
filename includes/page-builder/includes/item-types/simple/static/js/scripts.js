@@ -166,10 +166,59 @@
 			},
 			editOptions: function(e) {
 				e.stopPropagation();
+
 				if (!this.modal) {
 					return;
 				}
-				this.modal.open();
+
+				/**
+				 * Create initial flow settings for modal openning.
+				 */
+				var flow = {cancelModalOpening: false};
+
+				/**
+				 * In case you want to do some changes or processing before
+				 * shortcode modal openning that's the event you want to use.
+				 *
+				 * flow option is here because you may want to perform some
+				 * asynchronous operation (like an AJAX request) and you
+				 * need the modal to open after your operation is completed.
+				 *
+				 * fwEvents.on(
+				 *   'fw:page-builder:shortcode:item-simple:modal:before-open',
+				 *   function (data) {
+				 *     // In case you need to perform some async action,
+				 *     // you need to cancel modal opening first.
+				 *     //
+				 *     // In this you are responsible for further opening,
+				 *     // when you finish your business.
+				 *     flow.cancelModalOpening = true
+				 *
+				 *     // start your ajax request, do some actual async work...
+				 *     var promise = $.ajax({ ... });
+				 *
+				 *     promise.done(function (yourBusinessData) {
+				 *       // do actual change using yourBusinessData
+				 *       //
+				 *       // ... and don't forget to open modal when your done
+				 *       data.modal.open();
+				 *     }
+				 *   }
+				 * );
+				 */
+				fwEvents.trigger('fw:page-builder:shortcode:item-simple:modal:before-open', {
+					modal: this.modal,
+					model: this.model,
+					builder: builder,
+					flow: flow
+				});
+
+				/**
+				 * Skip modal opening, if the user wants to.
+				 */
+				if (! flow.cancelModalOpening) {
+					this.modal.open();
+				}
 			},
 			cloneItem: function(e) {
 				e.stopPropagation();
