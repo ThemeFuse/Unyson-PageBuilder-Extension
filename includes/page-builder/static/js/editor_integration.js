@@ -14,6 +14,7 @@
 		builderIsActive: function() {
 			return this.elements.$builderActiveHidden.val() === 'true';
 		},
+		pendingTinymceShowHide: null, // false - hide, true - hide
 		getWPEditorContent: function() {
 			/*
 			 * WordPress works with tinyMCE for its WYSIWYG editor
@@ -52,6 +53,11 @@
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val('true');
 
+			/**
+			 * fixes https://github.com/ThemeFuse/Unyson/issues/859
+			 */
+			tinyMCE.get('content').hide();
+
 			this.events.trigger('show');
 		},
 		hideBuilder: function() {
@@ -65,6 +71,8 @@
 
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
+
+			tinyMCE.get('content').show();
 
 			this.events.trigger('hide');
 		},
@@ -165,23 +173,8 @@
 
 			this.elements.$wpTemplatesSelect.on('change', onChange);
 
-			fwe.one('fw-builder:' + 'page-builder' + ':register-items', function(){
-				/**
-				 * I don't know an event when tinyMCE.get('content') (used above) is available,
-				 * calling it earlier will throw an error,
-				 * calling it on a fixed timeout may be too early for slow browsers or internet connection when page is loaded slow.
-				 * So check for its availability on an interval of time.
-				 */
-				var intervalId = setInterval(function(){
-					if (
-						typeof tinyMCE != 'undefined'
-						&&
-						tinyMCE.get('content')
-					) {
-						clearInterval(intervalId);
-						onChange();
-					}
-				}, 30);
+			this.events.once('tinyMCE:ready', function(){
+				onChange();
 			});
 
 			/**
@@ -197,12 +190,6 @@
 			}, this));
 		},
 		init: function() {
-			this.initButtons();
-			this.insertHidden();
-			this.bindEvents();
-			this.removeScreenOptionsCheckbox();
-			this.initTemplatesSelectSync();
-
 			// fixes on firs show or hide
 			{
 				this.events.once('show', _.bind(function(){
@@ -213,6 +200,31 @@
 					this.fixOnFirstShowOrHide(false);
 				}, this));
 			}
+
+			this.events.once('tinyMCE:ready', _.bind(function(){
+				this.insertHidden();
+				this.bindEvents();
+				this.initButtons();
+				this.removeScreenOptionsCheckbox();
+				this.initTemplatesSelectSync();
+			}, this));
+
+			/**
+			 * I don't know an event when tinyMCE.get('content') (used above) is available,
+			 * calling it earlier will throw an error,
+			 * calling it on a fixed timeout may be too early for slow browsers or internet connection when page is loaded slow.
+			 * So check for its availability on an interval of time.
+			 */
+			var intervalId = setInterval(_.bind(function(){
+				if (
+					typeof tinyMCE != 'undefined'
+					&&
+					tinyMCE.get('content')
+				) {
+					clearInterval(intervalId);
+					this.events.trigger('tinyMCE:ready');
+				}
+			}, this), 30);
 		}
 	};
 
