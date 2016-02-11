@@ -14,7 +14,7 @@
 		builderIsActive: function() {
 			return this.elements.$builderActiveHidden.val() === 'true';
 		},
-		pendingTinymceShowHide: null, // false - hide, true - hide
+		editorId: 'content',
 		getWPEditorContent: function() {
 			/*
 			 * WordPress works with tinyMCE for its WYSIWYG editor
@@ -22,8 +22,8 @@
 			 * we need to ask tinyMCE to get the content (in the case of visual tab)
 			 * of get the value from the #content textarea (in the case of text tab)
 			 */
-			if (this.elements.$wpContentWrap.hasClass('tmce-active') && tinyMCE.get('content')) {
-				return tinyMCE.get('content').getContent();
+			if (this.elements.$wpContentWrap.hasClass('tmce-active') && tinyMCE.get(this.editorId)) {
+				return tinyMCE.get(this.editorId).getContent();
 			} else {
 				return this.elements.$wpContentWrap.find('#content').val();
 			}
@@ -36,12 +36,19 @@
 			 * of the value from the #content textarea (in the case of text tab)
 			 */
 			if (this.elements.$wpContentWrap.hasClass('tmce-active')) {
-				return tinyMCE.get('content').setContent('');
+				return tinyMCE.get(this.editorId).setContent('');
 			} else {
 				return this.elements.$wpContentWrap.find('#content').val('');
 			}
 		},
 		showBuilder: function() {
+			/**
+			 * fixes https://github.com/ThemeFuse/Unyson/issues/859
+			 */
+			if (tinyMCE.get(this.editorId)) {
+				tinyMCE.get(this.editorId).hidden = true;
+			}
+
 			this.elements.$wpPostBodyContent.addClass('page-builder-visible');
 
 			this.elements.$wpPostDivRich.hide();
@@ -53,14 +60,11 @@
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val('true');
 
-			/**
-			 * fixes https://github.com/ThemeFuse/Unyson/issues/859
-			 */
-			tinyMCE.get('content').hide();
-
 			this.events.trigger('show');
 		},
 		hideBuilder: function() {
+			this.tinyMceInit();
+
 			this.elements.$wpPostBodyContent.removeClass('page-builder-visible');
 
 			this.elements.$hideButton.hide();
@@ -72,7 +76,9 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
 
-			tinyMCE.get('content').show();
+			if (tinyMCE.get(this.editorId)) {
+				tinyMCE.get(this.editorId).hidden = false;
+			}
 
 			this.events.trigger('hide');
 		},
@@ -163,20 +169,6 @@
 				return false;
 			}
 
-			var onChange = _.bind(function(){
-				if ($.inArray(this.elements.$wpTemplatesSelect.val(), data.builderTemplates) === -1) {
-					this.hideBuilder();
-				} else {
-					this.showBuilder();
-				}
-			}, this);
-
-			this.elements.$wpTemplatesSelect.on('change', onChange);
-
-			this.events.once('tinyMCE:ready', function(){
-				onChange();
-			});
-
 			/**
 			 * On builder show, make sure that a template that supports builder is selected in wp templates select
 			 */
@@ -188,6 +180,43 @@
 					}
 				});
 			}, this));
+
+			var onChange = _.bind(function(){
+				if ($.inArray(this.elements.$wpTemplatesSelect.val(), data.builderTemplates) === -1) {
+					this.hideBuilder();
+				} else {
+					this.showBuilder();
+				}
+			}, this);
+
+			this.elements.$wpTemplatesSelect.on('change', onChange);
+
+			onChange();
+		},
+		/**
+		 * Init editor manually to prevent https://github.com/ThemeFuse/Unyson/issues/859
+		 * From php is set via filter $mceInit['wp_skip_init'] = true;
+		 * https://github.com/WordPress/WordPress/blob/4.4.2/wp-includes/class-wp-editor.php#L1246-L1255
+		 */
+		tinyMceInit: function(){
+			var id = this.editorId,
+				init = tinyMCEPreInit.mceInit[id],
+				$wrap = tinymce.$( '#wp-' + id + '-wrap' );
+
+			if (
+				( $wrap.hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) )
+				// && ! init.wp_skip_init
+			) {
+				tinymce.init( init );
+
+				if ( ! window.wpActiveEditor ) {
+					window.wpActiveEditor = id;
+				}
+
+				this.events.trigger('tinyMCE:ready');
+			}
+
+			this.tinyMceInit = function(){};
 		},
 		init: function() {
 			// fixes on firs show or hide
@@ -202,27 +231,20 @@
 			}
 
 			this.events.once('tinyMCE:ready', _.bind(function(){
+				this.initButtons();
 				this.insertHidden();
 				this.bindEvents();
-				this.initButtons();
 				this.removeScreenOptionsCheckbox();
 				this.initTemplatesSelectSync();
 			}, this));
 
-			/**
-			 * I don't know an event when tinyMCE.get('content') (used above) is available,
-			 * calling it earlier will throw an error,
-			 * calling it on a fixed timeout may be too early for slow browsers or internet connection when page is loaded slow.
-			 * So check for its availability on an interval of time.
-			 */
 			var intervalId = setInterval(_.bind(function(){
-				if (
-					typeof tinyMCE != 'undefined'
-					&&
-					tinyMCE.get('content')
-				) {
+				/**
+				 * I can't find an event or a way to execute some code after tinyMCE init
+				 */
+				if (typeof tinyMCE != 'undefined') {
 					clearInterval(intervalId);
-					this.events.trigger('tinyMCE:ready');
+					this.tinyMceInit();
 				}
 			}, this), 30);
 		}
