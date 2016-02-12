@@ -45,9 +45,7 @@
 			/**
 			 * fixes https://github.com/ThemeFuse/Unyson/issues/859
 			 */
-			if (tinyMCE.get(this.editorId)) {
-				tinyMCE.get(this.editorId).hidden = true;
-			}
+			tinyMCE.get(this.editorId).hide();
 
 			this.elements.$wpPostBodyContent.addClass('page-builder-visible');
 
@@ -76,9 +74,7 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
 
-			if (tinyMCE.get(this.editorId)) {
-				tinyMCE.get(this.editorId).hidden = false;
-			}
+			tinyMCE.get(this.editorId).show();
 
 			this.events.trigger('hide');
 		},
@@ -201,22 +197,27 @@
 		tinyMceInit: function(){
 			var id = this.editorId,
 				init = tinyMCEPreInit.mceInit[id],
-				$wrap = tinymce.$( '#wp-' + id + '-wrap' );
+				$wrap = tinymce.$( '#wp-' + id + '-wrap'),
+				that = this;
+
+			this.tinyMceInit = function(){};
 
 			if (
 				( $wrap.hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) )
 				// && ! init.wp_skip_init
 			) {
+				init.setup = function(ed) {
+					ed.onInit.add(function(ed) {
+						that.events.trigger('tinyMCE:ready');
+					});
+				};
+
 				tinymce.init( init );
 
 				if ( ! window.wpActiveEditor ) {
 					window.wpActiveEditor = id;
 				}
-
-				this.events.trigger('tinyMCE:ready');
 			}
-
-			this.tinyMceInit = function(){};
 		},
 		init: function() {
 			// fixes on firs show or hide
@@ -231,9 +232,9 @@
 			}
 
 			this.events.once('tinyMCE:ready', _.bind(function(){
-				this.initButtons();
 				this.insertHidden();
 				this.bindEvents();
+				this.initButtons();
 				this.removeScreenOptionsCheckbox();
 				this.initTemplatesSelectSync();
 			}, this));
