@@ -94,23 +94,23 @@
 						try {
 							title = _.template(
 								jQuery.trim(titleTemplate),
-								{
-									o: this.model.get('atts'),
-									title: title
-								},
+								undefined,
 								{
 									evaluate: /\{\{([\s\S]+?)\}\}/g,
 									interpolate: /\{\{=([\s\S]+?)\}\}/g,
 									escape: /\{\{-([\s\S]+?)\}\}/g
 								}
-							);
+							)({
+								o: this.model.get('atts'),
+								title: title
+							});
 						} catch (e) {
 							console.error('$cfg["page_builder"]["title_template"]', e.message);
 
-							title = _.template('<%= title %>', {title: title});
+							title = _.template('<%= title %>')({title: title});
 						}
 					} else {
-						title = _.template('<%= title %>', {title: title});
+						title = _.template('<%= title %>')({title: title});
 					}
 				}
 
