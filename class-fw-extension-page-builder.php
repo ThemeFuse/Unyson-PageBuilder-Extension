@@ -284,6 +284,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			$builder_data['builder_active']
 		) {
+			$builder_data = apply_filters('fw_prepare_builder_data_before_display', $builder_data);
+
 			/**
 			 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
 			 * because it's much bigger than the json value.
