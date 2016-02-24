@@ -284,7 +284,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			$builder_data['builder_active']
 		) {
-			$builder_data = apply_filters('fw_prepare_builder_data_before_display', $builder_data);
+			$builder_data = apply_filters(
+				'fw:ext:page-builder:builder-data:before-shortcode-generate',
+				$builder_data
+			);
 
 			/**
 			 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
