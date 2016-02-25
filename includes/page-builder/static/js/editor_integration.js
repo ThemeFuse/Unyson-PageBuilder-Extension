@@ -197,13 +197,13 @@
 		tinyMceInit: function(){
 			var id = this.editorId,
 				init = tinyMCEPreInit.mceInit[id],
-				$wrap = tinymce.$( '#wp-' + id + '-wrap'),
 				that = this;
 
 			this.tinyMceInit = function(){};
 
 			if (
-				( $wrap.hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) )
+				true
+				//( tinymce.$( '#wp-' + id + '-wrap').hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) )
 				// && ! init.wp_skip_init
 			) {
 				init.setup = function(ed) {
