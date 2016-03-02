@@ -221,11 +221,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			trigger_error('Call denied', E_USER_ERROR);
 		}
 
-		if (
-			!is_array($json)
-			&&
-			is_null($json = json_decode($json, true))
-		) {
+		if ( !is_array($json) && is_null($json = json_decode($json, true)) ) {
 			return false;
 		}
 
