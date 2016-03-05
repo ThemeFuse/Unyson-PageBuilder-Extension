@@ -50,6 +50,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private function add_filters() {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
+		/**
+		 * @since 1.5.0
+		 */
 		add_filter( 'the_posts', array( $this, '_filter_the_posts' ), 2, 2 );
 
 		/**
@@ -266,6 +269,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		return $this->shortcode_atts_coder;
 	}
 
+	/**
+	 * @param WP_Post $post
+	 * @return string
+	 * @since 1.5.0
+	 */
 	private function get_post_content_shortcodes(WP_Post $post) {
 		/**
 		 * @var FW_Option_Type_Page_Builder $option_type
@@ -302,6 +310,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @param WP_Query $query
 	 *
 	 * @return WP_Post[]
+	 * @since 1.5.0
 	 */
 	public function _filter_the_posts($posts, $query) {
 		if (is_admin()) {
@@ -327,5 +336,28 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		return $posts;
+	}
+
+	/**
+	 * @param FW_Access_Key $access_key
+	 * @param int|WP_Post $post
+	 * @return string
+	 * @internal
+	 * @since 1.5.1
+	 */
+	public function _get_post_content(FW_Access_Key $access_key, $post) {
+		if ($access_key->get_key() !== 'fw:ext:page-builder:helper:get-post-content') {
+
+		}
+
+		if (!$post instanceof WP_Post) {
+			$post = get_post($post);
+		}
+
+		if (!$post) {
+			return null;
+		}
+
+		return $this->get_post_content_shortcodes($post);
 	}
 }

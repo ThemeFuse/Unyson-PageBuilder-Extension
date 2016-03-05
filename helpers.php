@@ -3,16 +3,14 @@
 /**
  * Returns whether or not a post was built with the page builder
  */
-function fw_ext_page_builder_is_builder_post($post_id = '')
-{
+function fw_ext_page_builder_is_builder_post($post_id = '') {
 	return fw()->extensions->get('page-builder')->is_builder_post($post_id);
 }
 
 /**
  * Returns all post types that can be integrated with the page builder
  */
-function fw_ext_page_builder_get_supported_post_types()
-{
+function fw_ext_page_builder_get_supported_post_types() {
 	$cache_key = fw()->extensions->get('page-builder')->get_cache_key('/supported_post_types');
 
 	try {
@@ -33,4 +31,19 @@ function fw_ext_page_builder_get_supported_post_types()
 
 		return $result;
 	}
+}
+
+/**
+ * @param int|WP_Post $post
+ * @return string Shortcodes generated from post meta json builder value
+ * @since 1.5.1
+ */
+function fw_ext_page_builder_get_post_content($post) {
+	static $access_key = null;
+
+	if (is_null($access_key)) {
+		$access_key = new FW_Access_Key('fw:ext:page-builder:helper:get-post-content');
+	}
+
+	return fw_ext('page-builder')->_get_post_content($access_key, $post);
 }
