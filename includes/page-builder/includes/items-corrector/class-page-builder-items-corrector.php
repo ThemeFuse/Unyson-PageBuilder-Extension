@@ -104,8 +104,10 @@ class _Page_Builder_Items_Corrector
 						$this->row_container->empty_container();
 						$this->row_container->add_column( $section[ $i ]['width'] );
 						while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' ) {
-							$i ++;
-							if ( $this->row_container->add_column( $section[ $i ]['width'] ) ) {
+							++$i;
+							if ( $this->row_container->add_column(
+								apply_filters('fw:ext:page-builder:item-corrector:column-width', $section[ $i ]['width'], $section[ $i ])
+							) ) {
 								$columns[] = $section[ $i ];
 							} else {
 								$fixed_section[] = $this->wrap_into_row( $columns );
