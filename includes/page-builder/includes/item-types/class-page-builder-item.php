@@ -131,12 +131,15 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 	 * @since 1.5.1
 	 */
 	protected function _storage_save(array $item, array $params) {
-		if ($shortcode = fw_ext('shortcodes')->get_shortcode(
-			isset($item['shortcode']) ? $item['shortcode'] : str_replace('-', '_', $item['type'])
-		)) {
-			/** @var FW_Shortcode $shortcode */
-
-			foreach (fw_extract_only_options($shortcode->get_options()) as $id => $option) {
+		/** @var FW_Shortcode $shortcode */
+		if (
+			($shortcode = fw_ext('shortcodes')->get_shortcode(
+				isset($item['shortcode']) ? $item['shortcode'] : str_replace('-', '_', $item['type'])
+			))
+			&&
+			($shortcode_options = $shortcode->get_options())
+		) {
+			foreach (fw_extract_only_options($shortcode_options) as $id => $option) {
 				$item['atts'][ $id ] = fw()->backend->option_type($option['type'])->storage_save(
 					$id, $option, $item['atts'][ $id ], $params
 				);
@@ -151,12 +154,15 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 	 * @since 1.5.1
 	 */
 	protected function _storage_load(array $item, array $params) {
-		if ($shortcode = fw_ext('shortcodes')->get_shortcode(
-			isset($item['shortcode']) ? $item['shortcode'] : str_replace('-', '_', $item['type'])
-		)) {
-			/** @var FW_Shortcode $shortcode */
-
-			foreach (fw_extract_only_options($shortcode->get_options()) as $id => $option) {
+		/** @var FW_Shortcode $shortcode */
+		if (
+			($shortcode = fw_ext('shortcodes')->get_shortcode(
+				isset($item['shortcode']) ? $item['shortcode'] : str_replace('-', '_', $item['type'])
+			))
+			&&
+			($shortcode_options = $shortcode->get_options())
+		) {
+			foreach (fw_extract_only_options($shortcode_options) as $id => $option) {
 				$item['atts'][ $id ] = fw()->backend->option_type($option['type'])->storage_load(
 					$id, $option, isset($item['atts'][ $id ]) ? $item['atts'][ $id ] : null, $params
 				);
