@@ -207,7 +207,7 @@
 				// && ! init.wp_skip_init
 			) {
 				init.setup = function(ed) {
-					ed.onInit.add(function(ed) {
+					ed.on('init', function(ed) {
 						that.events.trigger('tinyMCE:ready');
 					});
 				};

@@ -14,7 +14,7 @@ $cfg = array();
  * set in `extensions/shortcodes/shortcodes/{shortcode_name}/config.php`
  *
  * $cfg['page_builder'] = array(
- *     'disable_correction' = true,
+ *     'disable_correction' => true,
  *     ...
  * );
  */
