@@ -147,6 +147,10 @@
 			},
 
 			init: function (editor) {
+				if (editor.id != 'content') {
+					return; // add button only to post content wp-editor
+				}
+
 				var _self = this;
 
 				editor.addButton(plugin_name, {
