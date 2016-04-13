@@ -50,6 +50,10 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 				}
 			}
 
+			if (isset($item['data']['shortcode'])) {
+				$inner_classes .= ' fw-page-builder-thumb-shortcode--'. esc_html($item['data']['shortcode']);
+			}
+
 			if ( ! isset( $thumbs[ $item['title'] ] ) ) {
 				$thumbs[$item['title']] = array(
 					'tab'  => $item['tab'],
