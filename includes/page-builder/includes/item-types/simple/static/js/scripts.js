@@ -12,7 +12,8 @@
 					modal: itemModel.view ? itemModel.view.modal : null,
 					item: itemModel,
 					itemView: itemModel.view,
-					shortcode: itemModel.get('shortcode')
+					shortcode: itemModel.get('shortcode'),
+					builder: builder
 				};
 
 				fwEvents.trigger(event, eventData
