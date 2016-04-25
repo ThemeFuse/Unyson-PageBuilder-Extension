@@ -271,3 +271,53 @@
 		}
 	});
 })(jQuery, fwEvents, fw_option_type_page_builder_editor_integration_data);
+
+/**
+ * Update post content on builder change to trigger auto-save creation on post preview
+ * because if no post field is changed WP will not create auto-save on preview and builder changes will not be visible
+ * Fixes https://github.com/ThemeFuse/Unyson/issues/1304
+ */
+jQuery(function($){
+	var builderInput = document.getElementById('fw-option-input--page-builder'),
+		eventsNamespace = '.fw-ext-page-builder',
+		originalContentValue,
+		isBuilderActive = function(){
+			return jQuery('#fw-option-page-builder').is(':visible');
+		};
+
+	$('#post-preview')
+		/**
+		 * Use mouseup instead of click to be executed before
+		 * https://github.com/WordPress/WordPress/blob/4.5/wp-admin/js/post.js#L295
+		 */
+		.on('mouseup'+ eventsNamespace +' touchend'+ eventsNamespace, function(){
+			if (!isBuilderActive()) {
+				return;
+			}
+
+			var $content = $('#content');
+
+			originalContentValue = $content.val();
+
+			$content.val(
+				/**
+				 * Mimic $fake_content from extension class
+				 * But it will never be the same because on php side the json is fixed/changed
+				 */
+				'<!-- '+ builderInput.value.length +'|'+ fw.md5(builderInput.value) +' -->'
+			);
+		})
+		/**
+		 * This for sure will be executed right after
+		 * https://github.com/WordPress/WordPress/blob/4.5/wp-admin/js/post.js#L295
+		 */
+		.on('click'+ eventsNamespace, function(){
+			if (!isBuilderActive()) {
+				return;
+			}
+
+			$('#content').val(originalContentValue);
+
+			originalContentValue = ''; // free memory
+		});
+});

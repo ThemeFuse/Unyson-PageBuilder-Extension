@@ -153,11 +153,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		// just to create a revision if content was changed
-		$fake_content = '<!-- ' . json_encode(array(
-			'length' => strlen($builder_data['json']),
-			'hash' => md5($builder_data['json'])
-		)) .' -->';
+		/**
+		 * Just to create a revision if content was changed
+		 * Important: Must not contain " because it creates problems with slashes (" -> \")
+		 */
+		$fake_content = '<!-- ' . strlen($builder_data['json']) .'|'. md5($builder_data['json']) .' -->';
 
 		if (
 			!($post = get_post($post_id))
