@@ -209,6 +209,12 @@
 				init.setup = function(ed) {
 					ed.on('init', function(ed) {
 						that.events.trigger('tinyMCE:ready');
+
+						/**
+						 * Show the Update button after full builder init
+						 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
+						 */
+						$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
 					});
 				};
 

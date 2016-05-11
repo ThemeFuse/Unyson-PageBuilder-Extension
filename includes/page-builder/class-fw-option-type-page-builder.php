@@ -52,12 +52,6 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				E_USER_ERROR
 			);
 		} elseif ($option['editor_integration'] === true) {
-			if (!$this->editor_integration_enabled) { // first time and only one time
-				add_filter('tiny_mce_before_init', array($this, '_filter_disable_editor'), 10, 2);
-			}
-
-			$this->editor_integration_enabled = true;
-
 			wp_enqueue_style(
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
 				$static_uri . '/css/editor_integration.css',
@@ -72,6 +66,23 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				$version,
 				true
 			);
+
+			{
+				if (!$this->editor_integration_enabled) { // first time and only one time
+					add_filter('tiny_mce_before_init', array($this, '_filter_disable_editor'), 10, 2);
+
+					/**
+					 * Hide the Publish button until the builder is not fully initialized in js
+					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
+					 */
+					wp_add_inline_style(
+						'fw-option-type-' . $this->get_type() . '-editor-integration',
+						'#publish { display: none; }'
+					);
+				}
+
+				$this->editor_integration_enabled = true;
+			}
 
 			{
 				$builder_templates = apply_filters('fw_ext_page_builder_templates', array(
