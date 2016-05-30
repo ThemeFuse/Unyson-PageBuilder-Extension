@@ -94,7 +94,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	public function _admin_filter_fw_post_options( $post_options, $post_type ) {
-		if ( post_type_supports( $post_type, $this->supports_feature_name ) ) {
+		if (
+			post_type_supports( $post_type, 'editor' )
+			&&
+			post_type_supports( $post_type, $this->supports_feature_name )
+			&&
+			get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true'
+		) {
 			$this->get_parent()->load_shortcodes();
 			$page_builder_options = array(
 				'page-builder-box' => array(
