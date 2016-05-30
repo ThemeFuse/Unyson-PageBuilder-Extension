@@ -99,7 +99,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			post_type_supports( $post_type, $this->supports_feature_name )
 			&&
-			get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true'
+			(!is_user_logged_in() || get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true')
 		) {
 			$this->get_parent()->load_shortcodes();
 			$page_builder_options = array(
