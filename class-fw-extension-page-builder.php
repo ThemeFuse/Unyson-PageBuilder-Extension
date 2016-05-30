@@ -276,11 +276,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
-	 * @param WP_Post $post
+	 * @param WP_Post|object $post
 	 * @return string
 	 * @since 1.5.0
 	 */
-	private function get_post_content_shortcodes(WP_Post $post) {
+	private function get_post_content_shortcodes($post) {
 		/**
 		 * @var FW_Option_Type_Page_Builder $option_type
 		 */
