@@ -38,8 +38,13 @@ class _Page_Builder_Items_Corrector_Row_Container
 
 	private function column_fits($column_width)
 	{
-		$column_as_fraction = $this->extract_fraction_from_column_width($column_width);
-		$column_as_fraction->add($this->accumulator);
+		if ( fw_ext( 'page-builder' )->get_config( 'disable_columns_auto_wrap' ) ) {
+			return true;
+		}
+
+		$column_as_fraction = $this->extract_fraction_from_column_width( $column_width );
+		$column_as_fraction->add( $this->accumulator );
+
 		return $column_as_fraction->to_number() <= 1;
 	}
 
