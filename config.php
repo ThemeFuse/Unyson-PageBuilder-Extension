@@ -32,4 +32,4 @@ $cfg['disable_correction'] = false;
  *
  *
  */
-$cfg['disable_columns_auto_wrap'] = true;
+$cfg['disable_columns_auto_wrap'] = false;
