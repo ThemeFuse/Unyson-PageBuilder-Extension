@@ -27,7 +27,7 @@ $cfg['disable_correction'] = false;
  * useful thing for HTML grids also this boxes the row columns so next row columns will not ge stuck on
  * previous row columns.
  *
- * CSS framework like Bootstrap 3 do not needs this feature, more then that it breaks the bootstrap functionality
+ * CSS framework like Bootstrap 3 doesn't need this feature, more then that it breaks the bootstrap functionality
  * when use such rules on columns <div class="col-md-4 col-sm-6"></div>
  *
  *
