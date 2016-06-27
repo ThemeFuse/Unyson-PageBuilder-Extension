@@ -281,7 +281,6 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 				$options = $shortcode->get_options();
 				if ( $options ) {
 					$item_data['options'] = $this->transform_options( $options );
-					fw()->backend->enqueue_options_static( $options );
 				}
 
 				$result[ $tag ] = $item_data;

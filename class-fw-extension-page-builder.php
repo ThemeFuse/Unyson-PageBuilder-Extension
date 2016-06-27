@@ -64,6 +64,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private function add_actions() {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
 		add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
+		add_action( 'fw_admin_enqueue_scripts:post', array( $this, '_action_enqueue_shortcodes_admin_scripts' ) );
 	}
 
 	/*
@@ -94,13 +95,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	public function _admin_filter_fw_post_options( $post_options, $post_type ) {
-		if (
-			post_type_supports( $post_type, 'editor' )
-			&&
-			post_type_supports( $post_type, $this->supports_feature_name )
-			&&
-			(!is_user_logged_in() || get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true')
-		) {
+		if ($this->is_admin_builder_enabled($post_type)) {
 			$this->get_parent()->load_shortcodes();
 			$page_builder_options = array(
 				'page-builder-box' => array(
@@ -370,5 +365,32 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		return $this->get_post_content_shortcodes($post);
+	}
+
+	public function _action_enqueue_shortcodes_admin_scripts(WP_Post $post) {
+		if (!$this->is_admin_builder_enabled($post->post_type)) {
+			return;
+		}
+
+		/**
+		 * @var FW_Extension_Shortcodes $shortcodes_ext
+		 */
+		$shortcodes_ext = $this->get_parent();
+
+		foreach ($shortcodes_ext->get_shortcodes() as $shortcode) {
+			fw()->backend->enqueue_options_static($shortcode->get_options());
+		}
+
+		do_action('fw:ext:page-builder:enqueue-shortcodes-admin-scripts');
+	}
+
+	private function is_admin_builder_enabled($post_type) {
+		return (
+			post_type_supports( $post_type, 'editor' )
+			&&
+			post_type_supports( $post_type, $this->supports_feature_name )
+			&&
+			(!is_user_logged_in() || get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true')
+		);
 	}
 }
