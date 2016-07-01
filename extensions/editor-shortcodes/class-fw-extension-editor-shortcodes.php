@@ -20,9 +20,15 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 	 */
 	protected function _init() {
 		if ( is_admin() ) {
+			$this->add_admin_actions();
 		} else {
 			$this->add_theme_filters();
 		}
+	}
+
+
+	private function add_admin_actions() {
+		add_action( 'edit_form_after_editor', array( $this, '_action_admin_render_hidden' ) );
 	}
 
 	private function add_theme_filters() {
@@ -64,6 +70,16 @@ class FW_Extension_Editor_Shortcodes extends FW_Extension {
 		global $post;
 
 		return $this->decode_shortcode_atts($atts, $tag, $post->ID);
+	}
+
+	public function _action_admin_render_hidden() {
+		global $post;
+		if ( ! $this->is_supported_post( $post ) ) {
+			return;
+		}
+
+		$value = get_post_meta( $post->ID, $this->meta_key, true );
+		echo '<input id="' . $this->meta_key . '" type="hidden" name="' . $this->meta_key . '" value="' . fw_htmlspecialchars( $value ) . '">';
 	}
 
 	/**
