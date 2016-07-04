@@ -173,7 +173,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			$post_content = $option_type->_get_shortcode_notation( self::get_access_key(), $builder_data['json'] );
 			$post_content = str_replace('\\', '\\\\', $post_content); // WordPress "fixes" the slashes
 			$post_content = do_shortcode($post_content);
-			$post_content = strip_tags($post_content, '<a><p><h1><h2><h3><h4><h5><h6>');
+			$post_content = strip_tags($post_content, '<a><p><h1><h2><h3><h4><h5><h6><img>');
 			$post_content = trim($post_content);
 			$post_content = implode("\n", array_filter(explode("\n", $post_content), 'trim')); // remove extra \n
 			$post_content = normalize_whitespace($post_content);
