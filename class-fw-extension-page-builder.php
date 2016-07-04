@@ -59,6 +59,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		 * @deprecated Since Shortcodes 1.3.0
 		 */
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
+		add_filter(
+			'wp_save_post_revision_post_has_changed',
+			array( $this, '_filter_wp_save_post_revision_post_has_changed' ),
+			12, 3
+		);
 	}
 
 	private function add_actions() {
@@ -155,15 +160,29 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		/**
-		 * Just to create a revision if content was changed
-		 * Important: Must not contain " because it creates problems with slashes (" -> \")
+		 * @var FW_Option_Type_Page_Builder $option_type
 		 */
-		$fake_content = '<!-- ' . strlen($builder_data['json']) .'|'. md5($builder_data['json']) .' -->';
+		$option_type = fw()->backend->option_type('page-builder');
+
+		/**
+		 * Just to create a revision if content was changed
+		 * Also for SEO admin inspector and WP Search to work
+		 * Note: Treat " because it create problems with slashes (" -> \") and duplicate revisions
+		 */
+		{
+			$post_content = $option_type->_get_shortcode_notation( self::get_access_key(), $builder_data['json'] );
+			$post_content = str_replace('\\', '\\\\', $post_content); // WordPress "fixes" the slashes
+			$post_content = do_shortcode($post_content);
+			$post_content = strip_tags($post_content, '<a><p>');
+			$post_content = implode("\n", array_filter(explode("\n", $post_content), 'trim')); // remove extra \n
+			$post_content = trim($post_content);
+			$post_content = normalize_whitespace($post_content);
+		}
 
 		if (
 			!($post = get_post($post_id))
 			&&
-			$post->post_content === $fake_content
+			$post->post_content === $post_content
 		) {
 			return; // Do nothing if content has no changes
 		}
@@ -176,7 +195,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 
 		wp_update_post(array(
 			'ID' => $post_id,
-			'post_content' => $fake_content,
+			'post_content' => $post_content,
 		));
 
 		unset($this->prevent_post_update_recursion[$post_id]);
@@ -353,7 +372,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	public function _get_post_content(FW_Access_Key $access_key, $post) {
 		if ($access_key->get_key() !== 'fw:ext:page-builder:helper:get-post-content') {
-
+			trigger_error('Method call denied');
 		}
 
 		if (!$post instanceof WP_Post) {
@@ -392,5 +411,21 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			(!is_user_logged_in() || get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true')
 		);
+	}
+
+	public function _filter_wp_save_post_revision_post_has_changed($post_has_changed, $last_revision, $post) {
+		if (
+			$post_has_changed // prevent duplicate revision
+			&&
+			post_type_supports( $post->post_type, $this->supports_feature_name )
+		) {
+			return (
+				fw_get_db_post_option( $last_revision->ID, $this->builder_option_key )
+				!==
+				fw_get_db_post_option( $post->ID, $this->builder_option_key )
+			);
+		} else {
+			return $post_has_changed;
+		}
 	}
 }
