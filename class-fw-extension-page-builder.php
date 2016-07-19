@@ -303,7 +303,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		if (
 			post_type_supports(
 				get_post_type(
-					($post_revision_id = wp_is_post_revision($post)) ? $post_revision_id : $post->ID
+					($post_revision_id = wp_is_post_revision($post)) ? $post_revision_id : $post
 				),
 				$this->supports_feature_name
 			)
