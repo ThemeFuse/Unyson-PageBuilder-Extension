@@ -50,10 +50,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	private function add_filters() {
 		add_filter( 'fw_post_options', array( $this, '_admin_filter_fw_post_options' ), 10, 2 );
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
-		/**
-		 * @since 1.5.0
-		 */
+		/** @since 1.5.0 */
 		add_filter( 'the_posts', array( $this, '_filter_the_posts' ), 2, 2 );
+		/** @since 1.5.7 */
+		add_filter( 'get_pages', array( $this, '_filter_the_posts' ), 2, 2 );
 
 		/**
 		 * @deprecated Since Shortcodes 1.3.0
@@ -338,7 +338,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @since 1.5.0
 	 */
 	public function _filter_the_posts($posts, $query) {
-		if (is_admin()) {
+		if (defined('DOING_AJAX') && DOING_AJAX) {
+			/**
+			 * Some plugins do get_posts() in ajax and need full post content html
+			 * fixes https://github.com/ThemeFuse/Unyson/issues/1798
+			 */
+		} elseif (is_admin()) {
 			/**
 			 * This filter is applied for every post in backend
 			 * but we don't need post content in backend
