@@ -423,6 +423,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			$post_has_changed // prevent duplicate revision
 			&&
 			post_type_supports( $post->post_type, $this->supports_feature_name )
+			&&
+			($builder_data = fw_get_db_post_option( $post->ID, $this->builder_option_key ))
+			&&
+			$builder_data['builder_active']
 		) {
 			return (
 				fw_get_db_post_option( $last_revision->ID, $this->builder_option_key )
