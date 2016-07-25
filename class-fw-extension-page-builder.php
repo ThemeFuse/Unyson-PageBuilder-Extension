@@ -360,6 +360,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		) {
 			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
 		} else {
+			/**
+			 * fixme: Maybe remove this to prevent useless shortcodes process
+			 * when posts are just used in sidebar and only title is displayed
+			 * https://github.com/ThemeFuse/Unyson/issues/1813
+			 */
 			foreach ($posts as &$post) {
 				$post->post_content = $this->get_post_content_shortcodes($post);
 			}
