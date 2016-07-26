@@ -47,3 +47,4 @@ function fw_ext_page_builder_get_post_content($post) {
 
 	return fw_ext('page-builder')->_get_post_content($access_key, $post);
 }
+

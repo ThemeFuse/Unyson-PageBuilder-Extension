@@ -399,16 +399,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		/**
-		 * @var FW_Extension_Shortcodes $shortcodes_ext
-		 */
-		$shortcodes_ext = $this->get_parent();
-
-		foreach ($shortcodes_ext->get_shortcodes() as $shortcode) {
-			fw()->backend->enqueue_options_static($shortcode->get_options());
+		if (function_exists('fw_ext_shortcodes_enqueue_shortcodes_admin_scripts')) {
+			fw_ext_shortcodes_enqueue_shortcodes_admin_scripts();
 		}
-
-		do_action('fw:ext:page-builder:enqueue-shortcodes-admin-scripts');
 	}
 
 	private function is_admin_builder_enabled($post_type) {
