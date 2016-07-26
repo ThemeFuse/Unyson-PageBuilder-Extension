@@ -351,22 +351,20 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return $posts;
 		}
 
-		if (
-			is_preview()
-			&&
-			count($posts) == 1
-			&&
-			is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
-		) {
-			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
-		} else {
-			/**
-			 * fixme: Maybe remove this to prevent useless shortcodes process
-			 * when posts are just used in sidebar and only title is displayed
-			 * https://github.com/ThemeFuse/Unyson/issues/1813
-			 */
-			foreach ($posts as &$post) {
-				$post->post_content = $this->get_post_content_shortcodes($post);
+		/**
+		 * Process only single post loop, main content display.
+		 * Prevent useless processing for multiple posts loops because
+		 *  they are usually used to display only post titles.
+		 */
+		if (count($posts) == 1) {
+			if (
+				is_preview()
+				&&
+				is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
+			) {
+				$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
+			} else {
+				$posts[0]->post_content = $this->get_post_content_shortcodes($posts[0]);
 			}
 		}
 
