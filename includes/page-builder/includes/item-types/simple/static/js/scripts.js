@@ -174,6 +174,7 @@
 
 				/**
 				 * Create initial flow settings for modal openning.
+				 * TODO: Maybe move this in fw.OptionsModal.
 				 */
 				var flow = {cancelModalOpening: false};
 
