@@ -226,7 +226,12 @@
 				e.stopPropagation();
 				var index = this.model.collection.indexOf(this.model),
 					attributes = this.model.toJSON();
-				this.model.collection.add(new PageBuilderSimpleItem(attributes), {at: index + 1})
+
+				var clonedItem = new PageBuilderSimpleItem(attributes);
+
+				triggerEvent(clonedItem, 'clone-item:before');
+
+				this.model.collection.add(clonedItem, {at: index + 1})
 			},
 			removeItem: function(e) {
 				e.stopPropagation();
