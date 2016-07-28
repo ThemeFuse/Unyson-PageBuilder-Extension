@@ -343,6 +343,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 * Some plugins do get_posts() in ajax and need full post content html
 			 * fixes https://github.com/ThemeFuse/Unyson/issues/1798
 			 */
+			foreach ($posts as &$post) {
+				$post->post_content = $this->get_post_content_shortcodes($post);
+			}
+
+			return $posts;
 		} elseif (is_admin()) {
 			/**
 			 * This filter is applied for every post in backend
