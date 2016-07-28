@@ -52,7 +52,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		add_filter( 'the_content', array( $this, '_theme_filter_prevent_autop' ), 1 );
 		/** @since 1.5.0 */
 		add_filter( 'the_posts', array( $this, '_filter_the_posts' ), 2, 2 );
-		/** @since 1.5.7 */
+		/** @since 1.6.0 */
 		add_filter( 'get_pages', array( $this, '_filter_the_posts' ), 2, 2 );
 
 		/**
