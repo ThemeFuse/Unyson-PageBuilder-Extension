@@ -385,7 +385,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	public function _get_post_content(FW_Access_Key $access_key, $post) {
 		if ($access_key->get_key() !== 'fw:ext:page-builder:helper:get-post-content') {
-			trigger_error('Method call denied');
+			trigger_error('Method call denied', E_USER_ERROR);
 		}
 
 		if (!$post instanceof WP_Post) {
