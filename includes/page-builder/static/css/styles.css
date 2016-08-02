@@ -46,3 +46,7 @@
 .fw-option-type-page-builder .builder-item-type:hover p span {
 	color: #484848;
 }
+
+.fw-option-type-page-builder .fw-visibility-off {
+    opacity: 0.6;
+}

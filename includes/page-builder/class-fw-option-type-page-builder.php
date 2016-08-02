@@ -4,6 +4,8 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 {
 	private $editor_integration_enabled = false;
 
+	private $shortcode_visibility_property = 'fw-visibility';
+
 	public function get_type()
 	{
 		return 'page-builder';
@@ -65,6 +67,25 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				array('jquery', 'fw-events'),
 				$version,
 				true
+			);
+
+			wp_enqueue_script(
+				'fw-option-type-' . $this->get_type() . '-shortcode-eye',
+				$static_uri . '/js/shortcodes-eye.js',
+				array('jquery', 'fw-events'),
+				$version,
+				true
+			);
+
+			wp_localize_script(
+				'fw-option-type-' . $this->get_type() . '-shortcode-eye',
+				'_fw_option_type_page_builder_shortcodes_eye',
+				array(
+					'l10n' => array(
+						'tooltip' => __('Hide / Show', 'fw'),
+					),
+					'key' => $this->shortcode_visibility_property,
+				)
 			);
 
 			{
@@ -268,6 +289,33 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		}
 
 		return $mceInit;
+	}
+
+	/**
+	 * https://github.com/ThemeFuse/Unyson-Builder-Extension/blob/v1.2.3/includes/option-types/builder/extends/class-fw-option-type-builder.php#L597
+	 */
+	protected function storage_load_recursive(array $items, array $params) {
+		$item_types = $this->get_item_types();
+
+		foreach ($items as &$atts) {
+			if( ! fw_akg( $this->shortcode_visibility_property, $atts, true ) && ! is_admin() ) {
+				// Hide shortcode JSON only in front-end.
+				$atts = array();
+				continue;
+			}
+
+			if (!isset($atts['type']) || !isset($item_types[ $atts['type'] ])) {
+				continue; // invalid item
+			}
+
+			$atts = $item_types[ $atts['type'] ]->storage_load($atts, $params);
+
+			if (isset($atts['_items'])) {
+				$atts['_items'] = $this->storage_load_recursive($atts['_items'], $params);
+			}
+		}
+
+		return $items;
 	}
 }
 
