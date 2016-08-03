@@ -47,7 +47,7 @@
     function addIcon( data ) {
 	data.$controls.prepend(
 	    $('<i class="fw-shortcode-visibility dashicons dashicons-visibility"></i>')
-	    .attr('data-hover-tip', itemData.l10n.tooltip)
+	    .attr('data-hover-tip', itemData.l10n.eye)
 	    .on('click', function(e) {
 		e.stopPropagation();
 		e.preventDefault();
@@ -79,4 +79,4 @@
 	addIcon( data );
     });
     
-})( jQuery, _fw_option_type_page_builder_shortcodes_eye );
+})( jQuery, _fw_option_type_page_builder_shortcodes_controls );
