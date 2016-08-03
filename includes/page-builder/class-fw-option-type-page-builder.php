@@ -77,12 +77,21 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				true
 			);
 
+			wp_enqueue_script(
+				'fw-option-type-' . $this->get_type() . '-responsive-controls',
+				$static_uri . '/js/responsive-controls.js',
+				array('jquery', 'fw-events'),
+				$version,
+				true
+			);
+
 			wp_localize_script(
 				'fw-option-type-' . $this->get_type() . '-shortcode-eye',
-				'_fw_option_type_page_builder_shortcodes_eye',
+				'_fw_option_type_page_builder_shortcodes_controls',
 				array(
 					'l10n' => array(
-						'tooltip' => __('Hide / Show', 'fw'),
+						'eye' => __('Hide / Show', 'fw'),
+						'responsive' => __( 'Display Controls', 'fw' ),
 					),
 					'key' => $this->shortcode_visibility_property,
 				)
