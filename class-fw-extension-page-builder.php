@@ -338,16 +338,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @since 1.5.0
 	 */
 	public function _filter_the_posts($posts, $query) {
+		if (empty($posts)) {
+			return $posts;
+		}
+
 		if (defined('DOING_AJAX') && DOING_AJAX) {
 			/**
 			 * Some plugins do get_posts() in ajax and need full post content html
 			 * fixes https://github.com/ThemeFuse/Unyson/issues/1798
 			 */
-			foreach ($posts as &$post) {
-				$post->post_content = $this->get_post_content_shortcodes($post);
-			}
-
-			return $posts;
 		} elseif (is_admin()) {
 			/**
 			 * This filter is applied for every post in backend
@@ -356,20 +355,17 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return $posts;
 		}
 
-		/**
-		 * Process only single post loop, main content display.
-		 * Prevent useless processing for multiple posts loops because
-		 *  they are usually used to display only post titles.
-		 */
-		if (count($posts) == 1) {
-			if (
-				is_preview()
-				&&
-				is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
-			) {
-				$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
-			} else {
-				$posts[0]->post_content = $this->get_post_content_shortcodes($posts[0]);
+		if (
+			!isset($posts[1]) // faster than: count($posts) == 1
+			&&
+			is_preview()
+			&&
+			is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
+		) {
+			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
+		} else {
+			foreach ($posts as &$post) {
+				$post->post_content = $this->get_post_content_shortcodes($post);
 			}
 		}
 
