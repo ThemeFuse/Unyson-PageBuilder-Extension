@@ -1,4 +1,5 @@
 (function($, itemData) {
+
     var responsive_class = 'fw-responsive-controls',
 	display_class = 'fw-display-controls',
 	allowed_width = 280;
@@ -17,12 +18,12 @@
     function calculateSize() {
 	$('.fw-option-type-page-builder .builder-root-items .pb-item').each(function() {
 	    var element = jQuery(this);
-
+	    var item = element.closest('.builder-item');
 	    if ( allowed_width >= element.width() ) {
-		element.addClass( responsive_class );
+		item.addClass( responsive_class );
 	    } else {
-		element.removeClass( responsive_class );
-		element.removeClass( display_class );
+		item.removeClass( responsive_class );
+		item.removeClass( display_class );
 	    }
 	});
     }
@@ -32,14 +33,14 @@
      * @param {Object} data
      */
     function addIcon( data ) {
-	data.$controls.prepend(
+	data.$controls.append(
 	    $('<i class="fw-responsive-button dashicons dashicons-menu"></i>')
 	    .attr('data-hover-tip', itemData.l10n.responsive)
 	    .on('click', function(e) {
 		e.stopPropagation();
 		e.preventDefault();
 		
-		var parent = $(this).closest('.pb-item');
+		var parent = $(this).closest('.builder-item');
 		if ( parent.hasClass( responsive_class ) ) {
 		    if ( parent.hasClass( display_class ) ) {
 			parent.removeClass( display_class );
@@ -50,6 +51,10 @@
 	    })
 	);
     }
+    
+    fwEvents.on('fw-builder:page-builder:items-loaded', function() {
+	setTimeout( _.partial( calculateSize ), 250 );
+    });
     
     // Add controls for simple shortcodes.
     fwEvents.on('fw:page-builder:shortcode:item-simple:controls', function( data ) {
