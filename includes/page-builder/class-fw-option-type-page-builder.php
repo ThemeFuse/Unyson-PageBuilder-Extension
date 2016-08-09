@@ -257,11 +257,12 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		return $shortcode_notation;
 	}
 
-	public function _get_shortcode_notation(FW_Access_Key $access_key, $json) {
-		if ($access_key->get_key() !== 'fw:ext:page-builder') {
-			trigger_error('Call denied', E_USER_ERROR);
-		}
-
+	/**
+	 * @param $json
+	 * @return bool|string
+	 * @since 1.6.2
+	 */
+	public function json_to_shortcodes($json) {
 		if ( !is_array($json) && is_null($json = json_decode($json, true)) ) {
 			return false;
 		}

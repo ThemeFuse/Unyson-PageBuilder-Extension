@@ -170,7 +170,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		 * Note: Treat " because it create problems with slashes (" -> \") and duplicate revisions
 		 */
 		{
-			$post_content = $option_type->_get_shortcode_notation( self::get_access_key(), $builder_data['json'] );
+			$post_content = $option_type->json_to_shortcodes( $builder_data['json'] );
 			$post_content = str_replace('\\', '\\\\', $post_content); // WordPress "fixes" the slashes
 			$post_content = do_shortcode($post_content);
 			$post_content = strip_tags($post_content, '<a><p><h1><h2><h3><h4><h5><h6><img>');
@@ -323,7 +323,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 * So we generate the shortcode notation before post display in frontend
 			 */
 			return str_replace('\\', '\\\\', // WordPress "fixes" the slashes
-				$option_type->_get_shortcode_notation( self::get_access_key(), $builder_data['json'] )
+				$option_type->json_to_shortcodes( $builder_data['json'] )
 			);
 		}
 
