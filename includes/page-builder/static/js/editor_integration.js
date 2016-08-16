@@ -245,7 +245,7 @@
 				/**
 				 * Init after PageBuilder was fully initialized
 				 * because both operations consume a lot of CPU
-				 * and I think it faster if they are executed one by one, not in parallel
+				 * and I think it's faster if they are executed one by one (not in parallel)
 				 */
 				'fw:option-type:builder:init',
 				function(e, data){
