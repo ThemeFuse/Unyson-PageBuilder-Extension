@@ -213,6 +213,12 @@
 				});
 			};
 
+			/**
+			 * Prevent useless plugin calculations
+			 * https://github.com/WordPress/WordPress/blob/4.5.3/wp-admin/js/editor-expand.js#L326
+			 * because usually the default editor will be hidden after init
+			 * So better to init it hidden
+			 */
 			init.hidden = true;
 
 			tinymce.init( init );
