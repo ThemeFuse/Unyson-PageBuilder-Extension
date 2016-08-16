@@ -92,7 +92,7 @@
 			}
 		},
 		insertHidden: function() {
-			/*
+			/**
 			 * whether or not to display the builder at render depends
 			 * on a value that is stored in the $builderActiveHidden hidden input
 			 */
@@ -201,28 +201,24 @@
 
 			this.tinyMceInit = function(){};
 
-			if (
-				true
-				//( tinymce.$( '#wp-' + id + '-wrap').hasClass( 'tmce-active' ) || ! tinyMCEPreInit.qtInit.hasOwnProperty( id ) )
-				// && ! init.wp_skip_init
-			) {
-				init.setup = function(ed) {
-					ed.on('init', function(ed) {
-						that.events.trigger('tinyMCE:ready');
+			init.setup = function(ed) {
+				ed.on('init', function(ed) {
+					that.events.trigger('tinyMCE:ready');
 
-						/**
-						 * Show the Update button after full builder init
-						 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
-						 */
-						$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
-					});
-				};
+					/**
+					 * Show the Update button after full builder init
+					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
+					 */
+					$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
+				});
+			};
 
-				tinymce.init( init );
+			init.hidden = true;
 
-				if ( ! window.wpActiveEditor ) {
-					window.wpActiveEditor = id;
-				}
+			tinymce.init( init );
+
+			if ( ! window.wpActiveEditor ) {
+				window.wpActiveEditor = id;
 			}
 		},
 		init: function() {
@@ -245,15 +241,11 @@
 				this.initTemplatesSelectSync();
 			}, this));
 
-			var intervalId = setInterval(_.bind(function(){
-				/**
-				 * I can't find an event or a way to execute some code after tinyMCE init
-				 */
-				if (typeof tinyMCE != 'undefined') {
-					clearInterval(intervalId);
+			$(document.body).one('fw:option-type:builder:init', function(e, data){
+				if ('page-builder' == data.builder.get('type')) {
 					this.tinyMceInit();
 				}
-			}, this), 30);
+			}.bind(this));
 		}
 	};
 
