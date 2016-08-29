@@ -42,9 +42,14 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	protected function _init() {
 		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3 );
+		add_action( 'fw_option_types_init', array( $this, '_action_option_types_init' ) );
 
 		$this->add_filters();
 		$this->add_actions();
+	}
+
+	public function _action_option_types_init() {
+		require dirname(__FILE__) . '/includes/page-builder/class-fw-option-type-page-builder.php';
 	}
 
 	private function add_filters() {
