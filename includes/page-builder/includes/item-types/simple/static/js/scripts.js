@@ -1,5 +1,3 @@
-fwEvents.debug(true);
-
 (function(fwe, _, builderData) {
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
