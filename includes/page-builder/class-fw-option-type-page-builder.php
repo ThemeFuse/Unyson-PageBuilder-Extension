@@ -70,31 +70,14 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			);
 
 			wp_enqueue_script(
-				'fw-option-type-' . $this->get_type() . '-shortcode-eye',
-				$static_uri . '/js/shortcodes-eye.js',
-				array('jquery', 'fw-events'),
-				$version,
-				true
-			);
-
-			wp_enqueue_script(
-				'fw-option-type-' . $this->get_type() . '-responsive-controls',
-				$static_uri . '/js/responsive-controls.js',
-				array('jquery', 'fw-events'),
-				$version,
-				true
-			);
-
-			wp_localize_script(
-				'fw-option-type-' . $this->get_type() . '-shortcode-eye',
-				'_fw_option_type_page_builder_shortcodes_controls',
+				'fw-option-type-' . $this->get_type() . '-visual-elements',
+				$static_uri . '/js/visual-elements.js',
 				array(
-					'l10n' => array(
-						'eye' => __('Hide / Show', 'fw'),
-						'responsive' => __( 'Display Controls', 'fw' ),
-					),
-					'key' => $this->shortcode_visibility_property,
-				)
+					'jquery', 'fw-events',
+					'fw-option-type-' . $this->get_type() . '-editor-integration'
+				),
+				$version,
+				true
 			);
 
 			{
@@ -140,7 +123,10 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 					'l10n'                => array(
 						'showButton' => __('Visual Page Builder', 'fw'),
 						'hideButton' => __('Default Editor', 'fw'),
+						'eye' => __('Hide / Show', 'fw'),
+						'responsive' => __( 'Display Controls', 'fw' )
 					),
+					'visibility_key' => $this->shortcode_visibility_property,
 					'optionId'            => $option['attr']['id'],
 					'renderInBuilderMode' => isset($data['value']['builder_active'])
 						? $data['value']['builder_active']
