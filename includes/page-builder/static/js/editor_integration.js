@@ -53,7 +53,8 @@
 			this.elements.$hideButton.show();
 			this.elements.$builderBox.show();
 
-			window.editorExpand && window.editorExpand.off && window.editorExpand.off();
+			// This blocks the page for 5+ seconds
+			//window.editorExpand && window.editorExpand.off && window.editorExpand.off();
 
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val('true');
@@ -69,7 +70,8 @@
 			this.elements.$builderBox.hide();
 			this.elements.$wpPostDivRich.show();
 
-			window.editorExpand && window.editorExpand.on && window.editorExpand.on();
+			// This blocks the page for 5+ seconds
+			//window.editorExpand && window.editorExpand.on && window.editorExpand.on();
 
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val('false');
@@ -203,13 +205,18 @@
 
 			init.setup = function(ed) {
 				ed.on('init', function(ed) {
-					that.events.trigger('tinyMCE:ready');
-
-					/**
-					 * Show the Update button after full builder init
-					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
-					 */
-					$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
+					setTimeout(function(){ that.insertHidden(); }, 0);
+					setTimeout(function(){ that.bindEvents(); }, 0);
+					setTimeout(function(){ that.removeScreenOptionsCheckbox(); }, 0);
+					setTimeout(function(){ that.initTemplatesSelectSync(); }, 0);
+					setTimeout(function(){ that.initButtons(); }, 0);
+					setTimeout(function(){
+						/**
+						 * Show the Update button after full builder init
+						 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
+						 */
+						$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
+					}, 0);
 				});
 			};
 
@@ -238,14 +245,6 @@
 					this.fixOnFirstShowOrHide(false);
 				}, this));
 			}
-
-			this.events.once('tinyMCE:ready', _.bind(function(){
-				this.insertHidden();
-				this.bindEvents();
-				this.initButtons();
-				this.removeScreenOptionsCheckbox();
-				this.initTemplatesSelectSync();
-			}, this));
 
 			$(document.body).one(
 				/**
