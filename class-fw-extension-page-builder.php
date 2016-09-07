@@ -43,13 +43,14 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	protected function _init() {
 		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3 );
 		add_action( 'fw_option_types_init', array( $this, '_action_option_types_init' ) );
+		spl_autoload_register(array($this, '_spl_autoload'));
 
 		$this->add_filters();
 		$this->add_actions();
 	}
 
 	public function _action_option_types_init() {
-		require dirname(__FILE__) . '/includes/page-builder/class-fw-option-type-page-builder.php';
+		require_once dirname(__FILE__) . '/includes/page-builder/class-fw-option-type-page-builder.php';
 	}
 
 	private function add_filters() {
@@ -437,6 +438,29 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			);
 		} else {
 			return $post_has_changed;
+		}
+	}
+
+	/**
+	 * Backward compatibility when builder item-types were registered right away
+	 * @param string $class
+	 */
+	public function _spl_autoload($class) {
+		if ('Page_Builder_Item' === $class) {
+			require_once dirname(__FILE__) .'/includes/page-builder/includes/item-types/class-page-builder-item.php';
+
+			if (
+				is_admin()
+				&&
+				// https://github.com/ThemeFuse/Unyson-Extensions-Approval/issues/258
+				version_compare(fw()->manifest->get_version(), '2.6.2', '>')
+			) {
+				FW_Flash_Messages::add(
+					'page-builder-item-type-register-wrong',
+					__("Please register builder types on 'fw_option_type_builder:{builder-type}:register_items' action", 'fw'),
+					'warning'
+				);
+			}
 		}
 	}
 }
