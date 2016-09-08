@@ -10,12 +10,6 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		return $this->type;
 	}
 
-	public function _init() {
-		add_filter( 'fw_ext:shortcodes:collect_shortcodes_data', array(
-			$this, 'add_simple_shortcodes_data_to_filter'
-		) );
-	}
-
 	public function enqueue_static()
 	{
 		$static_uri = fw()->extensions->get('page-builder')->get_uri('/includes/page-builder/includes/item-types/simple/static');
@@ -41,10 +35,6 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		);
 
 		do_action('fw:ext:page-builder:item-type:simple:enqueue_static');
-	}
-
-	public function add_simple_shortcodes_data_to_filter( $structure ) {
-		return array_merge( $structure, $this->get_builder_data() );
 	}
 
 	/**
@@ -244,10 +234,4 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		return $return;
 	}
 }
-
-if (defined('DOING_AJAX')) {
-	$simple = new Page_Builder_Simple_Item();
-	$simple->_init();
-}
-
 FW_Option_Type_Builder::register_item_type('Page_Builder_Simple_Item');
