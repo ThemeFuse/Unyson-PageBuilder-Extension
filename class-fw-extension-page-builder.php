@@ -270,7 +270,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
-	 * Solve the problem with striped backslashes by wordpress when doing add_post_meta
+	 * Solve the problem with striped backslashes by WordPress when doing add_post_meta
 	 *
 	 * @internal
 	 *
@@ -279,7 +279,14 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @param mixed $value
 	 **/
 	public function _action_import_post_meta( $post_id, $key, $value ) {
-		if ( $key != FW_Option_Type::get_default_name_prefix() || ! isset( $value[ $this->builder_option_key ] ) ) {
+		if (
+			$key != (method_exists(fw()->backend, 'get_options_name_attr_prefix') // this was added in Unyson 2.6.3
+				? fw()->backend->get_options_name_attr_prefix()
+				: 'fw_options'
+			)
+			||
+			! isset( $value[ $this->builder_option_key ] )
+		) {
 			return;
 		}
 
