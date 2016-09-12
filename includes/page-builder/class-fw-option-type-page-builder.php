@@ -294,7 +294,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		$item_types = $this->get_item_types();
 
 		foreach ($items as &$atts) {
-			if( ! fw_akg( $this->shortcode_visibility_property, $atts, true ) && ! is_admin() ) {
+			if ( ! fw_akg( $this->shortcode_visibility_property, $atts, true ) && ! is_admin() ) {
 				// Hide shortcode JSON only in front-end.
 				$atts = array();
 				continue;
