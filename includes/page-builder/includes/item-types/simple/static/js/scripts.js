@@ -1,6 +1,4 @@
 (function(fwe) {
-	fw.unysonShortcodesData();
-
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
 		var PageBuilderSimpleItem,
 			PageBuilderSimpleItemView,
@@ -43,7 +41,7 @@
 						options: options.modalOptions,
 						values: this.model.get('atts'),
 						size: options.modalSize,
-						headerElements: fw.unysonShortcodesData()[
+						headerElements: page_builder_item_type_simple_data()[
 							this.model.get('shortcode') 
 						].popup_header_elements
 					}, eventData.modalSettings);
@@ -93,7 +91,7 @@
 			render: function() {
 				{
 					var title = this.templateData.title,
-						titleTemplate = fw.unysonShortcodesData()[ this.model.get('shortcode') ].title_template;
+						titleTemplate = page_builder_item_type_simple_data()[ this.model.get('shortcode') ].title_template;
 
 					if (titleTemplate && this.model.get('atts')) {
 						try {
@@ -255,7 +253,7 @@
 
 				this.defaultInitialize();
 
-				if (!fw.unysonShortcodesData()[shortcode]) {
+				if (!page_builder_item_type_simple_data()[shortcode]) {
 					this.view = new builder.classes.ItemView({
 						id: 'fw-builder-item-'+ this.cid,
 						model: this
@@ -266,7 +264,7 @@
 						'<p class="fw-text-danger">The shortcode <code>' + shortcode + '</code> not found.<p>'
 					);
 				} else {
-					shortcodeData = fw.unysonShortcodesData()[shortcode];
+					shortcodeData = page_builder_item_type_simple_data[shortcode];
 					modalOptions = shortcodeData.options;
 
 					if (!this.get('shortcode')) {
@@ -298,5 +296,9 @@
 
 		builder.registerItemClass(PageBuilderSimpleItem);
 	});
+
+	function itemData () {
+		return page_builder_item_type_simple_data;
+	}
 })(fwEvents);
 

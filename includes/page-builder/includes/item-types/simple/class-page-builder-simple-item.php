@@ -32,6 +32,12 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 			true
 		);
 
+		wp_localize_script(
+			$this->get_builder_type() . '_item_type_' . $this->get_type(),
+			str_replace('-', '_', $this->get_builder_type()) . '_item_type_' . $this->get_type() . '_data',
+			fw_ext('shortcodes')->build_shortcodes_list()
+		);
+
 		do_action('fw:ext:page-builder:item-type:simple:enqueue_static');
 	}
 
