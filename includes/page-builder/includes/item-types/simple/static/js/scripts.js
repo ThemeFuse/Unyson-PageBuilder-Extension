@@ -41,9 +41,9 @@
 						options: options.modalOptions,
 						values: this.model.get('atts'),
 						size: options.modalSize,
-						headerElements: page_builder_item_type_simple_data[
-							this.model.get('shortcode') 
-						].popup_header_elements
+						headerElements: itemData(
+							this.model.get('shortcode')
+						).popup_header_elements
 					}, eventData.modalSettings);
 
 					this.listenTo(this.modal, 'change:values', function(modal, values) {
@@ -91,7 +91,7 @@
 			render: function() {
 				{
 					var title = this.templateData.title,
-						titleTemplate = page_builder_item_type_simple_data[ this.model.get('shortcode') ].title_template;
+						titleTemplate = itemData( this.model.get('shortcode') ).title_template;
 
 					if (titleTemplate && this.model.get('atts')) {
 						try {
@@ -253,7 +253,7 @@
 
 				this.defaultInitialize();
 
-				if (!page_builder_item_type_simple_data[shortcode]) {
+				if (!itemData(shortcode)) {
 					this.view = new builder.classes.ItemView({
 						id: 'fw-builder-item-'+ this.cid,
 						model: this
@@ -264,7 +264,7 @@
 						'<p class="fw-text-danger">The shortcode <code>' + shortcode + '</code> not found.<p>'
 					);
 				} else {
-					shortcodeData = page_builder_item_type_simple_data[shortcode];
+					shortcodeData = itemData(shortcode);
 					modalOptions = shortcodeData.options;
 
 					if (!this.get('shortcode')) {
@@ -297,8 +297,8 @@
 		builder.registerItemClass(PageBuilderSimpleItem);
 	});
 
-	function itemData () {
-		return page_builder_item_type_simple_data;
+	function itemData (shortcode) {
+		return page_builder_item_type_simple_data[shortcode];
 	}
 })(fwEvents);
 

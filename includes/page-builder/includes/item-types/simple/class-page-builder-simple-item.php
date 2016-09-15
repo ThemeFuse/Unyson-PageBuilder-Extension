@@ -35,7 +35,7 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		wp_localize_script(
 			$this->get_builder_type() . '_item_type_' . $this->get_type(),
 			str_replace('-', '_', $this->get_builder_type()) . '_item_type_' . $this->get_type() . '_data',
-			fw_ext('shortcodes')->build_shortcodes_list()
+			fw_ext('shortcodes')->get_builder_data()
 		);
 
 		do_action('fw:ext:page-builder:item-type:simple:enqueue_static');
