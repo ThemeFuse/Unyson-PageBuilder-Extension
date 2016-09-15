@@ -41,7 +41,7 @@
 						options: options.modalOptions,
 						values: this.model.get('atts'),
 						size: options.modalSize,
-						headerElements: page_builder_item_type_simple_data()[
+						headerElements: page_builder_item_type_simple_data[
 							this.model.get('shortcode') 
 						].popup_header_elements
 					}, eventData.modalSettings);
@@ -91,7 +91,7 @@
 			render: function() {
 				{
 					var title = this.templateData.title,
-						titleTemplate = page_builder_item_type_simple_data()[ this.model.get('shortcode') ].title_template;
+						titleTemplate = page_builder_item_type_simple_data[ this.model.get('shortcode') ].title_template;
 
 					if (titleTemplate && this.model.get('atts')) {
 						try {
@@ -253,7 +253,7 @@
 
 				this.defaultInitialize();
 
-				if (!page_builder_item_type_simple_data()[shortcode]) {
+				if (!page_builder_item_type_simple_data[shortcode]) {
 					this.view = new builder.classes.ItemView({
 						id: 'fw-builder-item-'+ this.cid,
 						model: this
