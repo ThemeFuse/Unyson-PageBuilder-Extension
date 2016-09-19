@@ -353,9 +353,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	public function _filter_the_posts($posts, $query) {
 		if (empty($posts)) {
 			return $posts;
-		}
-
-		if (defined('DOING_AJAX') && DOING_AJAX) {
+		} elseif (defined('DOING_AJAX') && DOING_AJAX) {
 			/**
 			 * Some plugins do get_posts() in ajax and need full post content html
 			 * fixes https://github.com/ThemeFuse/Unyson/issues/1798
@@ -365,6 +363,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 * This filter is applied for every post in backend
 			 * but we don't need post content in backend
 			 */
+			return $posts;
+		} elseif (count($posts) > (int)get_option('posts_per_page')) {
+			// prevent useless content generate if it's a query just to display the page titles
 			return $posts;
 		}
 
