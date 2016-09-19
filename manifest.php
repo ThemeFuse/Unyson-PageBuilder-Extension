@@ -23,6 +23,9 @@ $manifest['requirements']  = array(
 	'extensions' => array(
 		'builder' => array(),
 		'forms' => array(),
+		'shortcodes' => array(
+			'min_version' => '1.3.21', // was added the get_builder_data() method
+		),
 	),
 );
 

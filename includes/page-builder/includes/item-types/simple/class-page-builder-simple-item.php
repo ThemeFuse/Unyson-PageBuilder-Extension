@@ -15,7 +15,7 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 			'/includes/page-builder/includes/item-types/simple/static'
 		);
 
-		$version    = fw()->extensions->get('page-builder')->manifest->get_version();
+		$version = fw()->extensions->get('page-builder')->manifest->get_version();
 
 		wp_enqueue_style(
 			$this->get_builder_type() . '_item_type_' . $this->get_type(),
@@ -32,11 +32,21 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 			true
 		);
 
-		wp_localize_script(
-			$this->get_builder_type() . '_item_type_' . $this->get_type(),
-			str_replace('-', '_', $this->get_builder_type()) . '_item_type_' . $this->get_type() . '_data',
-			fw_ext('shortcodes')->get_builder_data()
-		);
+		{
+			wp_localize_script(
+				$this->get_builder_type() . '_item_type_' . $this->get_type(),
+				str_replace('-', '_', $this->get_builder_type()) . '_item_type_' . $this->get_type() . '_data',
+				$builder_data = fw_ext('shortcodes')->get_builder_data()
+			);
+
+			foreach ($builder_data as $tag => $item_data) {
+				if (!empty($item_data['options'])) {
+					fw()->backend->enqueue_options_static($item_data['options']);
+				}
+			}
+
+			unset($builder_data);
+		}
 
 		do_action('fw:ext:page-builder:item-type:simple:enqueue_static');
 	}
@@ -103,12 +113,13 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		// simple items do not contain other items
 		unset($attributes['_items']);
 
+		/**
+		 * @var FW_Extension_Shortcodes $shortcodes_ext
+		 */
+		$shortcodes_ext = fw_ext('shortcodes');
+
 		if (
-			($builder_data = fw_ext('shortcodes')->get_builder_data())
-			&&
-			isset($builder_data[ $attributes['shortcode'] ])
-			&&
-			($shortcode_data = $builder_data[ $attributes['shortcode'] ])
+			($shortcode_data = $shortcodes_ext->get_shortcode_builder_data($attributes['shortcode']))
 			&&
 			isset($shortcode_data['options'])
 		) {
