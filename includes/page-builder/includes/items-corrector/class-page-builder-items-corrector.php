@@ -100,11 +100,10 @@ class _Page_Builder_Items_Corrector
 						}
 						$fixed_section[] = $this->wrap_into_row( $columns );
 					} else {
-						$columns = array( $section[ $i ] );
 						$this->row_container->empty_container();
-						$this->row_container->add_column( $section[ $i ]['width'] );
-						while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' ) {
-							++$i;
+						$columns = array();
+
+						do {
 							if ( $this->row_container->add_column(
 								apply_filters('fw:ext:page-builder:item-corrector:column-width', $section[ $i ]['width'], $section[ $i ])
 							) ) {
@@ -116,7 +115,10 @@ class _Page_Builder_Items_Corrector
 								$this->row_container->empty_container();
 								$this->row_container->add_column( $section[ $i ]['width'] );
 							}
-						}
+
+							++$i;
+						} while ( isset( $section[ $i ] ) && $section[ $i ]['type'] === 'column' );
+
 						$fixed_section[] = $this->wrap_into_row( $columns );
 					}
 					break;
