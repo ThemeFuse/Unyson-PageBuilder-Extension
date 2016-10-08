@@ -115,9 +115,7 @@ class _Page_Builder_Items_Corrector
 								$this->row_container->empty_container();
 								$this->row_container->add_column( $section[ $i ]['width'] );
 							}
-
-							++$i;
-						} while ( isset( $section[ $i ] ) && $section[ $i ]['type'] === 'column' );
+						} while ( isset( $section[ $i + 1 ] ) && $section[ $i + 1 ]['type'] === 'column' && ++$i );
 
 						$fixed_section[] = $this->wrap_into_row( $columns );
 					}
