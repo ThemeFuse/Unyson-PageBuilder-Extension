@@ -364,7 +364,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 * but we don't need post content in backend
 			 */
 			return $posts;
-		} elseif (count($posts) > (int)get_option('posts_per_page')) {
+		} elseif (
+			count($posts) > (int)get_option('posts_per_page') * 2 // fixes https://github.com/ThemeFuse/Unyson/issues/2092
+		) {
 			// prevent useless content generate if it's a query just to display the page titles
 			return $posts;
 		}
