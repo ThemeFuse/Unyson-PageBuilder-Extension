@@ -10,7 +10,7 @@ $manifest['description']   = __(
 	.' that comes with a lot of already created shortcodes.',
 	'fw'
 );
-$manifest['version']       = '1.6.6';
+$manifest['version']       = '1.6.7';
 $manifest['display']       = true;
 $manifest['standalone']    = true;
 $manifest['requirements']  = array(
