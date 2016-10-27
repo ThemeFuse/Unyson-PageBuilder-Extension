@@ -247,15 +247,16 @@
 				}, this));
 			}
 
-			$(document.body).one(
+			$(document.body).on(
 				/**
 				 * Init after PageBuilder was fully initialized
 				 * because both operations consume a lot of CPU
 				 * and I think it's faster if they are executed one by one (not in parallel)
 				 */
-				'fw:option-type:builder:init',
+				'fw:option-type:builder:init.fw_ext_page_builder_integration',
 				function(e, data){
-					if ('page-builder' == data.builder.get('type')) {
+					if ('page-builder' === data.builder.get('type')) {
+						$(document.body).off('.fw_ext_page_builder_integration');
 						this.tinyMceInit();
 					}
 				}.bind(this)
@@ -313,10 +314,10 @@ jQuery(function($){
 
 			$content.val(
 				/**
-				 * Mimic $fake_content from extension class
+				 * Mimic $post_content from extension class
 				 * But it will never be the same because on php side the json is fixed/changed
 				 */
-				'<!-- '+ builderInput.value.length +'|'+ fw.md5(builderInput.value) +' -->'
+				'<!-- '+ fw.md5(builderInput.value) +' -->'
 			);
 		})
 		/**
