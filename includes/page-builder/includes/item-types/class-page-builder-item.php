@@ -74,6 +74,11 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 				);
 			}
 		}
+		
+		/**
+		 * @since 2.6.9
+		 */
+		$thumbs = apply_filters( 'fw_page_builder_thumbs_befor_display', $thumbs );
 
 		return $thumbs;
 	}
