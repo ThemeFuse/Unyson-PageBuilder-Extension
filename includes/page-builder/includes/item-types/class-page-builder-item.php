@@ -76,9 +76,9 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 		}
 		
 		/**
-		 * @since 2.6.9
+		 * @since 1.6.8
 		 */
-		$thumbs = apply_filters( 'fw_page_builder_thumbs_befor_display', $thumbs );
+		$thumbs = apply_filters( 'fw_page_builder_thumbs_before_display', $thumbs );
 
 		return $thumbs;
 	}
