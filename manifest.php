@@ -10,6 +10,10 @@ $manifest['description']   = __(
 	.' that comes with a lot of already created shortcodes.',
 	'fw'
 );
+$manifest['github_repo'] = 'https://github.com/ThemeFuse/Unyson-PageBuilder-Extension';
+$manifest['uri'] = 'http://manual.unyson.io/en/latest/extension/builder/index.html;';
+$manifest['author'] = 'ThemeFuse';
+$manifest['author_uri'] = 'http://themefuse.com/';
 $manifest['version']       = '1.6.7';
 $manifest['display']       = true;
 $manifest['standalone']    = true;
