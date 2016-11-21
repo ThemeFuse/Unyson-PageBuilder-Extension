@@ -219,9 +219,7 @@
 						$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
 
 						/** @since 1.6.8 */
-						fwEvents.trigger('fw:ext:page-builder:editor-integration:init', {
-							id: id
-						});
+						fwEvents.trigger('fw:ext:page-builder:editor-integration:init');
 					});
 				});
 			};
@@ -250,6 +248,19 @@
 				this.events.once('hide', _.bind(function(){
 					this.fixOnFirstShowOrHide(false);
 				}, this));
+			}
+
+			// public events
+			{
+				this.events.on('show', function(){
+					/** @since 1.6.8 */
+					fwEvents.trigger('fw:ext:page-builder:editor-integration:show');
+				});
+
+				this.events.on('hide', function(){
+					/** @since 1.6.8 */
+					fwEvents.trigger('fw:ext:page-builder:editor-integration:hide');
+				});
 			}
 
 			$(document.body).on(
