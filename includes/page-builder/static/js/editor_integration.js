@@ -217,6 +217,11 @@
 						 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
 						 */
 						$('#fw-option-type-page-builder-editor-integration-inline-css').remove();
+
+						/** @since 1.6.8 */
+						fwEvents.trigger('fw:ext:page-builder:editor-integration:init', {
+							id: id
+						});
 					});
 				});
 			};
