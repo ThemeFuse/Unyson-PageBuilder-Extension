@@ -25,7 +25,11 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 				array('type' => $option['type']), null
 			);
 
-			$val['builder_active'] = $value['builder_active']; // don't store this in separate meta
+			if (isset($value['builder_active'])) {
+				$val['builder_active'] = $value['builder_active']; // don't store this in separate meta
+			} else {
+				$value['builder_active'] = false;
+			}
 
 			return $val;
 		} else {
