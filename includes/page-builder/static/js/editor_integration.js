@@ -51,7 +51,7 @@
 
 			this.elements.$wpPostDivRich.hide();
 			this.elements.$hideButton.show();
-			this.elements.$builderBox.show();
+			this.elements.$builderBox.show().removeClass('closed');
 
 			// This blocks the page for 5+ seconds
 			//window.editorExpand && window.editorExpand.off && window.editorExpand.off();
