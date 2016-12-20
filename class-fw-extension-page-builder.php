@@ -367,7 +367,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 */
 			return $posts;
 		} elseif (
-			count($posts) > (int)get_option('posts_per_page') * 2 // fixes https://github.com/ThemeFuse/Unyson/issues/2092
+			($posts_count = count($posts))
+			&&
+			$posts_count > 20 && $posts_count > (int)get_option('posts_per_page')
 		) {
 			// prevent useless content generate if it's a query just to display the page titles
 			return $posts;
@@ -382,8 +384,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		) {
 			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
 		} else {
+			$processed = 0;
+			$process_limit = (int)get_option('posts_per_page');
+
 			foreach ($posts as &$post) {
 				$post->post_content = $this->get_post_content_shortcodes($post);
+
+				if (++$processed > $process_limit) {
+					break;
+				}
 			}
 		}
 
