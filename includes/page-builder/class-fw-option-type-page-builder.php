@@ -134,6 +134,16 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 					'builderTemplates' => $builder_templates,
 				)
 			);
+
+			if (defined('WPSEO_VERSION')) {
+				wp_enqueue_script(
+					'fw-page-builder-seo-yoast',
+					$static_uri . '/js/seo-yoast-integration.js',
+					array('fw', 'yoast-seo-post-scraper'),
+					$version,
+					true
+				);
+			}
 		}
 
 		return parent::_render($id, $option, $data);

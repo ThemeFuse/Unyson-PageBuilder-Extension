@@ -175,7 +175,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		 * Also for SEO admin inspector and WP Search to work
 		 * Note: Treat " because it create problems with slashes (" -> \") and duplicate revisions
 		 */
-		if (apply_filters('fw:ext:page-builder:generate-post-content-html', true, $post_id)) {
+		if (apply_filters('fw:ext:page-builder:generate-post-content-html', false, $post_id)) {
 			$post_content = $option_type->json_to_shortcodes( $builder_data['json'] );
 			$post_content = str_replace('\\', '\\\\', $post_content); // WordPress "fixes" the slashes
 			$post_content = do_shortcode($post_content);
