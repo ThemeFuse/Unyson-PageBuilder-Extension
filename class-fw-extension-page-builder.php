@@ -366,13 +366,6 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			 * but we don't need post content in backend
 			 */
 			return $posts;
-		} elseif (
-			($posts_count = count($posts))
-			&&
-			$posts_count > 20 && $posts_count > (int)get_option('posts_per_page')
-		) {
-			// prevent useless content generate if it's a query just to display the page titles
-			return $posts;
 		}
 
 		if (
@@ -384,15 +377,8 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		) {
 			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
 		} else {
-			$processed = 0;
-			$process_limit = (int)get_option('posts_per_page');
-
 			foreach ($posts as &$post) {
 				$post->post_content = $this->get_post_content_shortcodes($post);
-
-				if (++$processed > $process_limit) {
-					break;
-				}
 			}
 		}
 
