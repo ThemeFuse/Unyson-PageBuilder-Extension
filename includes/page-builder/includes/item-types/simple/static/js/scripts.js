@@ -29,7 +29,13 @@
 				this.templateData = options.templateData || {};
 
 				if (options.modalOptions) {
-					var eventData = {modalSettings: {buttons: []}};
+					var itmData = itemData(this.model.get('shortcode')),
+						eventData = {
+							modalSettings: {
+								buttons: [],
+								disableResetButton: itmData.disable_modal_reset_btn
+							}
+						};
 
 					/**
 					 * eventData.modalSettings can be changed by reference
@@ -41,9 +47,7 @@
 						options: options.modalOptions,
 						values: this.model.get('atts'),
 						size: options.modalSize,
-						headerElements: itemData(
-							this.model.get('shortcode')
-						).popup_header_elements
+						headerElements: itmData.popup_header_elements
 					}, eventData.modalSettings);
 
 					this.listenTo(this.modal, 'change:values', function(modal, values) {
