@@ -3,6 +3,7 @@
 		elements: {
 			$showButton: $('<a href="#" class="button button-primary">' + data.l10n.showButton + '</a>'),
 			$hideButton: $('<a href="#" class="button button-primary page-builder-hide-button">' + data.l10n.hideButton + '</a>'),
+			$option: $('#' + data.optionId),
 			$builderBox: $('#' + data.optionId).closest('.postbox'),
 			$builderActiveHidden: $('<input name="page-builder-active" type="hidden">'),
 			$wpPostBodyContent: $('#post-body-content'),
@@ -87,7 +88,7 @@
 			// insert the hide button
 			this.elements.$wpPostDivRich.before(this.elements.$hideButton);
 
-			if (data.renderInBuilderMode) {
+			if (this.elements.$option.attr('data-builder-active')) {
 				this.showBuilder();
 			} else {
 				this.hideBuilder();
@@ -116,7 +117,7 @@
 			$('label[for="fw-options-box-page-builder-box-hide"]').remove();
 		},
 		fixOnFirstShowOrHide: function(isShow) {
-			var initialStateIsShow = data.renderInBuilderMode;
+			var initialStateIsShow = !!this.elements.$option.attr('data-builder-active');
 
 			if (initialStateIsShow == isShow) {
 				/**

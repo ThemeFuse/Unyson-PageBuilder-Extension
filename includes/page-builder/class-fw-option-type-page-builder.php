@@ -17,11 +17,13 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	protected function _get_defaults()
 	{
 		return array(
-			'editor_integration' => false,
-			'fixed_header'       => true,
-			'value'              => array(
-				'json' => '[]'
-			)
+			'editor_integration'  => false,
+			'fixed_header'        => true,
+			'compress_form_value' => true,
+			'value'               => array(
+				'json' => '[]',
+				'builder_active' => false
+			),
 		);
 	}
 
@@ -29,8 +31,9 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	 * @internal
 	 * {@inheritdoc}
 	 */
-	protected function _render($id, $option, $data)
-	{
+	protected function _enqueue_static( $id, $option, $data ) {
+		parent::_enqueue_static($id, $option, $data);
+
 		$static_uri = fw()->extensions->get('page-builder')->get_uri('/includes/page-builder/static');
 		$version = fw()->extensions->get('page-builder')->manifest->get_version();
 
@@ -120,7 +123,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				'fw-option-type-' . $this->get_type() . '-editor-integration',
 				'fw_option_type_' . str_replace('-', '_', $this->get_type()) . '_editor_integration_data',
 				array(
-					'l10n'                => array(
+					'l10n' => array(
 						'showButton' => __('Visual Page Builder', 'fw'),
 						'hideButton' => __('Default Editor', 'fw'),
 						'eye' => __('Hide / Show', 'fw'),
@@ -128,12 +131,21 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 					),
 					'visibility_key' => $this->shortcode_visibility_property,
 					'optionId'            => $option['attr']['id'],
-					'renderInBuilderMode' => isset($data['value']['builder_active'])
-						? $data['value']['builder_active']
-						: apply_filters( 'fw_page_builder_set_as_default', false ),
 					'builderTemplates' => $builder_templates,
 				)
 			);
+		}
+	}
+
+	public function _render($id, $option, $data)
+	{
+		if ($option['editor_integration'] === true) {
+			if (isset($data['value']['builder_active'])
+				? $data['value']['builder_active']
+				: apply_filters('fw_page_builder_set_as_default', false)
+			) {
+				$option['attr']['data-builder-active'] = '~';
+			}
 		}
 
 		return parent::_render($id, $option, $data);
@@ -169,20 +181,17 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 	 */
 	protected function _get_value_from_input($option, $input_value)
 	{
-		if (empty($input_value)) {
-			$input_value = $option['value']['json'];
-		}
+		$value = parent::_get_value_from_input($option, $input_value);
 
-		if (!($items = json_decode($input_value, true))) {
-			$items = array();
-		}
-
-		$value = array(
-			'json' => json_encode($this->get_value_from_items($items)),
-		);
-
-		if ($option['editor_integration'] === true) {
-			$value['builder_active'] = isset($_POST['page-builder-active']) && $_POST['page-builder-active'] === 'true';
+		if (!is_null($input_value) && $_POST) {
+			$value['builder_active'] = (
+				$option['editor_integration'] === true &&
+				$_POST &&
+				isset($_POST['page-builder-active']) &&
+				$_POST['page-builder-active'] === 'true'
+			);
+		} else {
+			$value['builder_active'] = $option['value']['builder_active'];
 		}
 
 		return $value;
