@@ -216,8 +216,24 @@ class _Page_Builder_Items_Corrector
 									)
 								)
 							);
+
 							while ( isset( $items[ $i + 1 ] ) && $items[ $i + 1 ]['type'] === 'simple' ) {
-								$i ++;
+								if (
+									($shortcode_instance = $shortcodes_extension->get_shortcode($items[$i + 1]['shortcode']))
+									&&
+									$shortcode_instance->get_config('page_builder/disable_correction')
+								) {
+									$fixed_items[]          = $this->wrap_into_section( $auto_generated_section, array(
+										'atts' => array(
+											'auto_generated' => true
+										)
+									) );
+									$auto_generated_section = array();
+
+									break;
+								}
+
+								++$i;
 								$auto_generated_section[] = $this->wrap_into_row(
 									array(
 										$this->wrap_into_column(
