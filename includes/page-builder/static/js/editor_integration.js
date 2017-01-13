@@ -4,7 +4,8 @@
 			$showButton: $('<a href="#" class="button button-primary">' + data.l10n.showButton + '</a>'),
 			$hideButton: $('<a href="#" class="button button-primary page-builder-hide-button">' + data.l10n.hideButton + '</a>'),
 			$option: $('#' + data.optionId),
-			$builderBox: $('#' + data.optionId).closest('.postbox'),
+			$builderBox: null, // initialized later
+			$builderInput: null, // initialized later
 			$builderActiveHidden: $('<input name="page-builder-active" type="hidden">'),
 			$wpPostBodyContent: $('#post-body-content'),
 			$wpPostDivRich: $('#postdivrich'),
@@ -16,6 +17,9 @@
 			return this.elements.$builderActiveHidden.val() === 'true';
 		},
 		editorId: 'content',
+		getBuilderInputValue: function() {
+			return this.elements.$builderInput.val();
+		},
 		getWPEditorContent: function() {
 			/*
 			 * WordPress works with tinyMCE for its WYSIWYG editor
@@ -144,7 +148,7 @@
 				 */
 				var wpEditorContent = this.getWPEditorContent();
 				if (wpEditorContent) {
-					optionTypePageBuilder.initWithTextBlock(wpEditorContent);
+					window.optionTypePageBuilder.initWithTextBlock(wpEditorContent);
 				}
 			}
 
@@ -193,8 +197,56 @@
 			onChange();
 		},
 		/**
+		 * Update post content on builder change to generate a new revision on post save
+		 * and to update SEO Yoast stats https://github.com/Yoast/wordpress-seo/issues/6312
+		 * @since 1.6.12
+		 */
+		initPostContentUpdate: function () {
+			var postContentBeforeBuilderActivate,
+				eventsNamespace = '.fwEditorIntegrationPostContentUpdate',
+				getEditor = function() {
+					return tinyMCE.get(gui.editorId);
+				},
+				builderToEditorContent = function() {
+					var editor = getEditor(),
+						changeVisibility = editor.hidden;
+
+					if (changeVisibility) {
+						// editor.fire('change') works only when editor is visible
+						editor.show();
+					}
+
+					editor.setContent(
+						fw.md5(gui.getBuilderInputValue()) // fixme
+					);
+					editor.fire('change');
+
+					if (changeVisibility) {
+						editor.hide();
+					}
+				};
+
+			this.events.on('show', _.bind(function(){
+				// store post content and replace it with builder content
+				postContentBeforeBuilderActivate = getEditor().getContent();
+				builderToEditorContent();
+
+				this.elements.$option.on('fw-builder:input:change'+ eventsNamespace, function () {
+					builderToEditorContent();
+				});
+			}, this));
+
+			this.events.on('hide', _.bind(function(){
+				// restore post content
+				getEditor().setContent(postContentBeforeBuilderActivate);
+				postContentBeforeBuilderActivate = '';
+
+				this.elements.$option.off(eventsNamespace);
+			}, this));
+		},
+		/**
 		 * Init editor manually to prevent https://github.com/ThemeFuse/Unyson/issues/859
-		 * From php is set via filter $mceInit['wp_skip_init'] = true;
+		 * From php is set via filter `$mceInit['wp_skip_init'] = true;`
 		 * https://github.com/WordPress/WordPress/blob/4.4.2/wp-includes/class-wp-editor.php#L1246-L1255
 		 */
 		tinyMceInit: function(){
@@ -209,6 +261,7 @@
 					_.defer(function () {
 						that.insertHidden();
 						that.bindEvents();
+						that.initPostContentUpdate();
 						that.removeScreenOptionsCheckbox();
 						that.initTemplatesSelectSync();
 						that.initButtons();
@@ -240,6 +293,11 @@
 			}
 		},
 		init: function() {
+			{
+				this.elements.$builderBox = this.elements.$option.closest('.postbox');
+				this.elements.$builderInput = this.elements.$option.find('input[type="hidden"]:first');
+			}
+
 			// fixes on firs show or hide
 			{
 				this.events.once('show', _.bind(function(){
@@ -251,15 +309,16 @@
 				}, this));
 			}
 
-			// public events
+			/**
+			 * public events
+			 * @since 1.6.8
+			 */
 			{
 				this.events.on('show', function(){
-					/** @since 1.6.8 */
 					fwEvents.trigger('fw:ext:page-builder:editor-integration:show');
 				});
 
 				this.events.on('hide', function(){
-					/** @since 1.6.8 */
 					fwEvents.trigger('fw:ext:page-builder:editor-integration:hide');
 				});
 			}
@@ -289,8 +348,8 @@
 	 * the default editor into the visual one for the first time
 	 */
 	fwe.on('fw-builder:' + 'page-builder' + ':register-items', function(builder) {
-		optionTypePageBuilder = builder;
-		optionTypePageBuilder.initWithTextBlock = function(content) {
+		window.optionTypePageBuilder = builder;
+		window.optionTypePageBuilder.initWithTextBlock = function(content) {
 			this.rootItems.reset([
 				{
 					type: 'simple',
