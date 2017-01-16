@@ -199,9 +199,16 @@
 		/**
 		 * Update post content on builder change to generate a new revision on post save
 		 * and to update SEO Yoast stats https://github.com/Yoast/wordpress-seo/issues/6312
-		 * @since 1.6.12
+		 * @since 1.6.X
 		 */
 		initPostContentUpdate: function () {
+			/**
+			 * fixme: On PageBuilder change the json must be rendered in frontend (where is_admin() is false)
+			 *        and the returned html must be sanitized/filtered and placed in post content editor.
+			 *        I don't know how to implement this.
+			 */
+			return;
+
 			var postContentBeforeBuilderActivate,
 				eventsNamespace = '.fwEditorIntegrationPostContentUpdate',
 				getEditor = function() {
