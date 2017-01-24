@@ -35,14 +35,3 @@ function _action_fw_ext_page_builder_register_option_storage_types(_FW_Option_St
 	$register->register(new FW_Option_Storage_Type_Post_Meta_Page_Builder());
 }
 add_action('fw:option-storage-types:register', '_action_fw_ext_page_builder_register_option_storage_types');
-
-/**
- * @param array $types
- * @return array
- * @since 1.6.13
- */
-function _filter_fw_ext_page_builder_skip_option_type_default_value_process(array $types) {
-	$types['page-builder'] = true;
-	return $types;
-}
-add_filter('fw:options-default-values:skip-types', '_filter_fw_ext_page_builder_skip_option_type_default_value_process');
