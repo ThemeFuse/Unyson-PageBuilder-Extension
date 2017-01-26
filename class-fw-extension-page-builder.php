@@ -332,14 +332,28 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				$builder_data
 			);
 
-			/**
-			 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
-			 * because it's much bigger than the json value.
-			 * So we generate the shortcode notation before post display in frontend
-			 */
-			return str_replace('\\', '\\\\', // WordPress "fixes" the slashes
-				$option_type->json_to_shortcodes( $builder_data['json'] )
-			);
+			if (is_admin()) {
+				/**
+				 * We can't store in a post meta the shortcode notation [shortcode attr="&quot;hello..."]
+				 * because it's much bigger than the json value.
+				 * So we generate the shortcode notation before post display in frontend
+				 */
+				return str_replace( '\\', '\\\\', // WordPress "fixes" the slashes
+					$option_type->json_to_shortcodes( $builder_data['json'] )
+				);
+			} else {
+				try { // fixes https://github.com/ThemeFuse/Unyson/issues/2356
+					return FW_Cache::get($cache_key = 'fw:ext:page-builder:json-to-shortcodes/'. $post->ID);
+				} catch (FW_Cache_Not_Found_Exception $e) {
+					$content = str_replace( '\\', '\\\\',
+						$option_type->json_to_shortcodes( $builder_data['json'] )
+					);
+
+					FW_Cache::set( $cache_key, $content );
+
+					return $content;
+				}
+			}
 		}
 
 		return $post->post_content;
