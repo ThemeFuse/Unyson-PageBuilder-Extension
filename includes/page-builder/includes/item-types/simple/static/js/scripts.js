@@ -99,7 +99,7 @@
 					'</div>' +
 				'</div>'
 			),
-			render: function() { window.test = this;
+			render: function() {
 				{
 					var title = this.initOptions.templateData.title,
 						titleTemplate = itemData( this.model.get('shortcode') ).title_template;
