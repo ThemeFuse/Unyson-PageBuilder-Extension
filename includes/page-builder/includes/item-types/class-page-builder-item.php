@@ -26,12 +26,12 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 			$data_str = '';
 			if (!empty($item['data']) && is_array($item['data'])) {
 				foreach ($item['data'] as $key => $value) {
-					$data_str .= "data-$key='$value' ";
+					$data_str .= 'data-'. esc_attr($key) .'="'. esc_attr($value) .'" ';
 				}
 				$data_str = substr($data_str, 0, -1);
 			}
 
-			$hover_tooltip = $item['description'] ? "data-hover-tip='{$item['description']}'" : '';
+			$hover_tooltip = $item['description'] ? 'data-hover-tip="'. esc_attr($item['description']) .'"' : '';
 			$inner_classes = 'no-image';
 			$image_html    = '';
 
@@ -51,7 +51,10 @@ abstract class Page_Builder_Item extends FW_Option_Type_Builder_Item
 			}
 
 			if (isset($item['data']['shortcode'])) {
-				$inner_classes .= ' fw-page-builder-thumb-shortcode--'. esc_html($item['data']['shortcode']);
+				$inner_classes .= ' fw-page-builder-thumb-shortcode--'. esc_attr($item['data']['shortcode']);
+			}
+			if (isset($item['data']['width'])) { // allows to style a specific column width
+				$inner_classes .= ' fw-page-builder-thumb-width--'. esc_attr($item['data']['width']);
 			}
 
 			if ( ! isset( $thumbs[ $item['title'] ] ) ) {
