@@ -30,53 +30,6 @@
 				this.initOptions.templateData = this.initOptions.templateData || {};
 				this.initOptions.modalOptions = this.initOptions.modalOptions || {};
 			},
-			lazyInitModal: function() {
-				this.lazyInitModal = function(){}; // must be called only once
-
-				if (_.isEmpty(this.initOptions.modalOptions)) {
-					return;
-				}
-
-				var itmData = itemData(this.model.get('shortcode')),
-					eventData = {
-						modalSettings: {
-							buttons: [],
-							disableResetButton: itmData.disable_modal_reset_btn
-						}
-					};
-
-				/**
-				 * eventData.modalSettings can be changed by reference
-				 */
-				triggerEvent(this.model, 'options-modal:settings', eventData);
-
-				this.modal = new fw.OptionsModal({
-					title: this.initOptions.templateData.title,
-					options: this.initOptions.modalOptions,
-					values: this.model.get('atts'),
-					size: this.initOptions.modalSize,
-					headerElements: itmData.popup_header_elements
-				}, eventData.modalSettings);
-
-				this.listenTo(this.modal, 'change:values', function(modal, values) {
-					this.model.set('atts', values);
-				});
-
-				this.listenTo(this.modal, {
-					'open': function(){
-						triggerEvent(this.model, 'options-modal:open');
-					},
-					'render': function(){
-						triggerEvent(this.model, 'options-modal:render');
-					},
-					'close': function(){
-						triggerEvent(this.model, 'options-modal:close');
-					},
-					'change:values': function(){
-						triggerEvent(this.model, 'options-modal:change:values');
-					}
-				});
-			},
 			template: _.template(
 				'<div class="pb-item-type-simple <% if (hasOptions) { %>has-options <% } %>pb-item fw-row">' +
 					'<% if (icon) { %>' +
@@ -177,6 +130,53 @@
 				'click .edit-options': 'editOptions',
 				'click .item-clone': 'cloneItem',
 				'click .item-delete': 'removeItem'
+			},
+			lazyInitModal: function() {
+				this.lazyInitModal = function(){}; // must be called only once
+
+				if (_.isEmpty(this.initOptions.modalOptions)) {
+					return;
+				}
+
+				var itmData = itemData(this.model.get('shortcode')),
+					eventData = {
+						modalSettings: {
+							buttons: [],
+							disableResetButton: itmData.disable_modal_reset_btn
+						}
+					};
+
+				/**
+				 * eventData.modalSettings can be changed by reference
+				 */
+				triggerEvent(this.model, 'options-modal:settings', eventData);
+
+				this.modal = new fw.OptionsModal({
+					title: this.initOptions.templateData.title,
+					options: this.initOptions.modalOptions,
+					values: this.model.get('atts'),
+					size: this.initOptions.modalSize,
+					headerElements: itmData.popup_header_elements
+				}, eventData.modalSettings);
+
+				this.listenTo(this.modal, 'change:values', function(modal, values) {
+					this.model.set('atts', values);
+				});
+
+				this.listenTo(this.modal, {
+					'open': function(){
+						triggerEvent(this.model, 'options-modal:open');
+					},
+					'render': function(){
+						triggerEvent(this.model, 'options-modal:render');
+					},
+					'close': function(){
+						triggerEvent(this.model, 'options-modal:close');
+					},
+					'change:values': function(){
+						triggerEvent(this.model, 'options-modal:change:values');
+					}
+				});
 			},
 			editOptions: function(e) {
 				e.stopPropagation();
