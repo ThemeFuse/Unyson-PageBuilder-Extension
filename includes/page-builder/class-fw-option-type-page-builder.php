@@ -135,6 +135,26 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				)
 			);
 		}
+
+		if ( apply_filters(
+			'fw:ext:page-builder:modal-save-all',
+			version_compare(fw()->manifest->get_version(), '2.6.14', '>=')
+		) ) {
+			wp_enqueue_script(
+				$script_handle = 'fw-page-builder-modal-save-all',
+				$static_uri .'/js/modal-save-all.js',
+				array('fw'),
+				fw()->manifest->get_version(),
+				true
+			);
+			wp_localize_script(
+				$script_handle,
+				'_fw_page_builder_modal_save_all',
+				array(
+					'save_all' => __('Save All', 'the-core'),
+				)
+			);
+		}
 	}
 
 	public function _render($id, $option, $data)
