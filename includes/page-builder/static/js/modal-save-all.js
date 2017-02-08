@@ -53,10 +53,11 @@
 			return modal.frame.views.get(modal.frame.toolbar.selector)[0].$el.find('.media-toolbar-primary:first');
 		},
 		addButton: function (modal) {
-			this.$getToolbar(modal).append(
+			var $toolbar = this.$getToolbar(modal);
+			$toolbar.append(
 				$('<button type="button" class="button media-button button-large"></button>')
 					.addClass(this.btnClass)
-					.text(l10n.save_all)
+					.text($toolbar.find('.button-primary:first').text() + l10n.btn_text_suffix)
 					.on('click', _.bind(function (e) {
 						e.preventDefault();
 						fwEvents.off(null, null, this);
