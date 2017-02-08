@@ -151,7 +151,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				$script_handle,
 				'_fw_page_builder_modal_save_all',
 				array(
-					'btn_text_suffix' => __(' All', 'the-core'),
+					'btn_text_suffix' => __(' All', 'fw'),
 				)
 			);
 		}
