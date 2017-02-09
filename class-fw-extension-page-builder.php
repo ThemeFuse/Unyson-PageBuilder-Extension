@@ -183,6 +183,9 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			$post_content = trim($post_content);
 			$post_content = implode("\n", array_filter(explode("\n", $post_content), 'trim')); // remove extra \n
 			$post_content = normalize_whitespace($post_content);
+
+			// In case some shortcode option has been changed but it doesn't have impact on html
+			$post_content .= "\n\n". '<!-- '. md5($builder_data['json']) .' -->';
 		} else {
 			$post_content = '<!-- '. md5($builder_data['json']) .' -->';
 		}
