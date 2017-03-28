@@ -292,6 +292,9 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		 * will be displayed on the frontend.
 		 */
 		if (
+			/**
+			 * @since 1.6.14
+			 */
 			apply_filters(
 				'fw:ext:page-builder:json-structure-needs-correction',
 				$this->needs_correction(),
@@ -301,6 +304,9 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
 			$corrected_items_value = $corrector->correct($items_value);
 
+			/**
+			 * @since 1.6.14
+			 */
 			$corrected_items_value = apply_filters(
 				'fw:ext:page-builder:json-structure-correction',
 				$corrected_items_value,
