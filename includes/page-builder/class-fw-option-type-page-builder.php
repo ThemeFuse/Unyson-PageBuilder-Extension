@@ -291,9 +291,21 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		 * This is done to ensure that a correct grid
 		 * will be displayed on the frontend.
 		 */
-		if ($this->needs_correction()) {
+		if (
+			apply_filters(
+				'fw:ext:page-builder:json-structure-needs-correction',
+				$this->needs_correction(),
+				$this->get_item_types()
+			)
+		) {
 			$corrector             = new _Page_Builder_Items_Corrector($this->get_item_types());
 			$corrected_items_value = $corrector->correct($items_value);
+
+			$corrected_items_value = apply_filters(
+				'fw:ext:page-builder:json-structure-correction',
+				$corrected_items_value,
+				$this->get_item_types()
+			);
 
 			return $this->get_shortcode_notation($corrected_items_value);
 		} else {
