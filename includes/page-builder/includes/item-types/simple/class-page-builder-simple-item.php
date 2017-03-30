@@ -164,5 +164,3 @@ class Page_Builder_Simple_Item extends Page_Builder_Item
 		return $return;
 	}
 }
-
-FW_Option_Type_Builder::register_item_type('Page_Builder_Simple_Item');

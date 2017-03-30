@@ -34,3 +34,9 @@ function _action_fw_ext_page_builder_register_option_storage_types(_FW_Option_St
 	$register->register(new FW_Option_Storage_Type_Post_Meta_Page_Builder());
 }
 add_action('fw:option-storage-types:register', '_action_fw_ext_page_builder_register_option_storage_types');
+
+function _action_fw_ext_page_builder_register_simple_item_type() {
+	FW_Option_Type_Builder::register_item_type('Page_Builder_Simple_Item');
+}
+
+add_action( 'fw_option_type_builder:page-builder:register_items', '_action_fw_ext_page_builder_register_simple_item_type' );
