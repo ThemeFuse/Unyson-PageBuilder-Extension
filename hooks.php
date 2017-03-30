@@ -31,7 +31,6 @@ add_action( 'init', '_action_fw_ext_page_builder_add_support',
 );
 
 function _action_fw_ext_page_builder_register_option_storage_types(_FW_Option_Storage_Type_Register $register) {
-	require_once dirname(__FILE__) .'/includes/page-builder/includes/option-storage/class-fw-option-storage-type-post-meta-page-builder.php';
 	$register->register(new FW_Option_Storage_Type_Post_Meta_Page_Builder());
 }
 add_action('fw:option-storage-types:register', '_action_fw_ext_page_builder_register_option_storage_types');

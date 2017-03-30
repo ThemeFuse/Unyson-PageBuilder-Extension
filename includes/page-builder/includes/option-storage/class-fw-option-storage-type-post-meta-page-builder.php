@@ -10,6 +10,10 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 		return 'post-meta-page-builder';
 	}
 
+	public function get_storage_key( $id ) {
+		return $this->get_meta_prefix( $id ) . 'json';
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -17,7 +21,7 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 		if ($post_id = $this->get_post_id($option, $params)) {
 			fw_update_post_meta(
 				$post_id,
-				$this->get_meta_prefix($id, $option, $params) .'json',
+				$this->get_storage_key( $id ),
 				$value['json']
 			);
 
@@ -45,7 +49,7 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 			$meta_value = array(
 				'json' => get_post_meta(
 					$post_id,
-					$this->get_meta_prefix($id, $option, $params) .'json',
+					$this->get_storage_key( $id ),
 					true
 				),
 			);
@@ -79,7 +83,7 @@ class FW_Option_Storage_Type_Post_Meta_Page_Builder extends FW_Option_Storage_Ty
 		}
 	}
 
-	private function get_meta_prefix($id, $option, $params) {
-		return 'fw:opt:ext:pb:'. $id .':';
+	private function get_meta_prefix( $id ) {
+		return 'fw:opt:ext:pb:' . $id . ':';
 	}
 }

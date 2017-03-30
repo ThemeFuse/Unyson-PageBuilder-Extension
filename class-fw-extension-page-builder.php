@@ -41,16 +41,17 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @internal
 	 */
 	protected function _init() {
-		add_action( 'import_post_meta', array( $this, '_action_import_post_meta' ), 10, 3 );
 		add_action( 'fw_option_types_init', array( $this, '_action_option_types_init' ) );
-		spl_autoload_register(array($this, '_spl_autoload'));
 
 		$this->add_filters();
 		$this->add_actions();
 	}
 
+	/**
+	 * @internal
+	 */
 	public function _action_option_types_init() {
-		require_once dirname(__FILE__) . '/includes/page-builder/class-fw-option-type-page-builder.php';
+		FW_Option_Type::register( 'FW_Option_Type_Page_Builder' );
 	}
 
 	private function add_filters() {
@@ -114,7 +115,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 					'type'     => 'box',
 					'priority' => 'high',
 					'options'  => array(
-						$this->builder_option_key => array(
+						$this->get_option_key() => array(
 							'label'              => false,
 							'desc'               => false,
 							'type'               => 'page-builder',
@@ -144,7 +145,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		if (
 			empty($option_id) // all options were updated
 			||
-			$option_id === $this->builder_option_key // our option was updated
+			$option_id === $this->get_option_key() // our option was updated
 		) {
 			//
 		} else {
@@ -159,7 +160,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return;
 		}
 
-		$builder_data = fw_get_db_post_option( $post_id, $this->builder_option_key );
+		$builder_data = fw_get_db_post_option( $post_id, $this->get_option_key() );
 
 		if ( ! $builder_data['builder_active'] ) {
 			return;
@@ -268,34 +269,10 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 
 		if ( post_type_supports( $post->post_type, $this->supports_feature_name ) ) {
-			return (bool) fw_get_db_post_option( $post->ID, $this->builder_option_key . '/builder_active' );
+			return (bool) fw_get_db_post_option( $post->ID, $this->get_option_key() . '/builder_active' );
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * Solve the problem with striped backslashes by WordPress when doing add_post_meta
-	 *
-	 * @internal
-	 *
-	 * @param int $post_id
-	 * @param string $key
-	 * @param mixed $value
-	 **/
-	public function _action_import_post_meta( $post_id, $key, $value ) {
-		if (
-			$key != (method_exists(fw()->backend, 'get_options_name_attr_prefix') // this was added in Unyson 2.6.3
-				? fw()->backend->get_options_name_attr_prefix()
-				: 'fw_options'
-			)
-			||
-			! isset( $value[ $this->builder_option_key ] )
-		) {
-			return;
-		}
-
-		fw_set_db_post_option( $post_id, $this->builder_option_key, $value[ $this->builder_option_key ] );
 	}
 
 	public function get_shortcode_atts_coder() {
@@ -326,7 +303,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 				$this->supports_feature_name
 			)
 			&&
-			($builder_data = fw_get_db_post_option($post->ID, $this->builder_option_key))
+			($builder_data = fw_get_db_post_option($post->ID, $this->get_option_key()))
 			&&
 			$builder_data['builder_active']
 		) {
@@ -451,40 +428,21 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			post_type_supports( $post->post_type, $this->supports_feature_name )
 			&&
-			($builder_data = fw_get_db_post_option( $post->ID, $this->builder_option_key ))
+			($builder_data = fw_get_db_post_option( $post->ID, $this->get_option_key() ))
 			&&
 			$builder_data['builder_active']
 		) {
 			return (
-				fw_get_db_post_option( $last_revision->ID, $this->builder_option_key )
+				fw_get_db_post_option( $last_revision->ID, $this->get_option_key() )
 				!==
-				fw_get_db_post_option( $post->ID, $this->builder_option_key )
+				fw_get_db_post_option( $post->ID, $this->get_option_key() )
 			);
 		} else {
 			return $post_has_changed;
 		}
 	}
 
-	/**
-	 * Backward compatibility when builder item-types were registered right away
-	 * @param string $class
-	 */
-	public function _spl_autoload($class) {
-		if ('Page_Builder_Item' === $class) {
-			require_once dirname(__FILE__) .'/includes/page-builder/includes/item-types/class-page-builder-item.php';
-
-			if (
-				is_admin()
-				&&
-				// https://github.com/ThemeFuse/Unyson-Extensions-Approval/issues/258
-				version_compare(fw()->manifest->get_version(), '2.6.2', '>')
-			) {
-				FW_Flash_Messages::add(
-					'page-builder-item-type-register-wrong',
-					__("Please register builder types on 'fw_option_type_builder:{builder-type}:register_items' action", 'fw'),
-					'warning'
-				);
-			}
-		}
+	public function get_option_key() {
+		return 'page-builder';
 	}
 }
