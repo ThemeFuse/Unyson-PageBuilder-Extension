@@ -55,5 +55,3 @@ class _Page_Builder_Items_Corrector_Row_Container
 	}
 }
 
-require dirname(__FILE__) . '/class-page-builder-items-corrector-fraction.php';
-

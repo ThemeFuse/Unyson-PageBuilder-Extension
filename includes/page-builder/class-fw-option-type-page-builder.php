@@ -343,12 +343,3 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		return $items;
 	}
 }
-
-$path = dirname(__FILE__);
-
-require_once $path . '/includes/item-types/class-page-builder-item.php';
-require_once $path . '/includes/item-types/simple/class-page-builder-simple-item.php';
-require_once $path . '/includes/items-corrector/class-page-builder-items-corrector.php';
-require_once $path . '/includes/class-page-builder-notation-generator.php';
-
-FW_Option_Type::register('FW_Option_Type_Page_Builder');

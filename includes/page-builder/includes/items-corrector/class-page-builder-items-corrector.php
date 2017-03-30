@@ -280,5 +280,3 @@ class _Page_Builder_Items_Corrector
 		$this->items = $fixed_items;
 	}
 }
-
-require dirname(__FILE__) . '/class-page-builder-items-corrector-row-container.php';
