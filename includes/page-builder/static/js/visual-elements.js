@@ -106,24 +106,14 @@
 		setTimeout(_.partial(calculateSize), 250);
 	});
 
-	// Add controls for simple shortcodes.
-	fwEvents.on('fw:page-builder:shortcode:item-simple:controls', function (data) {
+	fwEvents.on([
+		'fw:page-builder:shortcode:item-simple:controls',
+		'fw:page-builder:shortcode:section:controls',
+		'fw:page-builder:shortcode:column:controls',
+		'fw:page-builder:shortcode:innercolumn:controls',
+		'fw:page-builder:shortcode:contact-form:controls'
+	].join(' '), function (data) {
 		addIcon(data);
-	});
-
-	// Add controls for sections.
-	fwEvents.on('fw:page-builder:shortcode:section:controls', function (data) {
-		addIcon(data);
-	});
-
-	// Add controls for columns.
-	fwEvents.on('fw:page-builder:shortcode:column:controls', function (data) {
-		addIcon(data);
-	});
-
-	// Add controls for contact form.
-	fwEvents.on('fw:page-builder:shortcode:contact-form:controls', function (data) {
-		addIcon(data);
-	});
+	})
 
 })(jQuery, fw_option_type_page_builder_editor_integration_data);
