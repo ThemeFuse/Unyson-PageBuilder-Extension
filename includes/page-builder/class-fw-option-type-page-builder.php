@@ -316,7 +316,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			/**
 			 * @since 1.6.14
 			 */
-			$corrected_items_value = apply_filter(
+			$corrected_items_value = apply_filters(
 				'fw:ext:page-builder:json-structure-correction:complete',
 				$corrected_items_value,
 				$this->get_item_types()
