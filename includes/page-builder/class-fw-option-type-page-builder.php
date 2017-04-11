@@ -313,6 +313,15 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				$this->get_item_types()
 			);
 
+			/**
+			 * @since 1.6.14
+			 */
+			$corrected_items_value = apply_filter(
+				'fw:ext:page-builder:json-structure-correction:complete',
+				$corrected_items_value,
+				$this->get_item_types()
+			);
+
 			return $this->get_shortcode_notation($corrected_items_value);
 		} else {
 			return $this->get_shortcode_notation($items_value);
