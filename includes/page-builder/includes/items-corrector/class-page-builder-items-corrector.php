@@ -246,15 +246,10 @@ class _Page_Builder_Items_Corrector
 						break;
 
 					default:
-						$auto_generated_section[] = $this->wrap_into_row(
-							array(
-								$this->wrap_into_column(
-									array($items[$i])
-								)
-							)
-						);
-						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'simple') {
-							$i++;
+						/** @since 1.6.14 */
+						if (apply_filters('fw-ext:page-builder:disable-builder-item-correction:'. $items[$i]['type'], false)) {
+							$fixed_items[] = $items[$i];
+						} else {
 							$auto_generated_section[] = $this->wrap_into_row(
 								array(
 									$this->wrap_into_column(
@@ -262,9 +257,17 @@ class _Page_Builder_Items_Corrector
 									)
 								)
 							);
+							while (isset($items[$i + 1]) && $items[$i + 1]['type'] === 'simple') {
+								$i++;
+								$auto_generated_section[] = $this->wrap_into_row(
+									array(
+										$this->wrap_into_column(
+											array($items[$i])
+										)
+									)
+								);
+							}
 						}
-						// TODO: determine some good way to handle custom item types
-						// $auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
 				}
 			}
 		}
