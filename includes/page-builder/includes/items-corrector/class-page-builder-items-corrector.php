@@ -246,9 +246,29 @@ class _Page_Builder_Items_Corrector
 						break;
 
 					default:
-						/** @since 1.6.14 */
-						if (apply_filters('fw-ext:page-builder:disable-builder-item-correction:'. $items[$i]['type'], false)) {
+						if (
+							/** @since 1.6.14 */
+							apply_filters(
+								'fw-ext:page-builder:disable-builder-item-correction:'. $items[$i]['type'],
+								false
+							)
+						) {
 							$fixed_items[] = $items[$i];
+						} elseif (
+							/** @since 1.6.14 */
+							$manually_corrected_item = apply_filters(
+								'fw-ext:page-builder:manual-builder-item-correction:'. $items[$i]['type'],
+								false,
+								$items[$i],
+								array(
+									'correct_section' => array($this, 'correct_section'),
+									'wrap_into_section' => array($this, 'wrap_into_section'),
+									'wrap_into_row' => array($this, 'wrap_into_row'),
+									'wrap_into_column' => array($this, 'wrap_into_column'),
+								)
+							)
+						) {
+							$fixed_items[] = $manually_corrected_item;
 						} else {
 							$auto_generated_section[] = $this->wrap_into_row(
 								array(
