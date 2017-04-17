@@ -78,7 +78,7 @@ class _Page_Builder_Items_Corrector
 		}
 	}
 
-	private function correct_section($section)
+	public function correct_section($section)
 	{
 		/**
 		 * @var FW_Extension_Shortcodes $shortcodes_extension
