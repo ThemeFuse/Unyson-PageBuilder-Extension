@@ -78,7 +78,7 @@ class _Page_Builder_Items_Corrector
 		}
 	}
 
-	private function correct_section($section)
+	public function correct_section($section)
 	{
 		/**
 		 * @var FW_Extension_Shortcodes $shortcodes_extension
@@ -246,15 +246,30 @@ class _Page_Builder_Items_Corrector
 						break;
 
 					default:
-						$auto_generated_section[] = $this->wrap_into_row(
-							array(
-								$this->wrap_into_column(
-									array($items[$i])
+						if (
+							/** @since 1.6.14 */
+							apply_filters(
+								'fw-ext:page-builder:disable-builder-item-correction:'. $items[$i]['type'],
+								false
+							)
+						) {
+							$fixed_items[] = $items[$i];
+						} elseif (
+							/** @since 1.6.14 */
+							$manually_corrected_item = apply_filters(
+								'fw-ext:page-builder:manual-builder-item-correction:'. $items[$i]['type'],
+								false,
+								$items[$i],
+								array(
+									'correct_section' => array($this, 'correct_section'),
+									'wrap_into_section' => array($this, 'wrap_into_section'),
+									'wrap_into_row' => array($this, 'wrap_into_row'),
+									'wrap_into_column' => array($this, 'wrap_into_column'),
 								)
 							)
-						);
-						while (isset($items[$i+1]) && $items[$i+1]['type'] === 'simple') {
-							$i++;
+						) {
+							$fixed_items[] = $manually_corrected_item;
+						} else {
 							$auto_generated_section[] = $this->wrap_into_row(
 								array(
 									$this->wrap_into_column(
@@ -262,9 +277,17 @@ class _Page_Builder_Items_Corrector
 									)
 								)
 							);
+							while (isset($items[$i + 1]) && $items[$i + 1]['type'] === 'simple') {
+								$i++;
+								$auto_generated_section[] = $this->wrap_into_row(
+									array(
+										$this->wrap_into_column(
+											array($items[$i])
+										)
+									)
+								);
+							}
 						}
-						// TODO: determine some good way to handle custom item types
-						// $auto_generated_section[] = apply_filters('fw_ext_page-builder_custom_item_root_correction', $items[$i], $this);
 				}
 			}
 		}
