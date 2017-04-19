@@ -17,7 +17,7 @@ class _FW_Ext_Page_Builder_Shortcode_Atts_Coder
 
 			$value_to_encode = $value;
 			if (is_array($value)) {
-				$value_to_encode = json_encode($value);
++				$value_to_encode = json_encode($value,JSON_UNESCAPED_SLASHES);
 				$array_keys[$transformed_key] = $transformed_key;
 			}
 
