@@ -4,20 +4,34 @@
 		modalChain: [],
 		resetChain: function (modal) {
 			_.each(this.modalChain, this.removeButton, this);
+
 			this.modalChain = [modal];
 
-			fwEvents.off(null, null, this);
+			this.detachEvents();
+
 			fwEvents.on(
 				'fw:options-modal:open',
-				function(data){ inst.pushChain(data.modal); },
-				this
+				this.modalOpenListener
 			);
+
 			fwEvents.on(
 				'fw:options-modal:close',
-				function(data){ inst.popChain(); },
-				this
+				this.modalCloseListener
 			);
 		},
+
+		detachEvents: function () {
+			fwEvents.off(
+				'fw:options-modal:open',
+				this.modalOpenListener
+			);
+
+			fwEvents.off(
+				'fw:options-modal:close',
+				this.modalCloseListener
+			);
+		},
+
 		pushChain: function (modal) {
 			if (!this.modalChain.length) {
 				return;
@@ -32,8 +46,8 @@
 
 			if (!modal) {
 				return console.warn('Logic error');
-			} else if (!this.modalChain.length) {
-				fwEvents.off(null, null, this);
+			} else if (! this.modalChain.length) {
+				this.detachEvents();
 			}
 
 			this.removeButton(modal);
@@ -53,14 +67,17 @@
 			return modal.frame.views.get(modal.frame.toolbar.selector)[0].$el.find('.media-toolbar-primary:first');
 		},
 		addButton: function (modal) {
+			this.removeButton(modal);
+
 			var $toolbar = this.$getToolbar(modal);
+
 			$toolbar.append(
 				$('<button type="button" class="button media-button button-large"></button>')
 					.addClass(this.btnClass)
 					.text($toolbar.find('.button-primary:first').text() + l10n.btn_text_suffix)
 					.on('click', _.bind(function (e) {
 						e.preventDefault();
-						fwEvents.off(null, null, this);
+						this.detachEvents();
 						this.saveChain();
 					}, this))
 			);
@@ -69,6 +86,14 @@
 			this.$getToolbar(modal).find('.'+ this.btnClass).remove();
 		}
 	};
+
+	inst.modalOpenListener = _.bind(function (data) {
+		inst.pushChain(data.modal);
+	}, inst);
+
+	inst.modalCloseListener = _.bind(function (data) {
+		inst.popChain();
+	}, inst);
 
 	fwEvents.on(
 		['simple', 'column', 'section']
