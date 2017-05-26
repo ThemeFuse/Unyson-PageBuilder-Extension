@@ -366,6 +366,18 @@
       ])
     }
   })
+
+  /**
+   * Add the 'fw-page-builder-editor-integration-active' body class when the PageBuilder is active
+   */
+  var className = 'fw-page-builder-editor-integration-active'
+  fwEvents.on('fw:ext:page-builder:editor-integration:show', function show () {
+    $('body').addClass(className)
+  })
+
+  fwEvents.on('fw:ext:page-builder:editor-integration:hide', function hide () {
+    $('body').removeClass(className)
+  })
 })(jQuery, fwEvents, fw_option_type_page_builder_editor_integration_data)
 
 /**
