@@ -112,8 +112,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	public function _rest_api_the_content_filter_the_posts() {
 		// '_filter_the_posts' expects $posts to be an array, not just a WP_Post object
 		$posts[] = get_post();
-		$query = new WP_Query();
-		$content = $this->_filter_the_posts( $posts, $query );
+		
+		// The second parameter to '_filter_the_posts' is only needed as wp-includes/class-wp-query.php
+		// calls `$this->posts = apply_filters_ref_array( 'the_posts', array( $this->posts, &$this ) );`
+		// As '_filter_the_posts' doesn't use the second parameter, an null value can
+		// be passed (as opposed to setting a default value for the function parameter)
+		$content = $this->_filter_the_posts( $posts, null );
+		
 		// A multidimensional array is returned by '_filter_the_posts', so get
 		// the post content from the first array item only
 		return $content[0]->post_content;
