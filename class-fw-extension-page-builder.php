@@ -93,23 +93,30 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	public function _rest_api_init() {
 		// Fixes: https://github.com/ThemeFuse/Unyson/issues/2754
-		add_filter( 'the_content', array( $this, '_rest_api_the_content_filter_the_posts' ), 2, 2 );
+		add_filter( 'the_content', array( $this, '_rest_api_the_content_filter_the_posts' ), 2 );
 	}
 	
 	/**
 	 * Processes the page builder shortcodes when called from the REST API
 	 *
+	 * When 'the_content' filter is called by wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php
+	 * only the page content as stored in the database is returned in the API
+	 * request for filtered pages (e.g. <server>/wp-json/wp/v2/pages/<page_id>).
+	 * This function makes sure that the post content is passed through the
+	 * various functions to process the page builder shortcodes when called
+	 * from the REST API for any type of page
+	 *
 	 * @internal
+	 * @return string The post content after any page builder shortcodes are processed
 	 */
 	public function _rest_api_the_content_filter_the_posts() {
 		// '_filter_the_posts' expects $posts to be an array, not just a WP_Post object
 		$posts[] = get_post();
-		$query = new WP_Query(
-			array(
-				'page_id' => get_post()->ID,
-			)
-		);
-		$this->_filter_the_posts( $posts, $query );
+		$query = new WP_Query();
+		$content = $this->_filter_the_posts( $posts, $query );
+		// A multidimensional array is returned by '_filter_the_posts', so get
+		// the post content from the first array item only
+		return $content[0]->post_content;
 	}
 
 	/*
