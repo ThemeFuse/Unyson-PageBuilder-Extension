@@ -77,6 +77,39 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
 		add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
 		add_action( 'fw_admin_enqueue_scripts:post', array( $this, '_action_enqueue_shortcodes_admin_scripts' ) );
+		/** @since 1.6.15 */
+		add_action( 'rest_api_init', array( $this, '_rest_api_init' ) );
+	}
+	
+	/**
+	 * Sets up filters when being called from WordPress REST API
+	 *
+	 * Neither 'the_posts' nor 'get_pages' filter hooks are called when
+	 * a single page is called from the REST API, only 'the_content'.
+	 * This function adds a hook to 'the_content' filter only when
+	 * the REST API is being used to generate the response.
+	 *
+	 * @internal
+	 */
+	public function _rest_api_init() {
+		// Fixes: https://github.com/ThemeFuse/Unyson/issues/2754
+		add_filter( 'the_content', array( $this, '_rest_api_the_content_filter_the_posts' ), 2, 2 );
+	}
+	
+	/**
+	 * Processes the page builder shortcodes when called from the REST API
+	 *
+	 * @internal
+	 */
+	public function _rest_api_the_content_filter_the_posts() {
+		// '_filter_the_posts' expects $posts to be an array, not just a WP_Post object
+		$posts[] = get_post();
+		$query = new WP_Query(
+			array(
+				'page_id' => get_post()->ID,
+			)
+		);
+		$this->_filter_the_posts( $posts, $query );
 	}
 
 	/*
