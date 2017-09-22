@@ -95,8 +95,13 @@
       if (this.elements.$option.attr('data-builder-active')) {
         this.showBuilder()
       } else {
-        this.hideBuilder()
+        this.hideBuilder();
       }
+
+	  this.refreshTabs();
+    },
+    refreshTabs: function() {
+	    $( '#content-' + ( $( '#wp-content-wrap' ).hasClass( 'html-active' ) ? 'html' : 'tmce' ) ).trigger( 'click' );
     },
     insertHidden: function () {
       /**
