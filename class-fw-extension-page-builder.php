@@ -446,13 +446,13 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		}
 	}
 
-	private function is_admin_builder_enabled($post_type) {
+	private function is_admin_builder_enabled( $post_type ) {
 		return (
 			post_type_supports( $post_type, 'editor' )
 			&&
 			post_type_supports( $post_type, $this->supports_feature_name )
 			&&
-			(!is_user_logged_in() || get_user_meta(get_current_user_id(), 'rich_editing', true) === 'true')
+			( ! is_user_logged_in() || ( is_admin() && get_user_meta( get_current_user_id(), 'rich_editing', true ) === 'true' ) || ! is_admin() )
 		);
 	}
 
