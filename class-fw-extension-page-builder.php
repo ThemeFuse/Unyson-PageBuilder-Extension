@@ -66,11 +66,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		 * @deprecated Since Shortcodes 1.3.0
 		 */
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
-		add_filter(
-			'wp_save_post_revision_post_has_changed',
-			array( $this, '_filter_wp_save_post_revision_post_has_changed' ),
-			12, 3
-		);
+		add_filter( 'wp_save_post_revision_post_has_changed', array( $this, '_filter_wp_save_post_revision_post_has_changed' ), 12, 3 );
 	}
 
 	private function add_actions() {
@@ -113,7 +109,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		return fw_ext_page_builder_get_post_content(get_post());
 	}
 
-	/*
+	/**
 	 * when a builder modal window draws or saves
 	 * options the shortcodes must be loaded
 	 * because they may load their own custom option types
@@ -380,15 +376,15 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 * @return WP_Post[]
 	 * @since 1.5.0
 	 */
-	public function _filter_the_posts($posts, $query) {
-		if (empty($posts)) {
+	public function _filter_the_posts( $posts, $query ) {
+		if ( empty( $posts ) ) {
 			return $posts;
-		} elseif (defined('DOING_AJAX') && DOING_AJAX) {
+		} elseif ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			/**
 			 * Some plugins do get_posts() in ajax and need full post content html
 			 * fixes https://github.com/ThemeFuse/Unyson/issues/1798
 			 */
-		} elseif (is_admin()) {
+		} elseif ( is_admin() ) {
 			/**
 			 * This filter is applied for every post in backend
 			 * but we don't need post content in backend
@@ -396,17 +392,16 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			return $posts;
 		}
 
-		if (
-			!isset($posts[1]) // faster than: count($posts) == 1
-			&&
-			is_preview()
-			&&
-			is_object($preview = wp_get_post_autosave( $posts[0]->ID ))
-		) {
-			$posts[0]->post_content = $this->get_post_content_shortcodes($preview);
+		if ( ! isset( $posts[1] ) && is_preview() ) {
+
+			$preview = ( $rewisions = wp_get_post_revisions( $posts[0]->ID ) ) && $rewisions ? reset( $rewisions ) : $posts[0];
+
+			$posts[0]->post_content = $this->get_post_content_shortcodes( $preview );
+
 		} else {
-			foreach ($posts as &$post) {
-				$post->post_content = $this->get_post_content_shortcodes($post);
+
+			foreach ( $posts as &$post ) {
+				$post->post_content = $this->get_post_content_shortcodes( $post );
 			}
 		}
 
@@ -466,11 +461,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 			&&
 			$builder_data['builder_active']
 		) {
-			return (
-				fw_get_db_post_option( $last_revision->ID, $this->get_option_key() )
-				!==
-				fw_get_db_post_option( $post->ID, $this->get_option_key() )
-			);
+			return ( fw_get_db_post_option( $last_revision->ID, $this->get_option_key() ) !== fw_get_db_post_option( $post->ID, $this->get_option_key() ) );
 		} else {
 			return $post_has_changed;
 		}
