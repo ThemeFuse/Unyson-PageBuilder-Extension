@@ -85,8 +85,6 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 
 			{
 				if (!$this->editor_integration_enabled) { // first time and only one time
-					add_filter('tiny_mce_before_init', array($this, '_filter_disable_editor'), 10, 2);
-
 					/**
 					 * Hide the Publish button until the builder is not fully initialized in js
 					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
@@ -326,21 +324,6 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 		} else {
 			return $this->get_shortcode_notation($items_value);
 		}
-	}
-
-	/**
-	 * Disable default editor init, it will be initialized manually from js
-	 * @param array $mceInit
-	 * @param string $editor_id
-	 * @return array
-	 * @internal
-	 */
-	public function _filter_disable_editor($mceInit, $editor_id){
-		if ('content' === $editor_id) {
-			$mceInit['wp_skip_init'] = true;
-		}
-
-		return $mceInit;
 	}
 
 	/**

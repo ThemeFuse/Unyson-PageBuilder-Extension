@@ -1,9 +1,13 @@
 #post-body-content.page-builder-visible {
-	margin-bottom: 0;
+    margin-bottom: 0;
 }
-#postdivrich {
-	display: none;
+.fw-disable-editor {
+    pointer-events: none;
+    z-index: 0;
+    position: absolute;
+    opacity: 0;
+    left: -10000px;
 }
 .page-builder-hide-button {
-	margin: 20px 0 5px !important;
+    margin: 20px 0 5px !important;
 }
