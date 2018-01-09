@@ -52,73 +52,12 @@
 }
 
 /* Controls */
-.fw-option-type-page-builder .controls i.fw-responsive-button {
-	display: none;
-	opacity: 0;
+.fw-responsive-button {
+	display: none !important;
 }
 
-.fw-option-type-page-builder .fw-responsive-controls .controls i {
-	display: none;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .controls i.fw-responsive-button {
-	display: block;
-	opacity: 1;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .panel {
-	position: relative;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .panel-right {
-	position: absolute;
-	left: 0;
-	width: auto;
-	min-width: 100%;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .controls {
-	padding-right: 7px;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls.fw-display-controls > .pb-item  > .controls,
-.fw-option-type-page-builder .fw-responsive-controls.fw-display-controls > .pb-item  > .panel .controls {
-	width: 100%;
-	text-align: right;
-	box-sizing: border-box;
-	display: -ms-flexbox !important;
-	display: -webkit-flex !important;
+.fw-responsive-controls .fw-responsive-button {
 	display: flex !important;
-	-webkit-justify-content: flex-end;
-	-ms-flex-pack: end;
-	justify-content: flex-end;
 }
 
-.fw-option-type-page-builder .fw-responsive-controls.fw-display-controls > .pb-item  > .controls i,
-.fw-option-type-page-builder .fw-responsive-controls.fw-display-controls > .pb-item  > .panel .controls i {
-	display: block;
-}
 
-.fw-option-type-page-builder .fw-responsive-controls .pb-item-type-simple .controls {
-	background-color: #fff !important;
-	top: 16px;
-	right: 0;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .pb-item-type-column > .panel .controls {
-	background-color: #F8F8F8;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .pb-item-type-column.custom-section > .panel .controls {
-	background-color: #F8FDFF;
-}
-
-.fw-option-type-page-builder .fw-responsive-controls .pb-item-type-column.custom-section > .panel .controls:after {
-	position: absolute;
-	content: '';
-	width: 100%;
-	height: 17px;
-	background: #F8FDFF;
-	left: 0;
-	bottom: -16px;
-}
