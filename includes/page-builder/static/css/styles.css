@@ -66,12 +66,12 @@
 }
 
 .fw-responsive-controls .controls > i:not(.fw-responsive-button) {
-	display: none;
+	display: none !important;
 }
 
 .fw-responsive-controls.fw-display-controls > .pb-item-type-simple > .controls > i:not(.fw-responsive-button),
 .fw-responsive-controls.fw-display-controls > .pb-item-type-column > .panel > .panel-right > .controls > i:not(.fw-responsive-button) {
-	display: inline-flex;
+	display: inline-flex !important;
 }
 
 .fw-responsive-controls.fw-display-controls > .pb-item-type-simple > .controls > i.fw-responsive-button,
