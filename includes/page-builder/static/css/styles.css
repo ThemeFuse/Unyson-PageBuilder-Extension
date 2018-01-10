@@ -57,7 +57,56 @@
 }
 
 .fw-responsive-controls .fw-responsive-button {
-	display: flex !important;
+	display: inline-flex !important;
 }
 
+.fw-responsive-controls .controls {
+	padding: 0 5px;
+	box-sizing: border-box;
+}
 
+.fw-responsive-controls .controls > i:not(.fw-responsive-button) {
+	display: none;
+}
+
+.fw-responsive-controls.fw-display-controls > .pb-item-type-simple > .controls > i:not(.fw-responsive-button),
+.fw-responsive-controls.fw-display-controls > .pb-item-type-column > .panel > .panel-right > .controls > i:not(.fw-responsive-button) {
+	display: inline-flex;
+}
+
+.fw-responsive-controls.fw-display-controls > .pb-item-type-simple > .controls > i.fw-responsive-button,
+.fw-responsive-controls.fw-display-controls > .pb-item-type-column > .panel > .panel-right > .controls > i.fw-responsive-button {
+	display: none !important;
+}
+
+/* Simple item type */
+.fw-responsive-controls .pb-item-type-simple .controls {
+	width: 100%;
+	top: 15px !important;
+	left: 0;
+	text-align: right;
+}
+
+.fw-responsive-controls.fw-display-controls > .pb-item-type-simple > .controls {
+	background: rgba(255, 255, 255, 0.9);
+}
+
+/* Column item type */
+.fw-responsive-controls .pb-item-type-column .panel {
+	position: relative;
+}
+
+.fw-responsive-controls .pb-item-type-column .panel .panel-right {
+	position: absolute;
+	width: 100%;
+	left: 0;
+}
+
+.fw-responsive-controls .pb-item-type-column .panel .panel-right .controls {
+	position: relative;
+	text-align: right;
+}
+
+.fw-responsive-controls.fw-display-controls > .pb-item-type-column > .panel > .panel-right > .controls {
+	background: rgba(248, 248, 248, 0.9);
+}
