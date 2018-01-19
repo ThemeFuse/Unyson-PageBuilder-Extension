@@ -315,6 +315,30 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	}
 
 	/**
+	 * @param WP_Post | object $post
+	 * @return boolean
+	 * @since 1.6.15
+	 */
+	public function builder_is_active_for($post, $builder_data = null) {
+		if (! $builder_data) {
+			$builder_data = fw_get_db_post_option(
+				$post->ID, $this->get_option_key()
+			);
+		}
+
+		return post_type_supports(
+			get_post_type(
+				($post_revision_id = wp_is_post_revision($post)) ? $post_revision_id : $post
+			),
+			$this->supports_feature_name
+		)
+		&&
+		($builder_data = fw_get_db_post_option($post->ID, $this->get_option_key()))
+		&&
+		$builder_data['builder_active'];
+	}
+
+	/**
 	 * @param WP_Post|object $post
 	 * @return string
 	 * @since 1.5.0
