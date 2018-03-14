@@ -84,7 +84,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 			);
 
 			{
-				if (!$this->editor_integration_enabled) { // first time and only one time
+				if ( ! $this->editor_integration_enabled && post_type_supports( get_post_type(), 'editor' ) ) { // first time and only one time
 					/**
 					 * Hide the Publish button until the builder is not fully initialized in js
 					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1542#issuecomment-218094104
