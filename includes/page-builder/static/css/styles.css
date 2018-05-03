@@ -98,8 +98,7 @@
 
 .fw-responsive-controls .pb-item-type-column .panel .panel-right {
 	position: absolute;
-	width: 100%;
-	left: 0;
+	right: 0;
 }
 
 .fw-responsive-controls .pb-item-type-column .panel .panel-right .controls {
