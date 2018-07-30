@@ -40,7 +40,7 @@
 						'<% } %>' +
 					'<% } %>' +
 
-					'<%= title %>' +
+					'<span><%= title %></span>' +
 					'<div class="controls">' +
 
 						'<% if (hasOptions) { %>' +
