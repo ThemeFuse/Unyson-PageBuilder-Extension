@@ -263,6 +263,12 @@ class FW_Extension_Page_Builder extends FW_Extension {
 	 */
 	public function _theme_filter_prevent_autop( $content ) {
 		if ( $this->is_builder_post() ) {
+			if (!apply_filters(
+				'fw_ext_page_builder_output_content_wrapper', true
+			)) {
+				return $content;
+			}
+
 			$wrapper_class = apply_filters( 'fw_ext_page_builder_content_wrapper_class', 'fw-page-builder-content' );
 
 			/**
