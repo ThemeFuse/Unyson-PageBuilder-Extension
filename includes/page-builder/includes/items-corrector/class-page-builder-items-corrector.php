@@ -205,7 +205,11 @@ class _Page_Builder_Items_Corrector
 						if (
 							($shortcode_instance = $shortcodes_extension->get_shortcode($items[$i]['shortcode']))
 							&&
-							$shortcode_instance->get_config('page_builder/disable_correction')
+							(
+								$shortcode_instance->get_config('page_builder/disable_correction')
+								||
+								$shortcode_instance->get_config('page_builder/disable_root_correction')
+							)
 						) {
 							$fixed_items[] = $items[$i];
 						} else {
