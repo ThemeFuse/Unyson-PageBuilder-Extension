@@ -67,6 +67,7 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		 */
 		add_filter( 'fw_shortcode_atts', array( $this, '_theme_filter_fw_shortcode_atts' ) );
 		add_filter( 'wp_save_post_revision_post_has_changed', array( $this, '_filter_wp_save_post_revision_post_has_changed' ), 12, 3 );
+		add_filter( 'display_post_states', array( $this, '_filter_display_post_states' ), 10, 2 );
 	}
 
 	private function add_actions() {
@@ -487,6 +488,21 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		} else {
 			return $post_has_changed;
 		}
+	}
+
+	/**
+	 * @param array $post_states
+	 * @param WP_Post $post
+	 *
+	 * @return mixed
+	 */
+	public function _filter_display_post_states( $post_states, $post ) {
+
+		if ( $this->is_builder_post( $post->ID ) ) {
+			$post_states['unyson'] = 'Unyson';
+		}
+
+		return $post_states;
 	}
 
 	public function get_option_key() {
