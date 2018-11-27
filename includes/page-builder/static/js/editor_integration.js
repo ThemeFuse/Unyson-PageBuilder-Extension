@@ -1,5 +1,10 @@
 (function ( $, fwe, data ) {
+
 	var gui = {
+		gutenbergContainer: $( '#editor.block-editor__container' ),
+		isGutenberg: function() {
+			return this.gutenbergContainer.length > 0;
+		},
 		elements: {
 			$useBuilderBtn: $( '<a href="#" class="button button-primary">' + data.l10n.showButton + '</a>' ),
 			$useWpEditorBtn: $( '<a href="#" class="button button-primary page-builder-hide-button">' + data.l10n.hideButton + '</a>' ),
@@ -44,11 +49,17 @@
 			}
 		},
 		showBuilder: function () {
-
 			this.elements.$useWpEditorBtn.show();
 			this.elements.$wpPostBodyContent.addClass( 'page-builder-visible' );
 			this.elements.$wpPostDivRich.addClass( 'fw-disable-editor' );
 			this.elements.$builderBox.show().removeClass( 'closed' );
+
+			if ( this.isGutenberg() ) {
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
+				this.elements.$useWpEditorBtn.show();
+				this.elements.$useBuilderBtn.hide();
+				this.gutenbergContainer.find( '.editor-block-list__layout' ).hide();
+			}
 
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val( 'true' );
@@ -56,7 +67,6 @@
 			this.events.trigger( 'show' );
 		},
 		hideBuilder: function () {
-
 			this.elements.$wpPostBodyContent.removeClass( 'page-builder-visible' );
 			this.elements.$useWpEditorBtn.hide();
 			this.elements.$builderBox.hide();
@@ -65,12 +75,27 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val( 'false' );
 			//tinyMCE.get( gui.editorId ).execCommand("mceRepaint");
+
+			if ( this.isGutenberg() ) {
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().show();
+				this.elements.$useWpEditorBtn.hide();
+				this.elements.$useBuilderBtn.show();
+				this.gutenbergContainer.find( '.editor-block-list__layout' ).show();
+			}
+
 			this.events.trigger( 'hide' );
 		},
 		initButtons: function () {
-			// insert the show button
-			$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );
-			this.elements.$wpPostDivRich.before( this.elements.$useWpEditorBtn );
+
+			if ( this.isGutenberg() ) {
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useBuilderBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useWpEditorBtn );
+			} else {
+				// insert the show button
+				$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );
+				this.elements.$wpPostDivRich.before( this.elements.$useWpEditorBtn );
+			}
 
 			if ( this.elements.$option.attr( 'data-builder-active' ) ) {
 				this.showBuilder()
@@ -262,6 +287,7 @@
 			 * and I think it's faster if they are executed one by one (not in parallel)
 			 */
 			$( document.body ).on( 'fw:option-type:builder:init.fw_ext_page_builder_integration', function ( e, data ) {
+
 				if ( 'page-builder' === data.builder.get( 'type' ) ) {
 
 					self.insertHidden();
@@ -287,6 +313,38 @@
 	};
 
 	gui.init(); // call this right away, earlier than document ready, else there will be glitches
+
+//	var fwGutenberg = {
+//		editor: $( '#editor.block-editor__container' ),
+//		isGutenberg: function() {
+//			return this.editor.length > 0;
+//		},
+//		init: function () {
+//
+//			if ( ! this.isGutenberg() ) {
+//				return;
+//			}
+//
+//			if ( gui.elements.$option.attr( 'data-builder-active' ) ) {
+//				this.showBuilder()
+//			} else {
+//				this.hideBuilder();
+//			}
+//			// gui.elements.$builderActiveHidden.val();
+//			//$( '#editor' ).find( '.editor-block-list__layout, .editor-post-text-editor' ).after( this.elements.$useBuilderBtn );
+//			this.editor.find( '.edit-post-header-toolbar' ).append( gui.elements.$useBuilderBtn );
+//			this.editor.find( '.edit-post-header-toolbar' ).append( gui.elements.$useWpEditorBtn );
+//
+//		},
+//		showBuilder: function () {
+//			//gui.events.trigger( 'show' );
+//		}
+//	};
+//
+//	setTimeout( function () {
+//		fwGutenberg.init();
+//	}, 1 );
+
 
 	/*
 	 * The global variable optionTypePageBuilder is created intentionally
@@ -317,6 +375,7 @@
 	fwEvents.on( 'fw:ext:page-builder:editor-integration:hide', function hide() {
 		$( 'body' ).removeClass( className );
 	} );
+
 } )( jQuery, fwEvents, fw_option_type_page_builder_editor_integration_data );
 
 /**
