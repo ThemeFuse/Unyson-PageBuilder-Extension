@@ -122,7 +122,7 @@ class FW_Option_Type_Page_Builder extends FW_Option_Type_Builder
 				'fw_option_type_' . str_replace('-', '_', $this->get_type()) . '_editor_integration_data',
 				array(
 					'l10n' => array(
-						'showButton' => __('Visual Page Builder', 'fw'),
+						'showButton' => __('Unyson Builder', 'fw'),
 						'hideButton' => __('Default Editor', 'fw'),
 						'eye' => __('Hide / Show', 'fw'),
 						'responsive' => __( 'Display Controls', 'fw' )

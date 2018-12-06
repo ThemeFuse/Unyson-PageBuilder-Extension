@@ -74,8 +74,11 @@ class FW_Extension_Page_Builder extends FW_Extension {
 		add_action( 'fw_extensions_init', array( $this, '_admin_action_fw_extensions_init' ) );
 		add_action( 'fw_post_options_update', array( $this, '_action_fw_post_options_update' ), 11, 3 );
 		add_action( 'fw_admin_enqueue_scripts:post', array( $this, '_action_enqueue_shortcodes_admin_scripts' ) );
+
 		/** @since 1.6.15 */
-		add_action( 'rest_api_init', array( $this, '_rest_api_init' ) );
+		if ( ! is_admin() ) {
+			add_action( 'rest_api_init', array( $this, '_rest_api_init' ) );
+		}
 	}
 
 	/**

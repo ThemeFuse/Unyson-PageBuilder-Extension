@@ -6,7 +6,7 @@
 			return this.gutenbergContainer.length > 0;
 		},
 		elements: {
-			$useBuilderBtn: $( '<a href="#" class="button button-primary">' + data.l10n.showButton + '</a>' ),
+			$useBuilderBtn: $( '<a href="#" class="button button-primary fw-use-builder">' + data.l10n.showButton + '</a>' ),
 			$useWpEditorBtn: $( '<a href="#" class="button button-primary page-builder-hide-button">' + data.l10n.hideButton + '</a>' ),
 			$option: $( '#' + data.optionId ),
 			$builderBox: null, // initialized later
@@ -55,6 +55,11 @@
 			this.elements.$builderBox.show().removeClass( 'closed' );
 
 			if ( this.isGutenberg() ) {
+
+				if ( ! wp.data.select( 'core/editor' ).getEditedPostAttribute( 'title' ) ) {
+					wp.data.dispatch( 'core/editor' ).editPost( {title: 'Post #' + $( '#post_ID' ).val()} );
+				}
+
 				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
 				this.elements.$useWpEditorBtn.show();
 				this.elements.$useBuilderBtn.hide();
@@ -260,6 +265,10 @@
 			this.elements.$builderInput = this.elements.$option.find( 'input[type="hidden"]:first' );
 			var self = this;
 
+			if ( this.isGutenberg() ) {
+				this.elements.$wpPostBodyContent = this.gutenbergContainer;
+			}
+
 			// fixes on firs show or hide
 			this.events.once( 'show', _.bind( function () {
 				this.fixOnFirstShowOrHide( true );
@@ -314,38 +323,6 @@
 
 	gui.init(); // call this right away, earlier than document ready, else there will be glitches
 
-//	var fwGutenberg = {
-//		editor: $( '#editor.block-editor__container' ),
-//		isGutenberg: function() {
-//			return this.editor.length > 0;
-//		},
-//		init: function () {
-//
-//			if ( ! this.isGutenberg() ) {
-//				return;
-//			}
-//
-//			if ( gui.elements.$option.attr( 'data-builder-active' ) ) {
-//				this.showBuilder()
-//			} else {
-//				this.hideBuilder();
-//			}
-//			// gui.elements.$builderActiveHidden.val();
-//			//$( '#editor' ).find( '.editor-block-list__layout, .editor-post-text-editor' ).after( this.elements.$useBuilderBtn );
-//			this.editor.find( '.edit-post-header-toolbar' ).append( gui.elements.$useBuilderBtn );
-//			this.editor.find( '.edit-post-header-toolbar' ).append( gui.elements.$useWpEditorBtn );
-//
-//		},
-//		showBuilder: function () {
-//			//gui.events.trigger( 'show' );
-//		}
-//	};
-//
-//	setTimeout( function () {
-//		fwGutenberg.init();
-//	}, 1 );
-
-
 	/*
 	 * The global variable optionTypePageBuilder is created intentionally
 	 * to allow creating a text_block shortcode when switching from
@@ -395,7 +372,7 @@ jQuery( function ( $ ) {
 	 * Use mouseup instead of click to be executed before
 	 * https://github.com/WordPress/WordPress/blob/4.5/wp-admin/js/post.js#L295
 	 */
-	$( '#post-preview' ).on( 'mouseup' + eventsNamespace + ' touchend' + eventsNamespace, function () {
+	$( '#post-preview, .editor-post-preview' ).on( 'mouseup' + eventsNamespace + ' touchend' + eventsNamespace, function () {
 		if ( ! isBuilderActive() ) {
 			return;
 		}

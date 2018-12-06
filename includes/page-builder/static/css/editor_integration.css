@@ -2,6 +2,10 @@
     margin-bottom: 0;
 }
 
+.block-editor .fw-use-builder {
+    margin: 0 15px;
+}
+
 .fw-disable-editor {
     pointer-events: none;
     z-index: 0;
