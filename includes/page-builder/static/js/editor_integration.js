@@ -1,7 +1,12 @@
 (function ( $, fwe, data ) {
+
 	var gui = {
+		gutenbergContainer: $( '#editor.block-editor__container' ),
+		isGutenberg: function() {
+			return this.gutenbergContainer.length > 0;
+		},
 		elements: {
-			$useBuilderBtn: $( '<a href="#" class="button button-primary">' + data.l10n.showButton + '</a>' ),
+			$useBuilderBtn: $( '<a href="#" class="button button-primary fw-use-builder">' + data.l10n.showButton + '</a>' ),
 			$useWpEditorBtn: $( '<a href="#" class="button button-primary page-builder-hide-button">' + data.l10n.hideButton + '</a>' ),
 			$option: $( '#' + data.optionId ),
 			$builderBox: null, // initialized later
@@ -44,11 +49,22 @@
 			}
 		},
 		showBuilder: function () {
-
 			this.elements.$useWpEditorBtn.show();
 			this.elements.$wpPostBodyContent.addClass( 'page-builder-visible' );
 			this.elements.$wpPostDivRich.addClass( 'fw-disable-editor' );
 			this.elements.$builderBox.show().removeClass( 'closed' );
+
+			if ( this.isGutenberg() ) {
+
+				if ( ! wp.data.select( 'core/editor' ).getEditedPostAttribute( 'title' ) ) {
+					wp.data.dispatch( 'core/editor' ).editPost( {title: 'Post #' + $( '#post_ID' ).val()} );
+				}
+
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
+				this.elements.$useWpEditorBtn.show();
+				this.elements.$useBuilderBtn.hide();
+				this.gutenbergContainer.find( '.editor-block-list__layout' ).hide();
+			}
 
 			// set the hidden to store that the builder is active
 			this.elements.$builderActiveHidden.val( 'true' );
@@ -56,7 +72,6 @@
 			this.events.trigger( 'show' );
 		},
 		hideBuilder: function () {
-
 			this.elements.$wpPostBodyContent.removeClass( 'page-builder-visible' );
 			this.elements.$useWpEditorBtn.hide();
 			this.elements.$builderBox.hide();
@@ -65,12 +80,27 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val( 'false' );
 			//tinyMCE.get( gui.editorId ).execCommand("mceRepaint");
+
+			if ( this.isGutenberg() ) {
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().show();
+				this.elements.$useWpEditorBtn.hide();
+				this.elements.$useBuilderBtn.show();
+				this.gutenbergContainer.find( '.editor-block-list__layout' ).show();
+			}
+
 			this.events.trigger( 'hide' );
 		},
 		initButtons: function () {
-			// insert the show button
-			$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );
-			this.elements.$wpPostDivRich.before( this.elements.$useWpEditorBtn );
+
+			if ( this.isGutenberg() ) {
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useBuilderBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useWpEditorBtn );
+			} else {
+				// insert the show button
+				$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );
+				this.elements.$wpPostDivRich.before( this.elements.$useWpEditorBtn );
+			}
 
 			if ( this.elements.$option.attr( 'data-builder-active' ) ) {
 				this.showBuilder()
@@ -235,6 +265,10 @@
 			this.elements.$builderInput = this.elements.$option.find( 'input[type="hidden"]:first' );
 			var self = this;
 
+			if ( this.isGutenberg() ) {
+				this.elements.$wpPostBodyContent = this.gutenbergContainer;
+			}
+
 			// fixes on firs show or hide
 			this.events.once( 'show', _.bind( function () {
 				this.fixOnFirstShowOrHide( true );
@@ -262,6 +296,7 @@
 			 * and I think it's faster if they are executed one by one (not in parallel)
 			 */
 			$( document.body ).on( 'fw:option-type:builder:init.fw_ext_page_builder_integration', function ( e, data ) {
+
 				if ( 'page-builder' === data.builder.get( 'type' ) ) {
 
 					self.insertHidden();
@@ -317,6 +352,7 @@
 	fwEvents.on( 'fw:ext:page-builder:editor-integration:hide', function hide() {
 		$( 'body' ).removeClass( className );
 	} );
+
 } )( jQuery, fwEvents, fw_option_type_page_builder_editor_integration_data );
 
 /**
@@ -336,7 +372,7 @@ jQuery( function ( $ ) {
 	 * Use mouseup instead of click to be executed before
 	 * https://github.com/WordPress/WordPress/blob/4.5/wp-admin/js/post.js#L295
 	 */
-	$( '#post-preview' ).on( 'mouseup' + eventsNamespace + ' touchend' + eventsNamespace, function () {
+	$( '#post-preview, .editor-post-preview' ).on( 'mouseup' + eventsNamespace + ' touchend' + eventsNamespace, function () {
 		if ( ! isBuilderActive() ) {
 			return;
 		}
