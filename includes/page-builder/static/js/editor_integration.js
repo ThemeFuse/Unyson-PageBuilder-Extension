@@ -63,7 +63,8 @@
 				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
 				this.elements.$useWpEditorBtn.show();
 				this.elements.$useBuilderBtn.hide();
-				this.gutenbergContainer.find( '.editor-block-list__layout' ).hide();
+				this.gutenbergContainer.find(".block-editor-block-list__layout").hide();
+				this.gutenbergContainer.find(".block-editor-writing-flow__click-redirect").hide();
 			}
 
 			// set the hidden to store that the builder is active
@@ -72,6 +73,19 @@
 			this.events.trigger( 'show' );
 		},
 		hideBuilder: function () {
+
+			if ( this.isGutenberg() ) {
+
+				if ( $( '#editor' ).hasClass( 'page-builder-visible' ) ) {
+					this.gutenbergContainer.find(".block-editor-block-list__layout").show();
+					this.gutenbergContainer.find(".block-editor-writing-flow__click-redirect").show();
+				}
+
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().show();
+				this.elements.$useWpEditorBtn.hide();
+				this.elements.$useBuilderBtn.show();
+			}
+
 			this.elements.$wpPostBodyContent.removeClass( 'page-builder-visible' );
 			this.elements.$useWpEditorBtn.hide();
 			this.elements.$builderBox.hide();
@@ -80,13 +94,6 @@
 			// set the hidden to store that the builder is inactive
 			this.elements.$builderActiveHidden.val( 'false' );
 			//tinyMCE.get( gui.editorId ).execCommand("mceRepaint");
-
-			if ( this.isGutenberg() ) {
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().show();
-				this.elements.$useWpEditorBtn.hide();
-				this.elements.$useBuilderBtn.show();
-				this.gutenbergContainer.find( '.editor-block-list__layout' ).show();
-			}
 
 			this.events.trigger( 'hide' );
 		},
