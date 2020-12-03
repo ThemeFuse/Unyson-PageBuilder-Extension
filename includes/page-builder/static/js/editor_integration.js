@@ -101,8 +101,8 @@
 
 			if ( this.isGutenberg() ) {
 				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useBuilderBtn );
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useWpEditorBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).after( this.elements.$useBuilderBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).after( this.elements.$useWpEditorBtn );
 			} else {
 				// insert the show button
 				$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );
