@@ -60,7 +60,6 @@
 					wp.data.dispatch( 'core/editor' ).editPost( {title: 'Post #' + $( '#post_ID' ).val()} );
 				}
 
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
 				this.elements.$useWpEditorBtn.show();
 				this.elements.$useBuilderBtn.hide();
 				this.gutenbergContainer.find(".block-editor-block-list__layout").hide();
@@ -81,7 +80,6 @@
 					this.gutenbergContainer.find(".block-editor-writing-flow__click-redirect").show();
 				}
 
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().show();
 				this.elements.$useWpEditorBtn.hide();
 				this.elements.$useBuilderBtn.show();
 			}
@@ -100,9 +98,8 @@
 		initButtons: function () {
 
 			if ( this.isGutenberg() ) {
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).children().hide();
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useBuilderBtn );
-				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).append( this.elements.$useWpEditorBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).after( this.elements.$useBuilderBtn );
+				this.gutenbergContainer.find( '.edit-post-header-toolbar' ).after( this.elements.$useWpEditorBtn );
 			} else {
 				// insert the show button
 				$( '#wp-content-media-buttons' ).prepend( this.elements.$useBuilderBtn );

@@ -4,6 +4,7 @@
 
 .block-editor .fw-use-builder {
     margin: 0 15px;
+    height: 100%;
 }
 
 .fw-disable-editor {
@@ -16,5 +17,5 @@
 }
 
 .page-builder-hide-button {
-    margin: 5px 0 5px !important;
+    margin: 5px 0 5px 10px !important;
 }
